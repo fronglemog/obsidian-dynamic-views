@@ -1076,6 +1076,10 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     overflow-x: hidden;
 }
 
+.dynamic-views .cards-feed .writing-card:first-child {
+    margin-top: 0;
+}
+
 /* Card grid: multiple columns in wide/max modes */
 .dc-wide .dynamic-views .cards-feed {
     display: grid;
@@ -1102,7 +1106,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     border: 1px solid var(--background-modifier-border);
     border-radius: 12px;
     padding: 12px 16px;
-    margin: 0;
+    margin: 8px 0;
     background-color: var(--background-primary-alt);
     break-inside: avoid;
     page-break-inside: avoid;
@@ -1337,6 +1341,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 
 .dynamic-views .cards-masonry .writing-card {
     max-width: 100%;
+    margin-top: 0;
 }
 
 

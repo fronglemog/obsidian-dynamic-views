@@ -1158,7 +1158,7 @@ export function View({ plugin, app, dc, USER_QUERY = '', USER_SETTINGS = {} }: V
                 {renderView()}
             </div>
 
-            <div ref={loadMoreRef} style={{ height: '20px', marginTop: '20px' }} />
+            <div ref={loadMoreRef} style={{ height: '1px', width: '100%' }} />
         </div>
     );
 }
