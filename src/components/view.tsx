@@ -756,6 +756,26 @@ export function View({ plugin, app, dc, USER_QUERY = '', USER_SETTINGS = {} }: V
         };
     }, [sorted, viewMode, settings.minMasonryColumns, dc]);
 
+    // Track scroll position for toolbar shadow and fade effect
+    dc.useEffect(() => {
+        const container = containerRef.current;
+        if (!container || settings.queryHeight === 0) {
+            setIsResultsScrolled(false);
+            setIsScrolledToBottom(true);
+            return;
+        }
+
+        const handleScroll = () => {
+            setIsResultsScrolled(container.scrollTop > 10);
+            const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 1;
+            setIsScrolledToBottom(isAtBottom);
+        };
+
+        handleScroll(); // Check initial state
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [settings.queryHeight, displayedCount, sorted.length, viewMode]);
+
     // Auto-reload: Watch for USER_QUERY prop changes (Datacore re-renders on code block edits)
     dc.useEffect(() => {
         const newCleanQuery = (USER_QUERY || '')
@@ -1132,7 +1152,7 @@ export function View({ plugin, app, dc, USER_QUERY = '', USER_SETTINGS = {} }: V
             )}
 
             <div
-                className="results-container"
+                className={`results-container${settings.queryHeight > 0 && !isScrolledToBottom ? ' with-fade' : ''}`}
                 style={settings.queryHeight > 0 ? { maxHeight: `${settings.queryHeight}px`, overflowY: 'auto' } : {}}
             >
                 {renderView()}
