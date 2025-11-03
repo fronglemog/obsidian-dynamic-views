@@ -6,12 +6,12 @@
     "alwaysOmitFirstLine": false,
     "showTextPreview": true,
     "showThumbnails": true,
-    "cardBottomDisplay": "tags",
+    "cardBottomDisplay": "path",
     "listMarker": "number",
-    "showTimestamp": false,
-    "showTimestampIcon": false,
+    "showTimestamp": true,
+    "showTimestampIcon": true,
     "minMasonryColumns": 1,
-    "randomizeAction": "open",
+    "randomizeAction": "shuffle",
     "thumbnailCacheSize": "balanced",
     "queryHeight": 0,
     "openFileAction": "title",
@@ -77,7 +77,7 @@
     },
     "1762122189077": {
       "sortMethod": "mtime-desc",
-      "viewMode": "masonry",
+      "viewMode": "card",
       "searchQuery": "",
       "resultLimit": "",
       "widthMode": "max"
@@ -349,6 +349,13 @@
       "widthMode": "normal"
     },
     "1762204974298": {
+      "sortMethod": "mtime-desc",
+      "viewMode": "card",
+      "searchQuery": "",
+      "resultLimit": "",
+      "widthMode": "max"
+    },
+    "1762205080324": {
       "sortMethod": "mtime-desc",
       "viewMode": "card",
       "searchQuery": "",
