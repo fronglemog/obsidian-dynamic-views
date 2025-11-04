@@ -30,9 +30,13 @@ export class DynamicViewsMasonryView extends BasesView {
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
         this.plugin = plugin;
-        // Generate stable view ID from source file ctime (survives renames/moves) and view type
-        const ctime = controller.source?.stat?.ctime || Date.now();
-        this.viewId = `${ctime}:${MASONRY_VIEW_TYPE}`;
+
+        // Generate stable view ID from query hash + view type
+        // Since Bases doesn't provide source file info, hash the query content
+        const queryStr = JSON.stringify(controller.query);
+        const hash = this.hashString(queryStr);
+        this.viewId = `${hash}:${MASONRY_VIEW_TYPE}`;
+
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
@@ -394,6 +398,16 @@ export class DynamicViewsMasonryView extends BasesView {
             return value.date.getTime();
         }
         return null;
+    }
+
+    private hashString(str: string): number {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
     }
 
     private formatTimestamp(timestamp: number): string {

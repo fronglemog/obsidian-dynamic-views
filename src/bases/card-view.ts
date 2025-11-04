@@ -30,20 +30,11 @@ export class DynamicViewsCardView extends BasesView {
         super(controller);
         this.plugin = plugin;
 
-        // DEBUG: Log controller structure to find stable ID
-        console.log('// DEBUG: Bases controller structure');
-        console.log('//   controller.query:', controller.query);
-        console.log('//   controller.query.source:', controller.query?.source);
-        console.log('//   controller.query.source.path:', controller.query?.source?.path);
-        console.log('//   controller.query.source.stat:', controller.query?.source?.stat);
-        console.log('//   controller.query.source.stat.ctime:', controller.query?.source?.stat?.ctime);
-        console.log('//   containerEl:', containerEl);
-        console.log('//   containerEl.dataset:', containerEl.dataset);
-
-        // Generate stable view ID from source file ctime (survives renames/moves) and view type
-        const ctime = controller.source?.stat?.ctime || Date.now();
-        this.viewId = `${ctime}:${CARD_VIEW_TYPE}`;
-        console.log('//   Generated viewId:', this.viewId);
+        // Generate stable view ID from query hash + view type
+        // Since Bases doesn't provide source file info, hash the query content
+        const queryStr = JSON.stringify(controller.query);
+        const hash = this.hashString(queryStr);
+        this.viewId = `${hash}:${CARD_VIEW_TYPE}`;
 
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
@@ -56,13 +47,6 @@ export class DynamicViewsCardView extends BasesView {
 
     async onDataUpdated(): Promise<void> {
         console.log('// DEBUG: card-view onDataUpdated() CALLED');
-        console.log('//   this.config:', this.config);
-        console.log('//   this.config.query:', (this.config as any).query);
-        console.log('//   this.config.query.source:', (this.config as any).query?.source);
-        console.log('//   this.config.query.source.path:', (this.config as any).query?.source?.path);
-        console.log('//   this.config.query.source.stat:', (this.config as any).query?.source?.stat);
-        console.log('//   this.config.query.source.stat.ctime:', (this.config as any).query?.source?.stat?.ctime);
-
         const { app } = this;
         const entries = this.data.data;
 
@@ -356,6 +340,16 @@ export class DynamicViewsCardView extends BasesView {
                 }
             });
         }
+    }
+
+    private hashString(str: string): number {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
     }
 
     private isDateValue(value: any): boolean {
