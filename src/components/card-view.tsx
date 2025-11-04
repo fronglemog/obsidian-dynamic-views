@@ -61,10 +61,24 @@ export function CardView({
                 if (customProperty) {
                     const propValue = p.value(customProperty);
 
+                    // DEBUG: Log property value details
+                    console.log('// DEBUG timestamp property check (Datacore)');
+                    console.log('//   Note:', titleValue);
+                    console.log('//   Property name:', customProperty);
+                    console.log('//   Raw value:', propValue);
+                    console.log('//   Value type:', typeof propValue);
+                    console.log('//   Value constructor:', propValue?.constructor?.name);
+                    console.log('//   Has isEmpty:', propValue && 'isEmpty' in propValue);
+                    if (propValue && 'isEmpty' in propValue) {
+                        console.log('//   isEmpty():', propValue.isEmpty());
+                    }
+
                     // Check if property exists on note (not null/undefined/empty)
                     const propertyExists = propValue !== null &&
                         propValue !== undefined &&
                         !(typeof propValue === 'object' && 'isEmpty' in propValue && propValue.isEmpty());
+
+                    console.log('//   propertyExists:', propertyExists);
 
                     if (!propertyExists) {
                         // Property not set on this note - fall back to file metadata

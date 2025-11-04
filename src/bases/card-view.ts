@@ -210,6 +210,10 @@ export class DynamicViewsCardView extends BasesView {
         }
 
         // Metadata - apply winner logic
+        console.log('// DEBUG: Applying winner in renderCard for', card.title);
+        console.log('//   Winner:', this.metadataDisplayWinner);
+        console.log('//   Settings - left:', settings.metadataDisplayLeft, 'right:', settings.metadataDisplayRight);
+
         const effectiveLeft = this.metadataDisplayWinner === 'right' &&
             settings.metadataDisplayLeft !== 'none' &&
             settings.metadataDisplayLeft === settings.metadataDisplayRight
@@ -221,6 +225,8 @@ export class DynamicViewsCardView extends BasesView {
             settings.metadataDisplayLeft === settings.metadataDisplayRight
                 ? 'none'
                 : settings.metadataDisplayRight;
+
+        console.log('//   Effective - left:', effectiveLeft, 'right:', effectiveRight);
 
         if (effectiveLeft !== 'none' || effectiveRight !== 'none') {
             const metaEl = cardEl.createDiv('writing-meta');
@@ -261,9 +267,23 @@ export class DynamicViewsCardView extends BasesView {
             if (customProperty) {
                 const value = entry.getValue(customProperty as any);
 
+                // DEBUG: Log property value details
+                console.log('// DEBUG timestamp property check');
+                console.log('//   Note:', card.title);
+                console.log('//   Property name:', customProperty);
+                console.log('//   Raw value:', value);
+                console.log('//   Value type:', typeof value);
+                console.log('//   Value constructor:', value?.constructor?.name);
+                console.log('//   Has isEmpty:', 'isEmpty' in (value || {}));
+                if (value && 'isEmpty' in value) {
+                    console.log('//   isEmpty():', value.isEmpty());
+                }
+
                 // Check if property exists on note (not null/empty)
                 const propertyExists = value &&
                     !(typeof value === 'object' && 'isEmpty' in value && value.isEmpty());
+
+                console.log('//   propertyExists:', propertyExists);
 
                 if (!propertyExists) {
                     // Property not set on this note - fall back to file metadata
