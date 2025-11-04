@@ -4,12 +4,12 @@
     "descriptionProperty": "description",
     "imageProperty": "cover",
     "alwaysOmitFirstLine": false,
-    "showTextPreview": false,
+    "showTextPreview": true,
     "showThumbnails": true,
-    "cardBottomDisplay": "none",
+    "cardBottomDisplay": "tags",
     "listMarker": "number",
-    "showTimestamp": false,
-    "showTimestampIcon": true,
+    "showTimestamp": true,
+    "showTimestampIcon": false,
     "minMasonryColumns": 1,
     "randomizeAction": "shuffle",
     "thumbnailCacheSize": "balanced",
@@ -77,10 +77,10 @@
     },
     "1762122189077": {
       "sortMethod": "mtime-desc",
-      "viewMode": "masonry",
+      "viewMode": "card",
       "searchQuery": "",
-      "resultLimit": "",
-      "widthMode": "wide"
+      "resultLimit": "50",
+      "widthMode": "max"
     },
     "1762122799975": {
       "sortMethod": "mtime-desc",

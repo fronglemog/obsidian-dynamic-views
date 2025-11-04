@@ -32,3 +32,105 @@ export function validateImageUrl(url: string): Promise<boolean> {
         img.src = url;
     });
 }
+
+/**
+ * Load image for a file from property or embeds
+ * @param app - Obsidian App instance
+ * @param filePath - Path of the file to load image for
+ * @param imagePropertyValue - Value from image property (if any)
+ * @param cacheSize - Thumbnail cache size setting
+ * @returns Promise resolving to image URL(s) or null
+ */
+export async function loadImageForFile(
+    app: any,
+    filePath: string,
+    imagePropertyValue: string,
+    cacheSize: 'small' | 'balanced' | 'large'
+): Promise<string | string[] | null> {
+    const validImageExtensions = ['avif', 'bmp', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp'];
+
+    const propertyImagePaths: string[] = [];
+    const propertyExternalUrls: string[] = [];
+
+    // Parse image property value (could be single path or array)
+    if (imagePropertyValue) {
+        const paths = Array.isArray(imagePropertyValue) ? imagePropertyValue : [imagePropertyValue];
+
+        for (const path of paths) {
+            if (typeof path === 'string') {
+                if (isExternalUrl(path)) {
+                    propertyExternalUrls.push(path);
+                } else {
+                    propertyImagePaths.push(path);
+                }
+            }
+        }
+    }
+
+    // Phase A: Convert property image paths to resource paths
+    const propertyResourcePaths: string[] = [];
+
+    // Process internal paths
+    for (const propPath of propertyImagePaths) {
+        const imageFile = app.metadataCache.getFirstLinkpathDest(propPath, filePath);
+        if (imageFile && validImageExtensions.includes(imageFile.extension)) {
+            const resourcePath = app.vault.getResourcePath(imageFile);
+            propertyResourcePaths.push(resourcePath);
+        }
+    }
+
+    // Process external URLs with async validation
+    for (const externalUrl of propertyExternalUrls) {
+        const isValid = await validateImageUrl(externalUrl);
+        if (isValid) {
+            propertyResourcePaths.push(externalUrl);
+        }
+    }
+
+    // Phase B: Extract body embed resource paths (fallback if no property images)
+    const file = app.vault.getAbstractFileByPath(filePath);
+    if (!file) return null;
+
+    const metadata = app.metadataCache.getFileCache(file);
+    if (!metadata) return null;
+
+    const bodyResourcePaths: string[] = [];
+    const bodyExternalUrls: string[] = [];
+
+    // Process embeds - separate external URLs from internal paths
+    if (metadata.embeds) {
+        for (const embed of metadata.embeds) {
+            const embedLink = embed.link;
+            if (isExternalUrl(embedLink)) {
+                // External URL embed
+                if (hasValidImageExtension(embedLink) || !embedLink.includes('.')) {
+                    bodyExternalUrls.push(embedLink);
+                }
+            } else {
+                // Internal path embed
+                const targetFile = app.metadataCache.getFirstLinkpathDest(embedLink, filePath);
+                if (targetFile && validImageExtensions.includes(targetFile.extension)) {
+                    const resourcePath = app.vault.getResourcePath(targetFile);
+                    bodyResourcePaths.push(resourcePath);
+                }
+            }
+        }
+    }
+
+    // Validate external URLs from body
+    for (const externalUrl of bodyExternalUrls) {
+        const isValid = await validateImageUrl(externalUrl);
+        if (isValid) {
+            bodyResourcePaths.push(externalUrl);
+        }
+    }
+
+    // Phase C: Merge with fallback: property images first, then body embeds
+    const allResourcePaths = propertyResourcePaths.length > 0
+        ? propertyResourcePaths
+        : bodyResourcePaths;
+
+    // Return result
+    if (allResourcePaths.length === 0) return null;
+    return allResourcePaths.length > 1 ? allResourcePaths : allResourcePaths[0];
+}

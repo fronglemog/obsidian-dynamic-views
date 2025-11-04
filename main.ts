@@ -4,6 +4,8 @@ import { View } from './src/components/view';
 import { setDatacorePreact } from './src/jsx-runtime';
 import { getAvailablePath } from './src/utils/file';
 import './src/jsx-runtime'; // Ensure h and Fragment are globally available
+import { DynamicViewsCardView, cardViewOptions } from './src/bases/card-view';
+import { DynamicViewsMasonryView, masonryViewOptions } from './src/bases/masonry-view';
 
 export default class DynamicViewsPlugin extends Plugin {
 	persistenceManager: PersistenceManager;
@@ -33,6 +35,25 @@ export default class DynamicViewsPlugin extends Plugin {
 	async onload() {
 		this.persistenceManager = new PersistenceManager(this);
 		await this.persistenceManager.load();
+
+		// Register Bases views
+		this.registerBasesView('dynamic-views-card', {
+			name: 'Cards',
+			icon: 'lucide-layout-grid',
+			factory: (controller: any, containerEl: HTMLElement) => {
+				return new DynamicViewsCardView(controller, containerEl);
+			},
+			options: cardViewOptions,
+		});
+
+		this.registerBasesView('dynamic-views-masonry', {
+			name: 'Masonry',
+			icon: 'lucide-columns',
+			factory: (controller: any, containerEl: HTMLElement) => {
+				return new DynamicViewsMasonryView(controller, containerEl);
+			},
+			options: masonryViewOptions,
+		});
 
 		// Create welcome note on first load (after workspace is ready)
 		const settings = this.persistenceManager.getGlobalSettings();
