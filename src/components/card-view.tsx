@@ -51,13 +51,38 @@ export function CardView({
 
                 // Determine which timestamp to show: ctime for Created sort, mtime for others (including shuffle)
                 const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
-                const timestamp = useCreatedTime ? p.$ctime : p.$mtime;
-                const timestampMillis = timestamp?.toMillis() || 0;
+                const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
 
-                // Check if timestamp is in last 24 hours
-                const now = Date.now();
-                const isRecent = now - timestampMillis < 86400000;
-                const date = timestamp ? (isRecent ? timestamp.toFormat("yyyy-MM-dd HH:mm") : timestamp.toFormat("yyyy-MM-dd")) : "";
+                let timestamp;
+                let timestampMillis;
+                let date = "";
+                let isInvalid = false;
+
+                // Check if a custom property is set
+                if (customProperty) {
+                    const propValue = p.value(customProperty);
+
+                    // Check if it's a valid date/datetime value (Datacore DateTime object)
+                    if (propValue && typeof propValue === 'object' && 'toMillis' in propValue) {
+                        timestamp = propValue;
+                        timestampMillis = propValue.toMillis();
+                        const now = Date.now();
+                        const isRecent = now - timestampMillis < 86400000;
+                        date = isRecent ? propValue.toFormat("yyyy-MM-dd HH:mm") : propValue.toFormat("yyyy-MM-dd");
+                    } else {
+                        // Property exists but is not a date/datetime
+                        isInvalid = true;
+                        date = "Invalid";
+                    }
+                } else {
+                    // No custom property, use file timestamp
+                    timestamp = useCreatedTime ? p.$ctime : p.$mtime;
+                    timestampMillis = timestamp?.toMillis() || 0;
+                    const now = Date.now();
+                    const isRecent = now - timestampMillis < 86400000;
+                    date = timestamp ? (isRecent ? timestamp.toFormat("yyyy-MM-dd HH:mm") : timestamp.toFormat("yyyy-MM-dd")) : "";
+                }
+
                 const timeIcon = useCreatedTime ? "calendar" : "clock";
 
                 const snippet = p.$path in snippets ? snippets[p.$path] : "Loading...";

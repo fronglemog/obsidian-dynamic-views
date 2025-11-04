@@ -49,33 +49,21 @@ export class DynamicViewsCardView extends BasesView {
         const settings = readBasesSettings(this.config);
 
         // Track previous settings to determine winner when both match
-        console.log('// DEBUG: Metadata winner tracking');
-        console.log('//   viewId:', this.viewId);
-        console.log('//   Current settings - left:', settings.metadataDisplayLeft, 'right:', settings.metadataDisplayRight);
-        console.log('//   Previous settings:', this.previousSettings);
-        console.log('//   Current winner:', this.metadataDisplayWinner);
-
         if (this.previousSettings) {
             const leftChanged = settings.metadataDisplayLeft !== this.previousSettings.metadataDisplayLeft;
             const rightChanged = settings.metadataDisplayRight !== this.previousSettings.metadataDisplayRight;
 
-            console.log('//   Changes detected - leftChanged:', leftChanged, 'rightChanged:', rightChanged);
-
             // Check if both are now the same non-none value
             if (settings.metadataDisplayLeft !== 'none' &&
                 settings.metadataDisplayLeft === settings.metadataDisplayRight) {
-                console.log('//   DUPLICATE DETECTED');
                 // Determine which one changed (the one that changed loses, the one that stayed wins)
                 if (leftChanged && !rightChanged) {
-                    console.log('//   Left changed, right stayed → RIGHT WINS');
                     this.metadataDisplayWinner = 'right'; // Right had it first
                     await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'right');
                 } else if (rightChanged && !leftChanged) {
-                    console.log('//   Right changed, left stayed → LEFT WINS');
                     this.metadataDisplayWinner = 'left'; // Left had it first
                     await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
                 } else {
-                    console.log('//   Both changed or neither changed → KEEP EXISTING or default to LEFT');
                     // Both changed simultaneously - shouldn't happen in normal use
                     // Keep existing winner if set
                     if (this.metadataDisplayWinner === null) {
@@ -83,30 +71,22 @@ export class DynamicViewsCardView extends BasesView {
                         await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
                     }
                 }
-                console.log('//   Winner set to:', this.metadataDisplayWinner);
             } else {
-                console.log('//   No duplicate');
                 // No duplicate, clear winner
                 if (this.metadataDisplayWinner !== null) {
-                    console.log('//   Clearing winner');
                     this.metadataDisplayWinner = null;
                     await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, null);
                 }
             }
         } else {
-            console.log('//   FIRST LOAD (no previous settings)');
             // First load - load saved winner or default to left if duplicate exists
             if (settings.metadataDisplayLeft !== 'none' &&
                 settings.metadataDisplayLeft === settings.metadataDisplayRight) {
-                console.log('//   Duplicate exists on first load');
                 // Try to load saved winner
                 const savedWinner = this.plugin.persistenceManager.getBasesViewMetadataWinner(this.viewId);
-                console.log('//   Saved winner from persistence:', savedWinner);
                 this.metadataDisplayWinner = savedWinner || 'left';
-                console.log('//   Winner set to:', this.metadataDisplayWinner);
                 // Save if we used default
                 if (!savedWinner) {
-                    console.log('//   No saved winner, saving default (left)');
                     await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
                 }
             }
@@ -120,49 +100,6 @@ export class DynamicViewsCardView extends BasesView {
 
         // Load snippets and images for visible entries
         await this.loadContentForEntries(entries, settings);
-
-        // DEBUG: Always log to diagnose
-        console.log('// DEBUG: onDataUpdated called');
-        console.log('//   Entries count:', entries.length);
-        console.log('//   createdProperty setting:', settings.createdProperty);
-        console.log('//   modifiedProperty setting:', settings.modifiedProperty);
-
-        // DEBUG: Test date property format
-        if (entries.length > 0) {
-            const testEntry = entries[0];
-            console.log('//   Test entry exists:', !!testEntry);
-
-            if (settings.createdProperty) {
-                const createdValue = testEntry.getValue(settings.createdProperty as any);
-                console.log('// DEBUG: Created property test');
-                console.log('//   Property name:', settings.createdProperty);
-                console.log('//   Value:', createdValue);
-                console.log('//   Value type:', typeof createdValue);
-                console.log('//   Value constructor:', createdValue?.constructor?.name);
-                console.log('//   Value.data:', (createdValue as any)?.data);
-                console.log('//   Value.type:', (createdValue as any)?.type);
-                console.log('//   Value.toString():', createdValue?.toString());
-                console.log('//   Has isEmpty():', typeof (createdValue as any)?.isEmpty === 'function');
-                if (typeof (createdValue as any)?.isEmpty === 'function') {
-                    console.log('//   isEmpty() result:', (createdValue as any).isEmpty());
-                }
-            }
-            if (settings.modifiedProperty) {
-                const modifiedValue = testEntry.getValue(settings.modifiedProperty as any);
-                console.log('// DEBUG: Modified property test');
-                console.log('//   Property name:', settings.modifiedProperty);
-                console.log('//   Value:', modifiedValue);
-                console.log('//   Value type:', typeof modifiedValue);
-                console.log('//   Value constructor:', modifiedValue?.constructor?.name);
-                console.log('//   Value.data:', (modifiedValue as any)?.data);
-                console.log('//   Value.type:', (modifiedValue as any)?.type);
-                console.log('//   Value.toString():', modifiedValue?.toString());
-                console.log('//   Has isEmpty():', typeof (modifiedValue as any)?.isEmpty === 'function');
-                if (typeof (modifiedValue as any)?.isEmpty === 'function') {
-                    console.log('//   isEmpty() result:', (modifiedValue as any).isEmpty());
-                }
-            }
-        }
 
         // Transform to CardData
         const cards = transformBasesEntries(
@@ -182,13 +119,15 @@ export class DynamicViewsCardView extends BasesView {
         // Render each card
         for (let i = 0; i < cards.length; i++) {
             const card = cards[i];
-            this.renderCard(feedEl, card, i, settings);
+            const entry = entries[i];
+            this.renderCard(feedEl, card, entry, i, settings);
         }
     }
 
     private renderCard(
         container: HTMLElement,
         card: CardData,
+        entry: any,
         index: number,
         settings: any
     ): void {
@@ -274,11 +213,11 @@ export class DynamicViewsCardView extends BasesView {
 
             // Left side
             const metaLeft = metaEl.createDiv('meta-left');
-            this.renderMetadataContent(metaLeft, effectiveLeft, card, settings);
+            this.renderMetadataContent(metaLeft, effectiveLeft, card, entry, settings);
 
             // Right side
             const metaRight = metaEl.createDiv('meta-right');
-            this.renderMetadataContent(metaRight, effectiveRight, card, settings);
+            this.renderMetadataContent(metaRight, effectiveRight, card, entry, settings);
         }
     }
 
@@ -286,14 +225,34 @@ export class DynamicViewsCardView extends BasesView {
         container: HTMLElement,
         displayType: 'none' | 'timestamp' | 'tags' | 'path',
         card: CardData,
+        entry: any,
         settings: any
     ): void {
         if (displayType === 'none') return;
 
         if (displayType === 'timestamp') {
             const useCreatedTime = this.getSortMethod().startsWith('ctime');
-            const timestamp = useCreatedTime ? card.ctime : card.mtime;
-            if (timestamp) {
+            const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
+
+            let timestamp: number | null = null;
+            let isInvalid = false;
+
+            if (customProperty) {
+                // Try to get timestamp from custom property
+                const value = entry.getValue(customProperty as any);
+                if (this.isDateValue(value)) {
+                    timestamp = this.extractTimestamp(value);
+                } else {
+                    isInvalid = true;
+                }
+            } else {
+                // Use file timestamp
+                timestamp = useCreatedTime ? card.ctime : card.mtime;
+            }
+
+            if (isInvalid) {
+                container.appendText('Invalid');
+            } else if (timestamp) {
                 const date = this.formatTimestamp(timestamp);
                 if (settings.showTimestampIcon) {
                     const iconName = useCreatedTime ? 'calendar' : 'clock';
@@ -327,6 +286,17 @@ export class DynamicViewsCardView extends BasesView {
                 }
             });
         }
+    }
+
+    private isDateValue(value: any): boolean {
+        return value?.date instanceof Date;
+    }
+
+    private extractTimestamp(value: any): number | null {
+        if (this.isDateValue(value)) {
+            return value.date.getTime();
+        }
+        return null;
     }
 
     private formatTimestamp(timestamp: number): string {

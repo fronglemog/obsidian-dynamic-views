@@ -123,7 +123,8 @@ export class DynamicViewsMasonryView extends BasesView {
         // Render each card
         for (let i = 0; i < cards.length; i++) {
             const card = cards[i];
-            this.renderCard(this.masonryContainer, card, i, settings);
+            const entry = entries[i];
+            this.renderCard(this.masonryContainer, card, entry, i, settings);
         }
 
         // Initial layout calculation
@@ -214,6 +215,7 @@ export class DynamicViewsMasonryView extends BasesView {
     private renderCard(
         container: HTMLElement,
         card: CardData,
+        entry: any,
         index: number,
         settings: any
     ): void {
@@ -299,11 +301,11 @@ export class DynamicViewsMasonryView extends BasesView {
 
             // Left side
             const metaLeft = metaEl.createDiv('meta-left');
-            this.renderMetadataContent(metaLeft, effectiveLeft, card, settings);
+            this.renderMetadataContent(metaLeft, effectiveLeft, card, entry, settings);
 
             // Right side
             const metaRight = metaEl.createDiv('meta-right');
-            this.renderMetadataContent(metaRight, effectiveRight, card, settings);
+            this.renderMetadataContent(metaRight, effectiveRight, card, entry, settings);
         }
     }
 
@@ -311,14 +313,35 @@ export class DynamicViewsMasonryView extends BasesView {
         container: HTMLElement,
         displayType: 'none' | 'timestamp' | 'tags' | 'path',
         card: CardData,
+        entry: any,
         settings: any
     ): void {
         if (displayType === 'none') return;
 
         if (displayType === 'timestamp') {
             const useCreatedTime = this.getSortMethod().startsWith('ctime');
-            const timestamp = useCreatedTime ? card.ctime : card.mtime;
-            if (timestamp) {
+            const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
+
+            let timestamp: number | null = null;
+            let isInvalid = false;
+
+            // Check if a custom property is set
+            if (customProperty) {
+                const value = entry.getValue(customProperty as any);
+                if (this.isDateValue(value)) {
+                    timestamp = this.extractTimestamp(value);
+                } else {
+                    // Property exists but is not a date/datetime
+                    isInvalid = true;
+                }
+            } else {
+                // No custom property, use file timestamp
+                timestamp = useCreatedTime ? card.ctime : card.mtime;
+            }
+
+            if (isInvalid) {
+                container.appendText('Invalid');
+            } else if (timestamp) {
                 const date = this.formatTimestamp(timestamp);
                 if (settings.showTimestampIcon) {
                     const iconName = useCreatedTime ? 'calendar' : 'clock';
@@ -354,6 +377,17 @@ export class DynamicViewsMasonryView extends BasesView {
         }
     }
 
+    private isDateValue(value: any): boolean {
+        return value?.date instanceof Date;
+    }
+
+    private extractTimestamp(value: any): number | null {
+        if (this.isDateValue(value)) {
+            return value.date.getTime();
+        }
+        return null;
+    }
+
     private formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp);
         const now = Date.now();
@@ -372,7 +406,7 @@ export class DynamicViewsMasonryView extends BasesView {
         return `${yyyy}-${MM}-${dd}`;
     }
 
-    private getSortMethod(): string {
+    private getSortMethod(): string{
         // Get sort from Bases config if available
         const sort = this.config.getOrder();
         if (sort && sort.length > 0) {
