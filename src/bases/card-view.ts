@@ -29,9 +29,21 @@ export class DynamicViewsCardView extends BasesView {
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
         this.plugin = plugin;
+
+        // DEBUG: Log controller structure to find stable ID
+        console.log('// DEBUG: Bases controller structure');
+        console.log('//   controller:', controller);
+        console.log('//   controller.source:', controller.source);
+        console.log('//   controller.source?.path:', controller.source?.path);
+        console.log('//   controller.source?.stat:', controller.source?.stat);
+        console.log('//   controller.source?.stat?.ctime:', controller.source?.stat?.ctime);
+        console.log('//   controller.database:', controller.database);
+
         // Generate stable view ID from source file ctime (survives renames/moves) and view type
         const ctime = controller.source?.stat?.ctime || Date.now();
         this.viewId = `${ctime}:${CARD_VIEW_TYPE}`;
+        console.log('//   Generated viewId:', this.viewId);
+
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
