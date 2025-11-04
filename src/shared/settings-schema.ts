@@ -22,8 +22,7 @@ export const DEFAULT_SETTINGS: Settings = {
     thumbnailCacheSize: "balanced",
     queryHeight: 0,
     openFileAction: "card",
-    addCardBackground: true,
-    hasCreatedWelcomeNote: false
+    addCardBackground: true
 };
 
 /**
@@ -162,7 +161,6 @@ export function readBasesSettings(config: any): Settings {
         thumbnailCacheSize: String(config.get('thumbnailCacheSize') || DEFAULT_SETTINGS.thumbnailCacheSize) as 'small' | 'balanced' | 'large',
         queryHeight: 0, // Not configurable in Bases
         openFileAction: String(config.get('openFileAction') || DEFAULT_SETTINGS.openFileAction) as 'card' | 'title',
-        addCardBackground: Boolean(config.get('addCardBackground') ?? DEFAULT_SETTINGS.addCardBackground),
-        hasCreatedWelcomeNote: false // Not relevant for Bases
+        addCardBackground: Boolean(config.get('addCardBackground') ?? DEFAULT_SETTINGS.addCardBackground)
     };
 }

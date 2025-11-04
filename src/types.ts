@@ -15,7 +15,6 @@ export interface Settings {
     queryHeight: number;
     openFileAction: string;
     addCardBackground: boolean;
-    hasCreatedWelcomeNote: boolean;
 }
 
 export interface UIState {

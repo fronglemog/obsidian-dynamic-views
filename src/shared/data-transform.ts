@@ -76,6 +76,9 @@ export function basesEntryToCardData(
     // Get tags from entry.file or frontmatter
     // Check if tags exist in frontmatter first
     const tagsValue = entry.getValue('tags');
+    console.log('//TAGS DEBUG - path:', entry.file.path);
+    console.log('//TAGS DEBUG - tagsValue:', tagsValue);
+    console.log('//TAGS DEBUG - tagsValue.data:', tagsValue?.data);
     let tags: string[] = [];
     if (tagsValue && tagsValue.data != null) {
         const tagData = tagsValue.data;
@@ -83,6 +86,7 @@ export function basesEntryToCardData(
             ? tagData.map((t: any) => String(t))
             : [String(tagData)];
     }
+    console.log('//TAGS DEBUG - final tags array:', tags);
 
     // Get timestamps
     const ctime = entry.file.stat.ctime;
