@@ -105,6 +105,7 @@ export class DynamicViewsCardView extends BasesView {
         if ((settings.showTextPreview && card.snippet) ||
             (settings.showThumbnails && (card.imageUrl || card.hasImageAvailable))) {
             const snippetContainer = cardEl.createDiv('snippet-container');
+            snippetContainer.addClass(`thumbnail-${settings.thumbnailPosition}`);
 
             // Text preview
             if (settings.showTextPreview && card.snippet) {

@@ -103,6 +103,22 @@ export function Settings({
                 />
             </div>
 
+            {/* Thumbnail Position */}
+            <div className="setting-item setting-item-text">
+                <div className="setting-item-info">
+                    <label>Thumbnail position</label>
+                    <div className="setting-desc">Set position of thumbnail relative to text preview.</div>
+                </div>
+                <select
+                    value={settings.thumbnailPosition}
+                    onChange={(e) => onSettingsChange({ thumbnailPosition: e.target.value })}
+                    className="dropdown"
+                >
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+
             {/* Show Timestamp Icon Toggle (conditional) */}
             {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
                 <div className="setting-item setting-item-toggle">
@@ -367,11 +383,11 @@ export function Settings({
                 />
             </div>
 
-            {/* Description Property (conditional) */}
+            {/* Text Preview Property (conditional) */}
             {settings.showTextPreview && (
                 <div className="setting-item setting-item-text">
                     <div className="setting-item-info">
-                        <label>Description property</label>
+                        <label>Text preview property</label>
                         <div className="setting-desc">Set property to show as text preview. Will use first few lines in note if unavailable.</div>
                     </div>
                     <input

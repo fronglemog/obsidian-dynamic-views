@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
     alwaysOmitFirstLine: false,
     showTextPreview: true,
     showThumbnails: true,
+    thumbnailPosition: "right",
     metadataDisplayLeft: "timestamp",
     metadataDisplayRight: "tags",
     metadataDisplayWinner: null,
@@ -42,7 +43,7 @@ export function getBasesViewOptions(): any[] {
         },
         {
             type: 'text',
-            displayName: 'Description property',
+            displayName: 'Text preview property',
             key: 'descriptionProperty',
             placeholder: 'Comma-separated if multiple'
         },
@@ -75,6 +76,16 @@ export function getBasesViewOptions(): any[] {
             displayName: 'Show thumbnails',
             key: 'showThumbnails',
             default: true
+        },
+        {
+            type: 'dropdown',
+            displayName: 'Thumbnail position',
+            key: 'thumbnailPosition',
+            default: 'right',
+            options: {
+                'left': 'Left',
+                'right': 'Right'
+            }
         },
         {
             type: 'toggle',
@@ -173,6 +184,7 @@ export function readBasesSettings(config: any): Settings {
         alwaysOmitFirstLine: Boolean(config.get('alwaysOmitFirstLine')),
         showTextPreview: Boolean(config.get('showTextPreview') ?? DEFAULT_SETTINGS.showTextPreview),
         showThumbnails: Boolean(config.get('showThumbnails') ?? DEFAULT_SETTINGS.showThumbnails),
+        thumbnailPosition: String(config.get('thumbnailPosition') || DEFAULT_SETTINGS.thumbnailPosition) as 'left' | 'right',
         metadataDisplayLeft: String(config.get('metadataDisplayLeft') || DEFAULT_SETTINGS.metadataDisplayLeft) as 'none' | 'timestamp' | 'tags' | 'path',
         metadataDisplayRight: String(config.get('metadataDisplayRight') || DEFAULT_SETTINGS.metadataDisplayRight) as 'none' | 'timestamp' | 'tags' | 'path',
         metadataDisplayWinner: null, // Computed at runtime by view instances

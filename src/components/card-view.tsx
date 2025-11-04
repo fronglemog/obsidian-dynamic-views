@@ -256,7 +256,7 @@ export function CardView({
                             </a>
                         </div>
                         {((settings.showTextPreview && snippet) || (settings.showThumbnails && (imageArray.length > 0 || hasImageAvailable[p.$path]))) && (
-                            <div className="snippet-container">
+                            <div className={`snippet-container thumbnail-${settings.thumbnailPosition}`}>
                                 {settings.showTextPreview && snippet && <div className="writing-snippet">{snippet}</div>}
                                 {settings.showThumbnails && (
                                     imageArray.length > 0 ? (

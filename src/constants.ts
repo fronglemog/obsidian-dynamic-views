@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS: Settings = {
     alwaysOmitFirstLine: false,
     showTextPreview: true,
     showThumbnails: true,
+    thumbnailPosition: "right",
     metadataDisplayLeft: "timestamp",
     metadataDisplayRight: "tags",
     metadataDisplayWinner: null,

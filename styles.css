@@ -1207,6 +1207,15 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     margin-bottom: 8px;
 }
 
+/* Thumbnail positioning */
+.dynamic-views .snippet-container.thumbnail-left {
+    flex-direction: row;
+}
+
+.dynamic-views .snippet-container.thumbnail-right {
+    flex-direction: row-reverse;
+}
+
 .dynamic-views .writing-snippet {
     color: var(--text-muted);
     font-size: 0.9em;

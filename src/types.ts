@@ -7,6 +7,7 @@ export interface Settings {
     alwaysOmitFirstLine: boolean;
     showTextPreview: boolean;
     showThumbnails: boolean;
+    thumbnailPosition: 'left' | 'right';
     metadataDisplayLeft: 'none' | 'timestamp' | 'tags' | 'path';
     metadataDisplayRight: 'none' | 'timestamp' | 'tags' | 'path';
     metadataDisplayWinner: 'left' | 'right' | null;
