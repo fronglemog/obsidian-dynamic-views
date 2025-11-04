@@ -23,7 +23,6 @@ export class DynamicViewsCardView extends BasesView {
 
     constructor(controller: any, containerEl: HTMLElement) {
         super(controller);
-        console.log('DynamicViewsCardView constructor called', { containerEl });
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
@@ -34,17 +33,11 @@ export class DynamicViewsCardView extends BasesView {
     }
 
     async onDataUpdated(): Promise<void> {
-        console.log('DynamicViewsCardView onDataUpdated called', {
-            entries: this.data.data.length,
-            containerEl: this.containerEl
-        });
-
         const { app } = this;
         const entries = this.data.data;
 
         // Read settings from Bases config
         const settings = readBasesSettings(this.config);
-        console.log('Card view settings:', settings);
 
         // Load snippets and images for visible entries
         await this.loadContentForEntries(entries, settings);
@@ -60,19 +53,15 @@ export class DynamicViewsCardView extends BasesView {
 
         // Clear and re-render
         this.containerEl.empty();
-        console.log('Card view rendering', { cardCount: cards.length });
 
         // Create cards feed container
         const feedEl = this.containerEl.createDiv('cards-feed');
-        console.log('Created feedEl:', feedEl);
 
         // Render each card
         for (let i = 0; i < cards.length; i++) {
             const card = cards[i];
             this.renderCard(feedEl, card, i, settings);
         }
-
-        console.log('Card view rendering complete, container children:', this.containerEl.children.length);
     }
 
     private renderCard(
@@ -81,16 +70,10 @@ export class DynamicViewsCardView extends BasesView {
         index: number,
         settings: any
     ): void {
-        if (index === 0) {
-            console.log('renderCard called for first card:', { card, container });
-        }
         const { app } = this;
 
         // Create card element
         const cardEl = container.createDiv('writing-card');
-        if (index === 0) {
-            console.log('Created cardEl:', cardEl);
-        }
         cardEl.setAttribute('data-path', card.path);
         cardEl.style.cursor = 'pointer';
 

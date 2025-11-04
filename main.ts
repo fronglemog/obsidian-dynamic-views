@@ -38,12 +38,10 @@ export default class DynamicViewsPlugin extends Plugin {
 
 		// Register Bases views
 		// Note: Named "Grid" to differentiate from built-in Bases "Cards" view
-		console.log('Registering Bases views...');
 		this.registerBasesView('dynamic-views-card', {
 			name: 'Grid',
 			icon: 'rows-2',
 			factory: (controller: any, containerEl: HTMLElement) => {
-				console.log('Card view factory called', { controller, containerEl });
 				return new DynamicViewsCardView(controller, containerEl);
 			},
 			options: cardViewOptions,
@@ -53,12 +51,10 @@ export default class DynamicViewsPlugin extends Plugin {
 			name: 'Masonry',
 			icon: 'layout-dashboard',
 			factory: (controller: any, containerEl: HTMLElement) => {
-				console.log('Masonry view factory called', { controller, containerEl });
 				return new DynamicViewsMasonryView(controller, containerEl);
 			},
 			options: masonryViewOptions,
 		});
-		console.log('Bases views registered');
 
 		// Create welcome note on first load (after workspace is ready)
 		const settings = this.persistenceManager.getGlobalSettings();

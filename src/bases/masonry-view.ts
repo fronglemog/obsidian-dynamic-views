@@ -24,7 +24,6 @@ export class DynamicViewsMasonryView extends BasesView {
 
     constructor(controller: any, containerEl: HTMLElement) {
         super(controller);
-        console.log('DynamicViewsMasonryView constructor called', { containerEl });
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
@@ -35,17 +34,11 @@ export class DynamicViewsMasonryView extends BasesView {
     }
 
     async onDataUpdated(): Promise<void> {
-        console.log('DynamicViewsMasonryView onDataUpdated called', {
-            entries: this.data.data.length,
-            containerEl: this.containerEl
-        });
-
         const { app } = this;
         const entries = this.data.data;
 
         // Read settings from Bases config
         const settings = readBasesSettings(this.config);
-        console.log('Masonry view settings:', settings);
 
         // Load snippets and images for visible entries
         await this.loadContentForEntries(entries, settings);
@@ -61,11 +54,9 @@ export class DynamicViewsMasonryView extends BasesView {
 
         // Clear and re-render
         this.containerEl.empty();
-        console.log('Masonry view rendering', { cardCount: cards.length });
 
         // Create masonry container
         this.masonryContainer = this.containerEl.createDiv('cards-masonry');
-        console.log('Created masonry container:', this.masonryContainer);
 
         // Setup masonry layout
         this.setupMasonryLayout(settings);
@@ -75,8 +66,6 @@ export class DynamicViewsMasonryView extends BasesView {
             const card = cards[i];
             this.renderCard(this.masonryContainer, card, i, settings);
         }
-
-        console.log('Masonry view rendering complete, container children:', this.containerEl.children.length);
 
         // Initial layout calculation
         if (this.updateLayoutRef.current) {
