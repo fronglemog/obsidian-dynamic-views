@@ -25,6 +25,8 @@ export class DynamicViewsCardView extends BasesView {
         super(controller);
         console.log('DynamicViewsCardView constructor called', { containerEl });
         this.containerEl = containerEl;
+        // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
+        this.containerEl.addClass('dynamic-views');
         this.containerEl.addClass('dynamic-views-bases-container');
     }
 
@@ -76,10 +78,16 @@ export class DynamicViewsCardView extends BasesView {
         index: number,
         settings: any
     ): void {
+        if (index === 0) {
+            console.log('renderCard called for first card:', { card, container });
+        }
         const { app } = this;
 
         // Create card element
         const cardEl = container.createDiv('writing-card');
+        if (index === 0) {
+            console.log('Created cardEl:', cardEl);
+        }
         cardEl.setAttribute('data-path', card.path);
         cardEl.style.cursor = 'pointer';
 

@@ -26,6 +26,8 @@ export class DynamicViewsMasonryView extends BasesView {
         super(controller);
         console.log('DynamicViewsMasonryView constructor called', { containerEl });
         this.containerEl = containerEl;
+        // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
+        this.containerEl.addClass('dynamic-views');
         this.containerEl.addClass('dynamic-views-bases-container');
     }
 
