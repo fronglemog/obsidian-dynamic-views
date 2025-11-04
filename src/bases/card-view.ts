@@ -15,8 +15,6 @@ export const CARD_VIEW_TYPE = 'dynamic-views-card';
 
 export class DynamicViewsCardView extends BasesView {
     readonly type = CARD_VIEW_TYPE;
-    private plugin: DynamicViewsPlugin;
-    private viewId: string;
     private containerEl: HTMLElement;
     private snippets: Record<string, string> = {};
     private images: Record<string, string | string[]> = {};
@@ -28,14 +26,6 @@ export class DynamicViewsCardView extends BasesView {
 
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
-        this.plugin = plugin;
-
-        // Generate stable view ID from query hash + view type
-        // Since Bases doesn't provide source file info, hash the query content
-        const queryStr = JSON.stringify(controller.query);
-        const hash = this.hashString(queryStr);
-        this.viewId = `${hash}:${CARD_VIEW_TYPE}`;
-
         this.containerEl = containerEl;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
@@ -54,7 +44,6 @@ export class DynamicViewsCardView extends BasesView {
         const settings = readBasesSettings(this.config);
 
         console.log('// DEBUG: Metadata winner tracking');
-        console.log('//   viewId:', this.viewId);
         console.log('//   Current settings - left:', settings.metadataDisplayLeft, 'right:', settings.metadataDisplayRight);
         console.log('//   Previous settings:', this.previousSettings);
         console.log('//   Current winner:', this.metadataDisplayWinner);
@@ -74,46 +63,30 @@ export class DynamicViewsCardView extends BasesView {
                 if (leftChanged && !rightChanged) {
                     console.log('//   Left changed, right stayed → RIGHT WINS');
                     this.metadataDisplayWinner = 'right'; // Right had it first
-                    await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'right');
                 } else if (rightChanged && !leftChanged) {
                     console.log('//   Right changed, left stayed → LEFT WINS');
                     this.metadataDisplayWinner = 'left'; // Left had it first
-                    await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
                 } else {
                     console.log('//   Both changed or neither changed → KEEP EXISTING or default to LEFT');
                     // Both changed simultaneously - shouldn't happen in normal use
                     // Keep existing winner if set
                     if (this.metadataDisplayWinner === null) {
                         this.metadataDisplayWinner = 'left';
-                        await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
                     }
                 }
                 console.log('//   Winner set to:', this.metadataDisplayWinner);
             } else {
                 console.log('//   No duplicate');
                 // No duplicate, clear winner
-                if (this.metadataDisplayWinner !== null) {
-                    console.log('//   Clearing winner');
-                    this.metadataDisplayWinner = null;
-                    await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, null);
-                }
+                this.metadataDisplayWinner = null;
             }
         } else {
             console.log('//   FIRST LOAD (no previous settings)');
-            // First load - load saved winner or default to left if duplicate exists
+            // First load - default to left wins
             if (settings.metadataDisplayLeft !== 'none' &&
                 settings.metadataDisplayLeft === settings.metadataDisplayRight) {
-                console.log('//   Duplicate exists on first load');
-                // Try to load saved winner
-                const savedWinner = this.plugin.persistenceManager.getBasesViewMetadataWinner(this.viewId);
-                console.log('//   Saved winner from persistence:', savedWinner);
-                this.metadataDisplayWinner = savedWinner || 'left';
-                console.log('//   Winner set to:', this.metadataDisplayWinner);
-                // Save if we used default
-                if (!savedWinner) {
-                    console.log('//   No saved winner, saving default (left)');
-                    await this.plugin.persistenceManager.setBasesViewMetadataWinner(this.viewId, 'left');
-                }
+                console.log('//   Duplicate exists on first load → LEFT WINS');
+                this.metadataDisplayWinner = 'left';
             }
         }
 
@@ -340,16 +313,6 @@ export class DynamicViewsCardView extends BasesView {
                 }
             });
         }
-    }
-
-    private hashString(str: string): number {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        return Math.abs(hash);
     }
 
     private isDateValue(value: any): boolean {
