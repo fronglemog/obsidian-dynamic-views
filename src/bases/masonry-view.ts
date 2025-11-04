@@ -215,25 +215,43 @@ export class DynamicViewsMasonryView extends BasesView {
             }
         }
 
-        // Metadata (timestamp + tags/path)
-        const useCreatedTime = this.getSortMethod().startsWith('ctime');
-        const timestamp = useCreatedTime ? card.ctime : card.mtime;
-        const hasTimestamp = settings.showTimestamp && timestamp;
-        const hasMetadata = (settings.cardBottomDisplay === 'tags' && card.tags.length > 0) ||
-                           (settings.cardBottomDisplay === 'path' && card.folderPath.length > 0);
-
-        if (hasTimestamp || hasMetadata) {
+        // Metadata - check if we have any content to display
+        if (settings.metadataDisplayLeft !== 'none' || settings.metadataDisplayRight !== 'none') {
             const metaEl = cardEl.createDiv('writing-meta');
-            if (!hasTimestamp) metaEl.addClass('no-timestamp');
 
-            // Timestamp
-            const metaLeft = metaEl.createSpan('meta-left');
-            if (hasTimestamp) {
+            // Add class if only one side has content (for full-width styling)
+            if (settings.metadataDisplayLeft === 'none' && settings.metadataDisplayRight !== 'none') {
+                metaEl.addClass('meta-right-only');
+            } else if (settings.metadataDisplayLeft !== 'none' && settings.metadataDisplayRight === 'none') {
+                metaEl.addClass('meta-left-only');
+            }
+
+            // Left side
+            const metaLeft = metaEl.createDiv('meta-left');
+            this.renderMetadataContent(metaLeft, settings.metadataDisplayLeft, card, settings);
+
+            // Right side
+            const metaRight = metaEl.createDiv('meta-right');
+            this.renderMetadataContent(metaRight, settings.metadataDisplayRight, card, settings);
+        }
+    }
+
+    private renderMetadataContent(
+        container: HTMLElement,
+        displayType: 'none' | 'timestamp' | 'tags' | 'path',
+        card: CardData,
+        settings: any
+    ): void {
+        if (displayType === 'none') return;
+
+        if (displayType === 'timestamp') {
+            const useCreatedTime = this.getSortMethod().startsWith('ctime');
+            const timestamp = useCreatedTime ? card.ctime : card.mtime;
+            if (timestamp) {
                 const date = this.formatTimestamp(timestamp);
                 if (settings.showTimestampIcon) {
                     const iconName = useCreatedTime ? 'calendar' : 'clock';
-                    const iconEl = metaLeft.createSpan('timestamp-icon');
-                    // Use Obsidian's setIcon function
+                    const iconEl = container.createSpan('timestamp-icon');
                     setIcon(iconEl, iconName);
                     iconEl.style.display = 'inline-block';
                     iconEl.style.width = '14px';
@@ -241,31 +259,27 @@ export class DynamicViewsMasonryView extends BasesView {
                     iconEl.style.verticalAlign = 'middle';
                     iconEl.style.marginRight = '4px';
                 }
-                metaLeft.appendText(date);
+                container.appendText(date);
             }
-
-            // Tags or path
-            const metaRight = metaEl.createDiv('meta-right');
-            if (settings.cardBottomDisplay === 'tags' && card.tags.length > 0) {
-                const tagsWrapper = metaRight.createDiv('tags-wrapper');
-                card.tags.forEach(tag => {
-                    tagsWrapper.createEl('a', {
-                        cls: 'tag',
-                        text: tag.replace(/^#/, ''),
-                        href: '#'
-                    });
+        } else if (displayType === 'tags' && card.tags.length > 0) {
+            const tagsWrapper = container.createDiv('tags-wrapper');
+            card.tags.forEach(tag => {
+                tagsWrapper.createEl('a', {
+                    cls: 'tag',
+                    text: tag.replace(/^#/, ''),
+                    href: '#'
                 });
-            } else if (settings.cardBottomDisplay === 'path' && card.folderPath.length > 0) {
-                const pathWrapper = metaRight.createDiv('path-wrapper');
-                const folders = card.folderPath.split('/').filter(f => f);
-                folders.forEach((folder, idx) => {
-                    const span = pathWrapper.createSpan();
-                    span.createSpan({ cls: 'path-segment file-path-segment', text: folder });
-                    if (idx < folders.length - 1) {
-                        span.createSpan({ cls: 'path-separator', text: '/' });
-                    }
-                });
-            }
+            });
+        } else if (displayType === 'path' && card.folderPath.length > 0) {
+            const pathWrapper = container.createDiv('path-wrapper');
+            const folders = card.folderPath.split('/').filter(f => f);
+            folders.forEach((folder, idx) => {
+                const span = pathWrapper.createSpan();
+                span.createSpan({ cls: 'path-segment file-path-segment', text: folder });
+                if (idx < folders.length - 1) {
+                    span.createSpan({ cls: 'path-separator', text: '/' });
+                }
+            });
         }
     }
 

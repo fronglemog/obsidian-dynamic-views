@@ -13,9 +13,9 @@ export const DEFAULT_SETTINGS: Settings = {
     alwaysOmitFirstLine: false,
     showTextPreview: true,
     showThumbnails: true,
-    cardBottomDisplay: "tags",
+    metadataDisplayLeft: "timestamp",
+    metadataDisplayRight: "tags",
     listMarker: "bullet",
-    showTimestamp: true,
     showTimestampIcon: true,
     minMasonryColumns: 1,
     randomizeAction: "shuffle",
@@ -72,20 +72,27 @@ export function getBasesViewOptions(): any[] {
         },
         {
             type: 'dropdown',
-            displayName: 'Card bottom display',
-            key: 'cardBottomDisplay',
-            default: 'tags',
+            displayName: 'Metadata display (left)',
+            key: 'metadataDisplayLeft',
+            default: 'timestamp',
             options: {
                 'none': 'None',
-                'tags': 'Tags',
-                'path': 'Path'
+                'timestamp': 'Timestamp',
+                'tags': 'File tags',
+                'path': 'File path'
             }
         },
         {
-            type: 'toggle',
-            displayName: 'Show timestamp',
-            key: 'showTimestamp',
-            default: true
+            type: 'dropdown',
+            displayName: 'Metadata display (right)',
+            key: 'metadataDisplayRight',
+            default: 'tags',
+            options: {
+                'none': 'None',
+                'timestamp': 'Timestamp',
+                'tags': 'File tags',
+                'path': 'File path'
+            }
         },
         {
             type: 'toggle',
@@ -143,8 +150,44 @@ export function getMasonryViewOptions(): any[] {
 /**
  * Read settings from Bases config
  * Maps Bases config values to Settings object
+ * Handles migration from old format and duplicate detection
  */
 export function readBasesSettings(config: any): Settings {
+    // Try to read new format first
+    let metadataDisplayLeft = config.get('metadataDisplayLeft');
+    let metadataDisplayRight = config.get('metadataDisplayRight');
+
+    // Migration: If new format doesn't exist, migrate from old format
+    if (metadataDisplayLeft === undefined && metadataDisplayRight === undefined) {
+        const oldCardBottomDisplay = config.get('cardBottomDisplay');
+        const oldShowTimestamp = config.get('showTimestamp');
+
+        // Migrate based on old settings
+        if (oldShowTimestamp !== false) {
+            metadataDisplayLeft = 'timestamp';
+        } else {
+            metadataDisplayLeft = 'none';
+        }
+
+        if (oldCardBottomDisplay === 'tags') {
+            metadataDisplayRight = 'tags';
+        } else if (oldCardBottomDisplay === 'path') {
+            metadataDisplayRight = 'path';
+        } else {
+            metadataDisplayRight = 'none';
+        }
+    }
+
+    // Apply defaults if still undefined
+    metadataDisplayLeft = metadataDisplayLeft || DEFAULT_SETTINGS.metadataDisplayLeft;
+    metadataDisplayRight = metadataDisplayRight || DEFAULT_SETTINGS.metadataDisplayRight;
+
+    // Duplicate detection: If both are set to same non-none value, fix it
+    if (metadataDisplayLeft !== 'none' && metadataDisplayLeft === metadataDisplayRight) {
+        console.warn(`Dynamic Views: Both metadata displays set to '${metadataDisplayLeft}'. Auto-correcting right to 'none'.`);
+        metadataDisplayRight = 'none';
+    }
+
     return {
         titleProperty: String(config.get('titleProperty') || DEFAULT_SETTINGS.titleProperty),
         descriptionProperty: String(config.get('descriptionProperty') || DEFAULT_SETTINGS.descriptionProperty),
@@ -152,9 +195,9 @@ export function readBasesSettings(config: any): Settings {
         alwaysOmitFirstLine: Boolean(config.get('alwaysOmitFirstLine')),
         showTextPreview: Boolean(config.get('showTextPreview') ?? DEFAULT_SETTINGS.showTextPreview),
         showThumbnails: Boolean(config.get('showThumbnails') ?? DEFAULT_SETTINGS.showThumbnails),
-        cardBottomDisplay: String(config.get('cardBottomDisplay') || DEFAULT_SETTINGS.cardBottomDisplay) as 'none' | 'tags' | 'path',
+        metadataDisplayLeft: metadataDisplayLeft as 'none' | 'timestamp' | 'tags' | 'path',
+        metadataDisplayRight: metadataDisplayRight as 'none' | 'timestamp' | 'tags' | 'path',
         listMarker: String(config.get('listMarker') || DEFAULT_SETTINGS.listMarker) as 'bullet' | 'number',
-        showTimestamp: Boolean(config.get('showTimestamp') ?? DEFAULT_SETTINGS.showTimestamp),
         showTimestampIcon: Boolean(config.get('showTimestampIcon') ?? DEFAULT_SETTINGS.showTimestampIcon),
         minMasonryColumns: Number(config.get('minMasonryColumns') || DEFAULT_SETTINGS.minMasonryColumns),
         randomizeAction: String(config.get('randomizeAction') || DEFAULT_SETTINGS.randomizeAction) as 'shuffle' | 'random',

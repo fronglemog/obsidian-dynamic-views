@@ -5,9 +5,9 @@ export interface Settings {
     alwaysOmitFirstLine: boolean;
     showTextPreview: boolean;
     showThumbnails: boolean;
-    cardBottomDisplay: string;
+    metadataDisplayLeft: 'none' | 'timestamp' | 'tags' | 'path';
+    metadataDisplayRight: 'none' | 'timestamp' | 'tags' | 'path';
     listMarker: string;
-    showTimestamp: boolean;
     showTimestampIcon: boolean;
     minMasonryColumns: number;
     randomizeAction: string;
