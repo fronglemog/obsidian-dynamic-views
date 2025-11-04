@@ -73,19 +73,29 @@ export function basesEntryToCardData(
     const path = entry.file.path;
     const folderPath = path.split('/').slice(0, -1).join('/');
 
-    // Get tags from entry.file or frontmatter
-    // Check if tags exist in frontmatter first
-    const tagsValue = entry.getValue('tags');
+    // Get tags - check both file object and frontmatter
     console.log('//TAGS DEBUG - path:', entry.file.path);
-    console.log('//TAGS DEBUG - tagsValue:', tagsValue);
-    console.log('//TAGS DEBUG - tagsValue.data:', tagsValue?.data);
+    console.log('//TAGS DEBUG - entry.file:', entry.file);
+    console.log('//TAGS DEBUG - entry.file.tags:', entry.file.tags);
+
+    const tagsValue = entry.getValue('tags');
+    console.log('//TAGS DEBUG - getValue("tags"):', tagsValue);
+    console.log('//TAGS DEBUG - getValue("tags").data:', tagsValue?.data);
+
     let tags: string[] = [];
-    if (tagsValue && tagsValue.data != null) {
+
+    // Try to get tags from file object first
+    if (entry.file.tags && Array.isArray(entry.file.tags)) {
+        tags = entry.file.tags.map((t: any) => String(t));
+    }
+    // Fallback to frontmatter tags
+    else if (tagsValue && tagsValue.data != null) {
         const tagData = tagsValue.data;
         tags = Array.isArray(tagData)
             ? tagData.map((t: any) => String(t))
             : [String(tagData)];
     }
+
     console.log('//TAGS DEBUG - final tags array:', tags);
 
     // Get timestamps
