@@ -76,11 +76,11 @@ export function getBasesViewOptions(): any[] {
             displayName: 'Card bottom display',
             key: 'cardBottomDisplay',
             default: 'tags',
-            options: [
-                { label: 'None', value: 'none' },
-                { label: 'Tags', value: 'tags' },
-                { label: 'Path', value: 'path' }
-            ]
+            options: {
+                'none': 'None',
+                'tags': 'Tags',
+                'path': 'Path'
+            }
         },
         {
             type: 'toggle',
@@ -99,10 +99,10 @@ export function getBasesViewOptions(): any[] {
             displayName: 'Open file action',
             key: 'openFileAction',
             default: 'card',
-            options: [
-                { label: 'Click card', value: 'card' },
-                { label: 'Click title only', value: 'title' }
-            ]
+            options: {
+                'card': 'Click card',
+                'title': 'Click title only'
+            }
         },
         {
             type: 'toggle',
@@ -115,11 +115,11 @@ export function getBasesViewOptions(): any[] {
             displayName: 'Thumbnail cache size',
             key: 'thumbnailCacheSize',
             default: 'balanced',
-            options: [
-                { label: 'Small (faster, lower quality)', value: 'small' },
-                { label: 'Balanced', value: 'balanced' },
-                { label: 'Large (slower, higher quality)', value: 'large' }
-            ]
+            options: {
+                'small': 'Small (faster, lower quality)',
+                'balanced': 'Balanced',
+                'large': 'Large (slower, higher quality)'
+            }
         }
     ];
 }
