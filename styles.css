@@ -1305,6 +1305,12 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     white-space: nowrap;
 }
 
+/* Prevent timestamp container from shrinking (timestamp = direct span child) */
+.dynamic-views .meta-left:has(> span),
+.dynamic-views .meta-right:has(> span) {
+    flex-shrink: 0;
+}
+
 .dynamic-views .timestamp-icon {
     flex-shrink: 0;
     opacity: 0.7;
