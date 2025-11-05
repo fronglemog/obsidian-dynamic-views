@@ -1329,7 +1329,6 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     scrollbar-width: none;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 4px;
 }
 
