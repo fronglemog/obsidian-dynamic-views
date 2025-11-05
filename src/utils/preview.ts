@@ -39,13 +39,14 @@ const markdownPatterns = [
 /**
  * Replace escaped characters with placeholders to protect from markdown processing
  * Returns the text with placeholders and a map to restore them later
+ * Using § character to avoid conflicts with markdown syntax patterns
  */
 function protectEscapedChars(text: string): { text: string; map: Map<string, string> } {
     const map = new Map<string, string>();
     let counter = 0;
 
     const result = text.replace(/\\(.)/g, (match, char) => {
-        const placeholder = `__ESCAPED_CHAR_${counter}__`;
+        const placeholder = `§§ESCAPED${counter}§§`;
         map.set(placeholder, char);
         counter++;
         return placeholder;
