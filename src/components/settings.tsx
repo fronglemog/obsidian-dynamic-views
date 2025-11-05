@@ -145,45 +145,6 @@ export function Settings({
                 />
             </div>
 
-            {/* Thumbnail Position */}
-            <div className="setting-item setting-item-text">
-                <div className="setting-item-info">
-                    <label>Thumbnail position</label>
-                    <div className="setting-desc">Set position of thumbnail relative to text preview.</div>
-                </div>
-                <select
-                    value={settings.thumbnailPosition}
-                    onChange={(e) => onSettingsChange({ thumbnailPosition: e.target.value })}
-                    className="dropdown"
-                >
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                </select>
-            </div>
-
-            {/* Show Timestamp Icon Toggle (conditional) */}
-            {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
-                <div className="setting-item setting-item-toggle">
-                    <div className="setting-item-info">
-                        <label>Show timestamp icon</label>
-                        <div className="setting-desc">Show icon to differentiate between <i>modified</i> and <i>created</i> timestamps.</div>
-                    </div>
-                    <div
-                        className={`checkbox-container ${settings.showTimestampIcon ? 'is-enabled' : ''}`}
-                        onClick={() => onSettingsChange({ showTimestampIcon: !settings.showTimestampIcon })}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                onSettingsChange({ showTimestampIcon: !settings.showTimestampIcon });
-                            }
-                        }}
-                        tabIndex={0}
-                        role="checkbox"
-                        aria-checked={settings.showTimestampIcon}
-                    />
-                </div>
-            )}
-
             {/* Created Time Property (conditional) */}
             {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
                 <div className="setting-item setting-item-text">

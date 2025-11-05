@@ -106,16 +106,6 @@ export function getBasesViewOptions(): any[] {
             default: true
         },
         {
-            type: 'dropdown',
-            displayName: 'Thumbnail position',
-            key: 'thumbnailPosition',
-            default: 'right',
-            options: {
-                'left': 'Left',
-                'right': 'Right'
-            }
-        },
-        {
             type: 'toggle',
             displayName: 'Always omit first line',
             key: 'alwaysOmitFirstLine',
@@ -145,12 +135,6 @@ export function getBasesViewOptions(): any[] {
                 'path': 'File path'
             }
         },
-        {
-            type: 'toggle',
-            displayName: 'Show timestamp icon',
-            key: 'showTimestampIcon',
-            default: true
-        },
     ];
 }
 
@@ -175,7 +159,7 @@ export function readBasesSettings(config: any, globalSettings: Settings): Settin
         alwaysOmitFirstLine: Boolean(config.get('alwaysOmitFirstLine')),
         showTextPreview: Boolean(config.get('showTextPreview') ?? DEFAULT_SETTINGS.showTextPreview),
         showThumbnails: Boolean(config.get('showThumbnails') ?? DEFAULT_SETTINGS.showThumbnails),
-        thumbnailPosition: String(config.get('thumbnailPosition') || DEFAULT_SETTINGS.thumbnailPosition) as 'left' | 'right',
+        thumbnailPosition: globalSettings.thumbnailPosition, // From global settings
         fallbackToContent: Boolean(config.get('fallbackToContent') ?? DEFAULT_SETTINGS.fallbackToContent),
         fallbackToEmbeds: Boolean(config.get('fallbackToEmbeds') ?? DEFAULT_SETTINGS.fallbackToEmbeds),
         fallbackToCtime: Boolean(config.get('fallbackToCtime') ?? DEFAULT_SETTINGS.fallbackToCtime),
@@ -184,7 +168,7 @@ export function readBasesSettings(config: any, globalSettings: Settings): Settin
         metadataDisplayRight: String(config.get('metadataDisplayRight') || DEFAULT_SETTINGS.metadataDisplayRight) as 'none' | 'timestamp' | 'tags' | 'path',
         metadataDisplayWinner: null, // Computed at runtime by view instances
         listMarker: String(config.get('listMarker') || DEFAULT_SETTINGS.listMarker) as 'bullet' | 'number',
-        showTimestampIcon: Boolean(config.get('showTimestampIcon') ?? DEFAULT_SETTINGS.showTimestampIcon),
+        showTimestampIcon: globalSettings.showTimestampIcon, // From global settings
         minMasonryColumns: globalSettings.minMasonryColumns, // From global settings
         randomizeAction: String(config.get('randomizeAction') || DEFAULT_SETTINGS.randomizeAction) as 'shuffle' | 'random',
         thumbnailCacheSize: globalSettings.thumbnailCacheSize, // From global settings

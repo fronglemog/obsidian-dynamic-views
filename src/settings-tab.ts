@@ -70,5 +70,29 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 						await this.plugin.persistenceManager.setGlobalSettings({ addCardBackground: value });
 					})
 			);
+
+		new Setting(containerEl)
+			.setName('Thumbnail position')
+			.setDesc('Position of thumbnail relative to text preview')
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption('left', 'Left')
+					.addOption('right', 'Right')
+					.setValue(settings.thumbnailPosition)
+					.onChange(async (value: 'left' | 'right') => {
+						await this.plugin.persistenceManager.setGlobalSettings({ thumbnailPosition: value });
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Show timestamp icon')
+			.setDesc('Show icon to differentiate between modified and created timestamps')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(settings.showTimestampIcon)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setGlobalSettings({ showTimestampIcon: value });
+					})
+			);
 	}
 }
