@@ -8,6 +8,7 @@
  * Note: Code blocks are handled separately before these patterns
  */
 const markdownPatterns = [
+    /\\(.)/g,                                    // Escaped characters - strip backslash, keep char
     /`([^`]+)`/g,                                // Inline code
     /\*\*\*((?:(?!\*\*\*).)+)\*\*\*/g,          // Bold + italic asterisks
     /___((?:(?!___).)+)___/g,                    // Bold + italic underscores
@@ -160,7 +161,7 @@ export function sanitizeForPreview(
     // Normalize whitespace and special characters
     const normalized = stripped
         .replace(/\^[a-zA-Z0-9-]+/g, '') // Remove block IDs
-        .replace(/\\/g, '') // Remove backslashes
+        .replace(/\\/g, '') // Remove any remaining backslashes
         .split(/\s+/)
         .filter(word => word)
         .join(' ')
