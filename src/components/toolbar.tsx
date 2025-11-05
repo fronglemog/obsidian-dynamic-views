@@ -126,7 +126,7 @@ export function Toolbar({
                     <button
                         className="view-dropdown-btn"
                         onClick={onToggleViewDropdown}
-                        title="Switch view"
+                        aria-label="Switch view"
                         tabIndex={0}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -193,7 +193,7 @@ export function Toolbar({
                     <button
                         className="sort-dropdown-btn"
                         onClick={onToggleSortDropdown}
-                        title="Change sort order"
+                        aria-label="Change sort order"
                         tabIndex={0}
                     >
                         {isShuffled ? (
@@ -459,7 +459,7 @@ export function Toolbar({
                 <button
                     className="shuffle-btn"
                     onClick={onShuffle}
-                    title="Shuffle"
+                    aria-label="Shuffle"
                     tabIndex={0}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -473,7 +473,7 @@ export function Toolbar({
                 <button
                     className="open-random-btn"
                     onClick={(e) => onOpenRandom(e as any)}
-                    title="Open random file"
+                    aria-label="Open random file"
                     tabIndex={0}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -487,7 +487,7 @@ export function Toolbar({
                     <button
                         className="query-toggle-btn"
                         onClick={onToggleCode}
-                        title={showQueryEditor ? "Hide query" : "Edit query"}
+                        aria-label={showQueryEditor ? "Hide query" : "Edit query"}
                         tabIndex={0}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-code-xml-icon lucide-code-xml">
@@ -540,7 +540,7 @@ export function Toolbar({
                     <button
                         className="pin-btn"
                         onClick={onTogglePin}
-                        title={isPinned ? "Unpin toolbar" : "Pin toolbar"}
+                        aria-label={isPinned ? "Unpin toolbar" : "Pin toolbar"}
                         tabIndex={0}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -566,7 +566,7 @@ export function Toolbar({
                     <button
                         className="settings-btn"
                         onClick={onToggleSettings}
-                        title="Settings"
+                        aria-label="Settings"
                         tabIndex={0}
                     >
                         <svg
@@ -597,7 +597,7 @@ export function Toolbar({
                 <button
                     className="width-toggle-btn"
                     onClick={onToggleWidth}
-                    title={widthMode === 'max' ? 'Shrink width' : 'Expand width'}
+                    aria-label={widthMode === 'max' ? 'Shrink width' : 'Expand width'}
                     tabIndex={0}
                 >
                     {widthMode === 'max' ? (
