@@ -84,7 +84,7 @@ export function getBasesViewOptions(): any[] {
         },
         {
             type: 'toggle',
-            displayName: 'Use note content if property unavailable',
+            displayName: 'Use note content if text preview property unavailable',
             key: 'fallbackToContent',
             default: true
         },
@@ -113,22 +113,10 @@ export function getBasesViewOptions(): any[] {
             placeholder: 'Comma-separated if multiple'
         },
         {
-            type: 'toggle',
-            displayName: 'Use file metadata if property unavailable',
-            key: 'fallbackToCtime',
-            default: true
-        },
-        {
             type: 'text',
             displayName: 'Date modified property',
             key: 'modifiedProperty',
             placeholder: 'Comma-separated if multiple'
-        },
-        {
-            type: 'toggle',
-            displayName: 'Use file metadata if property unavailable',
-            key: 'fallbackToMtime',
-            default: true
         },
     ];
 }

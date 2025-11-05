@@ -5,7 +5,7 @@
     "imageProperty": "",
     "createdProperty": "",
     "modifiedProperty": "",
-    "alwaysOmitFirstLine": false,
+    "omitFirstLine": false,
     "showTextPreview": true,
     "showThumbnails": true,
     "thumbnailPosition": "right",
@@ -16,6 +16,7 @@
     "metadataDisplayLeft": "timestamp",
     "metadataDisplayRight": "tags",
     "metadataDisplayWinner": null,
+    "timestampDisplay": "sort-based",
     "listMarker": "bullet",
     "showTimestampIcon": true,
     "minMasonryColumns": 2,
@@ -23,7 +24,8 @@
     "thumbnailCacheSize": "balanced",
     "queryHeight": 0,
     "openFileAction": "card",
-    "addCardBackground": "tinted"
+    "addCardBackground": "tinted",
+    "alwaysOmitFirstLine": false
   },
   "queryStates": {
     "1762122189077": {

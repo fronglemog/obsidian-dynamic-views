@@ -149,7 +149,7 @@ export function Settings({
             {settings.showTextPreview && (
                 <div className="setting-item setting-item-toggle">
                     <div className="setting-item-info">
-                        <label>Use note content if property unavailable</label>
+                        <label>Use note content if text preview property unavailable</label>
                         <div className="setting-desc">Fall back to note content when text preview property is not set or empty.</div>
                     </div>
                     <div
@@ -265,29 +265,6 @@ export function Settings({
                 </div>
             )}
 
-            {/* Fall back to file created time Toggle (conditional) */}
-            {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
-                <div className="setting-item setting-item-toggle">
-                    <div className="setting-item-info">
-                        <label>Use file metadata if property unavailable</label>
-                        <div className="setting-desc">Fall back to file created time when created time property is not set or invalid.</div>
-                    </div>
-                    <div
-                        className={`checkbox-container ${settings.fallbackToCtime ? 'is-enabled' : ''}`}
-                        onClick={() => onSettingsChange({ fallbackToCtime: !settings.fallbackToCtime })}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                onSettingsChange({ fallbackToCtime: !settings.fallbackToCtime });
-                            }
-                        }}
-                        tabIndex={0}
-                        role="checkbox"
-                        aria-checked={settings.fallbackToCtime}
-                    />
-                </div>
-            )}
-
             {/* Modified Time Property (conditional) */}
             {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
                 <div className="setting-item setting-item-text">
@@ -301,29 +278,6 @@ export function Settings({
                         onChange={(e) => onSettingsChange({ modifiedProperty: e.target.value })}
                         placeholder="Comma-separated if multiple"
                         className="setting-text-input"
-                    />
-                </div>
-            )}
-
-            {/* Fall back to file modified time Toggle (conditional) */}
-            {(settings.metadataDisplayLeft === 'timestamp' || settings.metadataDisplayRight === 'timestamp') && (
-                <div className="setting-item setting-item-toggle">
-                    <div className="setting-item-info">
-                        <label>Use file metadata if property unavailable</label>
-                        <div className="setting-desc">Fall back to file modified time when modified time property is not set or invalid.</div>
-                    </div>
-                    <div
-                        className={`checkbox-container ${settings.fallbackToMtime ? 'is-enabled' : ''}`}
-                        onClick={() => onSettingsChange({ fallbackToMtime: !settings.fallbackToMtime })}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                onSettingsChange({ fallbackToMtime: !settings.fallbackToMtime });
-                            }
-                        }}
-                        tabIndex={0}
-                        role="checkbox"
-                        aria-checked={settings.fallbackToMtime}
                     />
                 </div>
             )}
