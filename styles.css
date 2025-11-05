@@ -500,10 +500,6 @@ body {
     cursor: default;
 }
 
-.limit-reset-button.disabled:hover {
-    background-color: transparent;
-}
-
 .dynamic-views .limit-reset-button-icon {
     display: flex;
     align-items: center;
