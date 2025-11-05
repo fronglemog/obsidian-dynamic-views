@@ -495,6 +495,15 @@ body {
     background-color: var(--background-modifier-hover);
 }
 
+.limit-reset-button.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.limit-reset-button.disabled:hover {
+    background-color: transparent;
+}
+
 .dynamic-views .limit-reset-button-icon {
     display: flex;
     align-items: center;

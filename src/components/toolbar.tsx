@@ -400,32 +400,42 @@ export function Toolbar({
                             }}
                             onClick={(e) => e.stopPropagation()}
                         />
-                        {resultLimit.trim() && parseInt(resultLimit) > 0 ? (
-                            <div
-                                className="limit-reset-button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
+                        <div
+                            className={`limit-reset-button${!(resultLimit.trim() && parseInt(resultLimit) > 0) ? ' disabled' : ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (resultLimit.trim() && parseInt(resultLimit) > 0) {
                                     onResetLimit();
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        e.stopPropagation();
+                                } else {
+                                    onToggleLimitDropdown();
+                                }
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (resultLimit.trim() && parseInt(resultLimit) > 0) {
                                         onResetLimit();
+                                    } else {
+                                        onToggleLimitDropdown();
                                     }
-                                }}
-                                tabIndex={0}
-                                role="menuitem"
-                            >
-                                <div className="limit-reset-button-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                        <path d="M3 3v5h5"></path>
-                                    </svg>
-                                </div>
-                                <div className="limit-reset-button-text">Show all ({totalCount.toLocaleString()})</div>
+                                }
+                            }}
+                            tabIndex={0}
+                            role="menuitem"
+                        >
+                            <div className="limit-reset-button-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                    <path d="M3 3v5h5"></path>
+                                </svg>
                             </div>
-                        ) : null}
+                            <div className="limit-reset-button-text">
+                                {resultLimit.trim() && parseInt(resultLimit) > 0
+                                    ? `Show all (${totalCount.toLocaleString()})`
+                                    : 'Show all'}
+                            </div>
+                        </div>
                         {copyMenuItem}
                     </div>
                 ) : null}
@@ -728,32 +738,42 @@ export function Toolbar({
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                             />
-                            {resultLimit.trim() && parseInt(resultLimit) > 0 ? (
-                                <div
-                                    className="limit-reset-button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                            <div
+                                className={`limit-reset-button${!(resultLimit.trim() && parseInt(resultLimit) > 0) ? ' disabled' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (resultLimit.trim() && parseInt(resultLimit) > 0) {
                                         onResetLimit();
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            e.preventDefault();
-                                            e.stopPropagation();
+                                    } else {
+                                        onToggleLimitDropdown();
+                                    }
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (resultLimit.trim() && parseInt(resultLimit) > 0) {
                                             onResetLimit();
+                                        } else {
+                                            onToggleLimitDropdown();
                                         }
-                                    }}
-                                    tabIndex={0}
-                                    role="menuitem"
-                                >
-                                    <div className="limit-reset-button-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                            <path d="M3 3v5h5"></path>
-                                        </svg>
-                                    </div>
-                                    <div className="limit-reset-button-text">Show all ({totalCount.toLocaleString()})</div>
+                                    }
+                                }}
+                                tabIndex={0}
+                                role="menuitem"
+                            >
+                                <div className="limit-reset-button-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                        <path d="M3 3v5h5"></path>
+                                    </svg>
                                 </div>
-                            ) : null}
+                                <div className="limit-reset-button-text">
+                                    {resultLimit.trim() && parseInt(resultLimit) > 0
+                                        ? `Show all (${totalCount.toLocaleString()})`
+                                        : 'Show all'}
+                                </div>
+                            </div>
                             {copyMenuItem}
                         </div>
                     ) : null}
