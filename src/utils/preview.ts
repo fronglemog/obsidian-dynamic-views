@@ -37,12 +37,6 @@ const markdownPatterns = [
 ];
 
 /**
- * Placeholder for escaped characters to prevent them from being processed as markdown
- */
-const ESCAPED_CHAR_PLACEHOLDER = '\x00ESCAPED_';
-const ESCAPED_CHAR_END = '\x00';
-
-/**
  * Replace escaped characters with placeholders to protect from markdown processing
  * Returns the text with placeholders and a map to restore them later
  */
@@ -51,7 +45,7 @@ function protectEscapedChars(text: string): { text: string; map: Map<string, str
     let counter = 0;
 
     const result = text.replace(/\\(.)/g, (match, char) => {
-        const placeholder = `${ESCAPED_CHAR_PLACEHOLDER}${counter}${ESCAPED_CHAR_END}`;
+        const placeholder = `__ESCAPED_CHAR_${counter}__`;
         map.set(placeholder, char);
         counter++;
         return placeholder;
@@ -66,7 +60,7 @@ function protectEscapedChars(text: string): { text: string; map: Map<string, str
 function restoreEscapedChars(text: string, map: Map<string, string>): string {
     let result = text;
     map.forEach((char, placeholder) => {
-        result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), char);
+        result = result.split(placeholder).join(char);
     });
     return result;
 }
