@@ -27,6 +27,8 @@ export class DynamicViewsMasonryView extends BasesView {
     private displayedCount: number = 50;
     private isLoading: boolean = false;
     private scrollListener: (() => void) | null = null;
+    private scrollThrottleTimeout: number | null = null;
+    private resizeObserver: ResizeObserver | null = null;
 
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
@@ -37,6 +39,8 @@ export class DynamicViewsMasonryView extends BasesView {
         // Make container scrollable
         this.containerEl.style.overflowY = 'auto';
         this.containerEl.style.height = '100%';
+        // Set initial batch size based on device
+        this.displayedCount = (this.app as any).isMobile ? 25 : 50;
     }
 
     async onDataUpdated(): Promise<void> {
@@ -49,11 +53,25 @@ export class DynamicViewsMasonryView extends BasesView {
         // Save scroll position before re-rendering
         const savedScrollTop = this.containerEl.scrollTop;
 
-        // Load snippets and images for ALL entries (PoC: skip optimization)
-        await this.loadContentForEntries(entries, settings);
+        // Try to find the first visible card to restore position more accurately
+        let anchorCardPath: string | null = null;
+        if (savedScrollTop > 0 && this.masonryContainer) {
+            const cards = this.masonryContainer.querySelectorAll('.writing-card');
+            const containerTop = this.containerEl.getBoundingClientRect().top;
+            for (const card of Array.from(cards)) {
+                const cardTop = (card as HTMLElement).getBoundingClientRect().top;
+                if (cardTop >= containerTop - 50) { // First card near or in viewport
+                    anchorCardPath = (card as HTMLElement).getAttribute('data-path');
+                    break;
+                }
+            }
+        }
 
         // Slice to displayed count for rendering
         const visibleEntries = entries.slice(0, this.displayedCount);
+
+        // Load snippets and images ONLY for displayed entries
+        await this.loadContentForEntries(visibleEntries, settings);
 
         // Transform to CardData (only visible entries)
         const sortMethod = this.getSortMethod();
@@ -94,6 +112,17 @@ export class DynamicViewsMasonryView extends BasesView {
                 // Restore scroll position AFTER masonry layout completes
                 if (savedScrollTop > 0) {
                     requestAnimationFrame(() => {
+                        // Try to scroll to anchor card if we found one
+                        if (anchorCardPath && this.masonryContainer) {
+                            const anchorCard = this.masonryContainer.querySelector(`.writing-card[data-path="${anchorCardPath}"]`) as HTMLElement;
+                            if (anchorCard) {
+                                // Scroll to anchor card's position
+                                const cardTop = anchorCard.offsetTop;
+                                this.containerEl.scrollTop = Math.max(0, cardTop - 100);
+                                return;
+                            }
+                        }
+                        // Fallback: restore saved scroll position
                         this.containerEl.scrollTop = savedScrollTop;
                     });
                 }
@@ -329,20 +358,33 @@ export class DynamicViewsMasonryView extends BasesView {
         // Get sort configuration from Bases
         const sortConfigs = this.config.getSort();
 
+        console.log('// [Bases Sort Debug - Masonry View] getSort() returned:', sortConfigs);
+        console.log('// [Bases Sort Debug - Masonry View] Array length:', sortConfigs?.length);
+
         if (sortConfigs && sortConfigs.length > 0) {
             const firstSort = sortConfigs[0];
+            console.log('// [Bases Sort Debug - Masonry View] First sort config:', firstSort);
+            console.log('// [Bases Sort Debug - Masonry View] Property:', firstSort.property);
+            console.log('// [Bases Sort Debug - Masonry View] Direction:', firstSort.direction);
+
             const property = firstSort.property;
             const direction = firstSort.direction.toLowerCase();
 
             // Check for ctime/mtime in property
             if (property.includes('ctime')) {
-                return `ctime-${direction}`;
+                const result = `ctime-${direction}`;
+                console.log('// [Bases Sort Debug - Masonry View] Detected:', result);
+                return result;
             }
             if (property.includes('mtime')) {
-                return `mtime-${direction}`;
+                const result = `mtime-${direction}`;
+                console.log('// [Bases Sort Debug - Masonry View] Detected:', result);
+                return result;
             }
+            console.log('// [Bases Sort Debug - Masonry View] Custom property sort, falling back to mtime-desc');
+        } else {
+            console.log('// [Bases Sort Debug - Masonry View] No sort config, using default mtime-desc');
         }
-        // Default to mtime-desc if no sort config or unrecognized property
         return 'mtime-desc';
     }
 
@@ -438,19 +480,26 @@ export class DynamicViewsMasonryView extends BasesView {
     }
 
     private setupInfiniteScroll(totalEntries: number): void {
-        // Clean up existing listener
+        // Clean up existing listeners
         if (this.scrollListener) {
             this.containerEl.removeEventListener('scroll', this.scrollListener);
             this.scrollListener = null;
         }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
 
         // Skip if all items already displayed
         if (this.displayedCount >= totalEntries) {
+            console.log('// [InfiniteScroll] All items displayed, skipping setup');
             return;
         }
 
-        // Create scroll handler
-        this.scrollListener = () => {
+        console.log(`// [InfiniteScroll] Setting up scroll listener (${this.displayedCount}/${totalEntries} items)`);
+
+        // Shared load check function
+        const checkAndLoad = (trigger: string) => {
             // Skip if already loading
             if (this.isLoading) {
                 return;
@@ -462,15 +511,20 @@ export class DynamicViewsMasonryView extends BasesView {
             const clientHeight = this.containerEl.clientHeight;
             const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-            // Threshold: 500px from bottom
-            const threshold = 500;
+            // Dynamic threshold based on viewport and device
+            const isMobile = (this.app as any).isMobile;
+            const viewportMultiplier = isMobile ? 1 : 2;
+            const threshold = clientHeight * viewportMultiplier;
 
             // Check if should load more
             if (distanceFromBottom < threshold && this.displayedCount < totalEntries) {
+                console.log(`// [InfiniteScroll] Loading more items [${trigger}] (distance: ${distanceFromBottom.toFixed(0)}px, threshold: ${threshold.toFixed(0)}px)`);
                 this.isLoading = true;
 
-                // Increment batch
-                this.displayedCount = Math.min(this.displayedCount + 50, totalEntries);
+                // Dynamic batch size based on masonry columns (estimate 3 columns avg, 10 rows per column)
+                const batchSize = Math.min(30, 70);
+                this.displayedCount = Math.min(this.displayedCount + batchSize, totalEntries);
+                console.log(`// [InfiniteScroll] New displayedCount: ${this.displayedCount}/${totalEntries}`);
 
                 // Re-render (this will call setupInfiniteScroll again)
                 this.onDataUpdated().then(() => {
@@ -479,13 +533,43 @@ export class DynamicViewsMasonryView extends BasesView {
             }
         };
 
-        // Attach listener
+        // Create scroll handler with throttling
+        this.scrollListener = () => {
+            // Throttle: skip if cooldown active
+            if (this.scrollThrottleTimeout !== null) {
+                return;
+            }
+
+            checkAndLoad('scroll');
+
+            // Start throttle cooldown
+            this.scrollThrottleTimeout = window.setTimeout(() => {
+                this.scrollThrottleTimeout = null;
+            }, 100);
+        };
+
+        // Attach scroll listener
         this.containerEl.addEventListener('scroll', this.scrollListener);
+
+        // Setup ResizeObserver on masonry container to detect layout changes
+        if (this.masonryContainer) {
+            this.resizeObserver = new ResizeObserver(() => {
+                // Masonry layout completed, check if need more items
+                checkAndLoad('resize');
+            });
+            this.resizeObserver.observe(this.masonryContainer);
+        }
 
         // Register cleanup
         this.register(() => {
             if (this.scrollListener) {
                 this.containerEl.removeEventListener('scroll', this.scrollListener);
+            }
+            if (this.scrollThrottleTimeout !== null) {
+                window.clearTimeout(this.scrollThrottleTimeout);
+            }
+            if (this.resizeObserver) {
+                this.resizeObserver.disconnect();
             }
         });
     }

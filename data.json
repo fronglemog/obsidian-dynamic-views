@@ -17,7 +17,7 @@
     "metadataDisplayRight": "timestamp",
     "metadataDisplayWinner": null,
     "listMarker": "number",
-    "showTimestampIcon": true,
+    "showTimestampIcon": false,
     "minMasonryColumns": 1,
     "randomizeAction": "shuffle",
     "thumbnailCacheSize": "balanced",
