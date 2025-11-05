@@ -6,6 +6,7 @@ import { getAvailablePath } from './src/utils/file';
 import './src/jsx-runtime'; // Ensure h and Fragment are globally available
 import { DynamicViewsCardView, cardViewOptions } from './src/bases/card-view';
 import { DynamicViewsMasonryView, masonryViewOptions } from './src/bases/masonry-view';
+import { DynamicViewsSettingTab } from './src/settings-tab';
 
 export default class DynamicViewsPlugin extends Plugin {
 	persistenceManager: PersistenceManager;
@@ -35,6 +36,9 @@ export default class DynamicViewsPlugin extends Plugin {
 	async onload() {
 		this.persistenceManager = new PersistenceManager(this);
 		await this.persistenceManager.load();
+
+		// Register settings tab
+		this.addSettingTab(new DynamicViewsSettingTab(this.app, this));
 
 		// Register Bases views
 		// Note: Named "Grid" to differentiate from built-in Bases "Cards" view

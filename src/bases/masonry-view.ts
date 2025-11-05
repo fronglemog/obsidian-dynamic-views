@@ -18,6 +18,7 @@ export const MASONRY_VIEW_TYPE = 'dynamic-views-masonry';
 export class DynamicViewsMasonryView extends BasesView {
     readonly type = MASONRY_VIEW_TYPE;
     private containerEl: HTMLElement;
+    private plugin: DynamicViewsPlugin;
     private snippets: Record<string, string> = {};
     private images: Record<string, string | string[]> = {};
     private hasImageAvailable: Record<string, boolean> = {};
@@ -33,6 +34,7 @@ export class DynamicViewsMasonryView extends BasesView {
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
         this.containerEl = containerEl;
+        this.plugin = plugin;
         // Add both classes - 'dynamic-views' for CSS styling, 'dynamic-views-bases-container' for identification
         this.containerEl.addClass('dynamic-views');
         this.containerEl.addClass('dynamic-views-bases-container');
@@ -48,7 +50,7 @@ export class DynamicViewsMasonryView extends BasesView {
         const entries = this.data.data;
 
         // Read settings from Bases config
-        const settings = readBasesSettings(this.config);
+        const settings = readBasesSettings(this.config, this.plugin.persistenceManager.getGlobalSettings());
 
         // Save scroll position before re-rendering
         const savedScrollTop = this.containerEl.scrollTop;

@@ -264,46 +264,6 @@ export function Settings({
                 </div>
             )}
 
-            {/* Add Card Background Toggle */}
-            <div className="setting-item setting-item-toggle">
-                <div className="setting-item-info">
-                    <label>Tint card background</label>
-                    <div className="setting-desc">Darken card background slightly.</div>
-                </div>
-                <div
-                    className={`checkbox-container ${settings.addCardBackground ? 'is-enabled' : ''}`}
-                    onClick={() => onSettingsChange({ addCardBackground: !settings.addCardBackground })}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onSettingsChange({ addCardBackground: !settings.addCardBackground });
-                        }
-                    }}
-                    tabIndex={0}
-                    role="checkbox"
-                    aria-checked={settings.addCardBackground}
-                />
-            </div>
-
-            {/* Thumbnail Cache Size */}
-            <div className="setting-item setting-item-text">
-                <div className="setting-item-info">
-                    <label>Thumbnail cache size</label>
-                    <div className="setting-desc">Set how many thumbnails to keep in memory. Larger cache shows fewer placeholders but uses more memory.</div>
-                </div>
-                <select
-                    value={settings.thumbnailCacheSize}
-                    onChange={(e) => onSettingsChange({ thumbnailCacheSize: e.target.value })}
-                    className="dropdown"
-                >
-                    <option value="minimal">Minimal</option>
-                    <option value="small">Small</option>
-                    <option value="balanced">Balanced</option>
-                    <option value="large">Large</option>
-                    <option value="unlimited">Unlimited</option>
-                </select>
-            </div>
-
             {/* Metadata Display (Left) */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
@@ -375,22 +335,6 @@ export function Settings({
                 </select>
             </div>
 
-            {/* Smallest Number of Masonry Columns */}
-            <div className="setting-item setting-item-text">
-                <div className="setting-item-info">
-                    <label>Smallest number of masonry columns</label>
-                    <div className="setting-desc">Set minimum number of columns in masonry layout on narrow screens.</div>
-                </div>
-                <select
-                    value={settings.minMasonryColumns}
-                    onChange={(e) => onSettingsChange({ minMasonryColumns: parseInt(e.target.value) })}
-                    className="dropdown"
-                >
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                </select>
-            </div>
-
             {/* Randomize Action */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
@@ -438,22 +382,6 @@ export function Settings({
                         style={{ width: '80px' }}
                     />
                 </div>
-            </div>
-
-            {/* Open File Action */}
-            <div className="setting-item setting-item-text">
-                <div className="setting-item-info">
-                    <label>Open file action</label>
-                    <div className="setting-desc">Set whether pressing on card or title should open file, or only when pressing on title.</div>
-                </div>
-                <select
-                    value={settings.openFileAction}
-                    onChange={(e) => onSettingsChange({ openFileAction: e.target.value })}
-                    className="dropdown"
-                >
-                    <option value="card">Card or title</option>
-                    <option value="title">Title only</option>
-                </select>
             </div>
 
             {/* Title Property */}

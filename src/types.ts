@@ -19,10 +19,10 @@ export interface Settings {
     showTimestampIcon: boolean;
     minMasonryColumns: number;
     randomizeAction: string;
-    thumbnailCacheSize: string;
+    thumbnailCacheSize: 'minimal' | 'small' | 'balanced' | 'large' | 'unlimited';
     queryHeight: number;
-    openFileAction: string;
-    addCardBackground: boolean;
+    openFileAction: 'card' | 'title';
+    addCardBackground: 'tinted' | 'transparent';
 }
 
 export interface UIState {

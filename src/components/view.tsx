@@ -1252,7 +1252,7 @@ export function View({ plugin, app, dc, USER_QUERY = '', USER_SETTINGS = {} }: V
     return (
         <div
             ref={explorerRef}
-            className={`dynamic-views ${widthClass}${!settings.addCardBackground ? ' no-card-background' : ''}`}
+            className={`dynamic-views ${widthClass}${settings.addCardBackground === 'transparent' ? ' no-card-background' : ''}`}
         >
             <div
                 ref={toolbarRef}

@@ -25,12 +25,12 @@ export const DEFAULT_SETTINGS: Settings = {
     metadataDisplayWinner: null,
     listMarker: "bullet",
     showTimestampIcon: true,
-    minMasonryColumns: 1,
+    minMasonryColumns: 2,
     randomizeAction: "shuffle",
     thumbnailCacheSize: "balanced",
     queryHeight: 0,
     openFileAction: "card",
-    addCardBackground: true
+    addCardBackground: "tinted"
 };
 
 /**
@@ -151,33 +151,6 @@ export function getBasesViewOptions(): any[] {
             key: 'showTimestampIcon',
             default: true
         },
-        {
-            type: 'dropdown',
-            displayName: 'Open file action',
-            key: 'openFileAction',
-            default: 'card',
-            options: {
-                'card': 'Click card',
-                'title': 'Click title only'
-            }
-        },
-        {
-            type: 'toggle',
-            displayName: 'Add card background',
-            key: 'addCardBackground',
-            default: true
-        },
-        {
-            type: 'dropdown',
-            displayName: 'Thumbnail cache size',
-            key: 'thumbnailCacheSize',
-            default: 'balanced',
-            options: {
-                'small': 'Small (faster, lower quality)',
-                'balanced': 'Balanced',
-                'large': 'Large (slower, higher quality)'
-            }
-        }
     ];
 }
 
@@ -185,24 +158,14 @@ export function getBasesViewOptions(): any[] {
  * Additional options specific to masonry view
  */
 export function getMasonryViewOptions(): any[] {
-    return [
-        ...getBasesViewOptions(),
-        {
-            type: 'number',
-            displayName: 'Minimum columns',
-            key: 'minMasonryColumns',
-            default: 1,
-            min: 1,
-            max: 6
-        }
-    ];
+    return getBasesViewOptions();
 }
 
 /**
  * Read settings from Bases config
  * Maps Bases config values to Settings object
  */
-export function readBasesSettings(config: any): Settings {
+export function readBasesSettings(config: any, globalSettings: Settings): Settings {
     return {
         titleProperty: String(config.get('titleProperty') || DEFAULT_SETTINGS.titleProperty),
         descriptionProperty: String(config.get('descriptionProperty') || DEFAULT_SETTINGS.descriptionProperty),
@@ -222,11 +185,11 @@ export function readBasesSettings(config: any): Settings {
         metadataDisplayWinner: null, // Computed at runtime by view instances
         listMarker: String(config.get('listMarker') || DEFAULT_SETTINGS.listMarker) as 'bullet' | 'number',
         showTimestampIcon: Boolean(config.get('showTimestampIcon') ?? DEFAULT_SETTINGS.showTimestampIcon),
-        minMasonryColumns: Number(config.get('minMasonryColumns') || DEFAULT_SETTINGS.minMasonryColumns),
+        minMasonryColumns: globalSettings.minMasonryColumns, // From global settings
         randomizeAction: String(config.get('randomizeAction') || DEFAULT_SETTINGS.randomizeAction) as 'shuffle' | 'random',
-        thumbnailCacheSize: String(config.get('thumbnailCacheSize') || DEFAULT_SETTINGS.thumbnailCacheSize) as 'small' | 'balanced' | 'large',
+        thumbnailCacheSize: globalSettings.thumbnailCacheSize, // From global settings
         queryHeight: 0, // Not configurable in Bases
-        openFileAction: String(config.get('openFileAction') || DEFAULT_SETTINGS.openFileAction) as 'card' | 'title',
-        addCardBackground: Boolean(config.get('addCardBackground') ?? DEFAULT_SETTINGS.addCardBackground)
+        openFileAction: globalSettings.openFileAction, // From global settings
+        addCardBackground: globalSettings.addCardBackground // From global settings
     };
 }

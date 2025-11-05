@@ -19,12 +19,12 @@ export const DEFAULT_SETTINGS: Settings = {
     metadataDisplayWinner: null,
     listMarker: "bullet",
     showTimestampIcon: true,
-    minMasonryColumns: 1,
+    minMasonryColumns: 2,
     randomizeAction: "shuffle",
     thumbnailCacheSize: "balanced",
     queryHeight: 0,
     openFileAction: "card",
-    addCardBackground: true
+    addCardBackground: "tinted"
 };
 
 export const DEFAULT_UI_STATE = {
