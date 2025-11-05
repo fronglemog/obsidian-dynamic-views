@@ -1,0 +1,93 @@
+/**
+ * Shared rendering utilities
+ * Pure functions used by both Bases (DOM) and Datacore (JSX) views
+ */
+
+import type { Settings } from '../types';
+
+/**
+ * Format timestamp with automatic date/datetime detection
+ * Shows time if within last 24 hours, otherwise just date
+ */
+export function formatTimestamp(timestamp: number): string {
+    const date = new Date(timestamp);
+    const now = Date.now();
+    const isRecent = now - timestamp < 86400000;
+
+    const yyyy = date.getFullYear();
+    const MM = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+
+    if (isRecent) {
+        const HH = String(date.getHours()).padStart(2, '0');
+        const mm = String(date.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${MM}-${dd} ${HH}:${mm}`;
+    }
+
+    return `${yyyy}-${MM}-${dd}`;
+}
+
+/**
+ * Determine effective metadata display values
+ * Handles duplicate detection: left always wins when both are the same non-none value
+ */
+export function getEffectiveMetadata(settings: Settings): {
+    left: 'none' | 'timestamp' | 'tags' | 'path';
+    right: 'none' | 'timestamp' | 'tags' | 'path';
+} {
+    const isDuplicate = settings.metadataDisplayLeft !== 'none' &&
+        settings.metadataDisplayLeft === settings.metadataDisplayRight;
+
+    return {
+        left: settings.metadataDisplayLeft,
+        right: isDuplicate ? 'none' : settings.metadataDisplayRight
+    };
+}
+
+/**
+ * Check if timestamp icon should be shown
+ */
+export function shouldShowTimestampIcon(settings: Settings): boolean {
+    return settings.showTimestampIcon;
+}
+
+/**
+ * Get timestamp icon name based on sort method
+ */
+export function getTimestampIcon(sortMethod: string): 'calendar' | 'clock' {
+    return sortMethod.startsWith('ctime') ? 'calendar' : 'clock';
+}
+
+/**
+ * Check if a value is a valid Datacore date value
+ */
+export function isDatacoreDateValue(value: any): boolean {
+    return value?.date instanceof Date;
+}
+
+/**
+ * Extract timestamp from Datacore date value
+ */
+export function extractDatacoreTimestamp(value: any): number | null {
+    if (isDatacoreDateValue(value)) {
+        return value.date.getTime();
+    }
+    return null;
+}
+
+/**
+ * Check if a value is a valid Bases date value
+ */
+export function isBasesDateValue(value: any): boolean {
+    return value?.date instanceof Date;
+}
+
+/**
+ * Extract timestamp from Bases date value
+ */
+export function extractBasesTimestamp(value: any): number | null {
+    if (isBasesDateValue(value)) {
+        return value.date.getTime();
+    }
+    return null;
+}

@@ -5,7 +5,49 @@
 
 import type { CardData } from './card-renderer';
 import type { Settings } from '../types';
-import { getFirstDatacorePropertyValue, getFirstBasesPropertyValue } from '../utils/property';
+import {
+    getFirstDatacorePropertyValue,
+    getFirstBasesPropertyValue,
+    getFirstDatacoreDatePropertyValue,
+    getFirstBasesDatePropertyValue
+} from '../utils/property';
+import { isDatacoreDateValue, isBasesDateValue } from './render-utils';
+
+/**
+ * Resolve timestamp for Datacore result based on settings and sort method
+ */
+function resolveDatacoreTimestamp(
+    result: any,
+    settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean
+): number | null {
+    const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
+    const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
+    const fallbackEnabled = useCreatedTime ? settings.fallbackToCtime : settings.fallbackToMtime;
+
+    if (customProperty) {
+        // Try to get first valid date from comma-separated properties
+        const propValue = getFirstDatacoreDatePropertyValue(result, customProperty);
+
+        if (propValue && typeof propValue === 'object' && 'toMillis' in propValue) {
+            // Found valid date property
+            return propValue.toMillis();
+        } else if (fallbackEnabled) {
+            // No valid property date found - fall back to file metadata if enabled
+            const fileTimestamp = useCreatedTime ? result.$ctime : result.$mtime;
+            return fileTimestamp?.toMillis?.() || null;
+        }
+        // If no valid property and fallback disabled, return null
+        return null;
+    } else if (fallbackEnabled) {
+        // No custom property configured - use file metadata if fallback enabled
+        const fileTimestamp = useCreatedTime ? result.$ctime : result.$mtime;
+        return fileTimestamp?.toMillis?.() || null;
+    }
+
+    return null;
+}
 
 /**
  * Transform Datacore result into CardData
@@ -15,6 +57,8 @@ export function datacoreResultToCardData(
     result: any,
     dc: any,
     settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean,
     snippet?: string,
     imageUrl?: string | string[],
     hasImageAvailable?: boolean
@@ -35,6 +79,9 @@ export function datacoreResultToCardData(
     const ctime = result.$ctime?.toMillis?.() || 0;
     const mtime = result.$mtime?.toMillis?.() || 0;
 
+    // Resolve display timestamp based on custom properties
+    const displayTimestamp = resolveDatacoreTimestamp(result, settings, sortMethod, isShuffled);
+
     return {
         path,
         name: result.$name || '',
@@ -45,8 +92,43 @@ export function datacoreResultToCardData(
         folderPath,
         snippet,
         imageUrl,
-        hasImageAvailable: hasImageAvailable || false
+        hasImageAvailable: hasImageAvailable || false,
+        displayTimestamp: displayTimestamp || undefined
     };
+}
+
+/**
+ * Resolve timestamp for Bases entry based on settings and sort method
+ */
+function resolveBasesTimestamp(
+    entry: any,
+    settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean
+): number | null {
+    const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
+    const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
+    const fallbackEnabled = useCreatedTime ? settings.fallbackToCtime : settings.fallbackToMtime;
+
+    if (customProperty) {
+        // Try to get first valid date from comma-separated properties
+        const value = getFirstBasesDatePropertyValue(entry, customProperty);
+
+        if (value && isBasesDateValue(value)) {
+            // Found valid date property
+            return value.date.getTime();
+        } else if (fallbackEnabled) {
+            // No valid property date found - fall back to file metadata if enabled
+            return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
+        }
+        // If no valid property and fallback disabled, return null
+        return null;
+    } else if (fallbackEnabled) {
+        // No custom property configured - use file metadata if fallback enabled
+        return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
+    }
+
+    return null;
 }
 
 /**
@@ -56,6 +138,8 @@ export function datacoreResultToCardData(
 export function basesEntryToCardData(
     entry: any, // BasesEntry type
     settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean,
     snippet?: string,
     imageUrl?: string | string[],
     hasImageAvailable?: boolean
@@ -91,6 +175,9 @@ export function basesEntryToCardData(
     const ctime = entry.file.stat.ctime;
     const mtime = entry.file.stat.mtime;
 
+    // Resolve display timestamp based on custom properties
+    const displayTimestamp = resolveBasesTimestamp(entry, settings, sortMethod, isShuffled);
+
     return {
         path,
         name: fileName,
@@ -101,7 +188,8 @@ export function basesEntryToCardData(
         folderPath,
         snippet,
         imageUrl,
-        hasImageAvailable: hasImageAvailable || false
+        hasImageAvailable: hasImageAvailable || false,
+        displayTimestamp: displayTimestamp || undefined
     };
 }
 
@@ -112,6 +200,8 @@ export function transformDatacoreResults(
     results: any[],
     dc: any,
     settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean,
     snippets: Record<string, string>,
     images: Record<string, string | string[]>,
     hasImageAvailable: Record<string, boolean>
@@ -122,6 +212,8 @@ export function transformDatacoreResults(
             p,
             dc,
             settings,
+            sortMethod,
+            isShuffled,
             snippets[p.$path],
             images[p.$path],
             hasImageAvailable[p.$path]
@@ -134,6 +226,8 @@ export function transformDatacoreResults(
 export function transformBasesEntries(
     entries: any[], // BasesEntry[]
     settings: Settings,
+    sortMethod: string,
+    isShuffled: boolean,
     snippets: Record<string, string>,
     images: Record<string, string | string[]>,
     hasImageAvailable: Record<string, boolean>
@@ -141,6 +235,8 @@ export function transformBasesEntries(
     return entries.map(entry => basesEntryToCardData(
         entry,
         settings,
+        sortMethod,
+        isShuffled,
         snippets[entry.file.path],
         images[entry.file.path],
         hasImageAvailable[entry.file.path]

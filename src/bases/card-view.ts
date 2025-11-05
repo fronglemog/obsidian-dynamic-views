@@ -9,7 +9,8 @@ import { transformBasesEntries } from '../shared/data-transform';
 import { readBasesSettings, getBasesViewOptions } from '../shared/settings-schema';
 import { loadImageForFile, isExternalUrl, validateImageUrl } from '../utils/image';
 import { sanitizeForPreview } from '../utils/preview';
-import { getFirstBasesPropertyValue, getAllBasesImagePropertyValues, getFirstBasesDatePropertyValue } from '../utils/property';
+import { getFirstBasesPropertyValue, getAllBasesImagePropertyValues } from '../utils/property';
+import { formatTimestamp, getTimestampIcon } from '../shared/render-utils';
 import type DynamicViewsPlugin from '../../main';
 
 export const CARD_VIEW_TYPE = 'dynamic-views-card';
@@ -46,9 +47,12 @@ export class DynamicViewsCardView extends BasesView {
         await this.loadContentForEntries(entries, settings);
 
         // Transform to CardData
+        const sortMethod = this.getSortMethod();
         const cards = transformBasesEntries(
             entries,
             settings,
+            sortMethod,
+            false, // Bases views don't shuffle
             this.snippets,
             this.images,
             this.hasImageAvailable
@@ -170,33 +174,14 @@ export class DynamicViewsCardView extends BasesView {
         if (displayType === 'none') return;
 
         if (displayType === 'timestamp') {
-            const useCreatedTime = this.getSortMethod().startsWith('ctime');
-            const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
-            const fallbackEnabled = useCreatedTime ? settings.fallbackToCtime : settings.fallbackToMtime;
-
-            let timestamp: number | null = null;
-
-            if (customProperty) {
-                // Try to get first valid date from comma-separated properties
-                const value = getFirstBasesDatePropertyValue(entry, customProperty);
-
-                if (value && this.isDateValue(value)) {
-                    // Found valid date property
-                    timestamp = this.extractTimestamp(value);
-                } else if (fallbackEnabled) {
-                    // No valid property date found - fall back to file metadata if enabled
-                    timestamp = useCreatedTime ? card.ctime : card.mtime;
-                }
-                // If no valid property and fallback disabled, timestamp remains null
-            } else if (fallbackEnabled) {
-                // No custom property configured - use file metadata if fallback enabled
-                timestamp = useCreatedTime ? card.ctime : card.mtime;
-            }
+            // Use resolved displayTimestamp from CardData (already handles custom properties)
+            const timestamp = card.displayTimestamp;
 
             if (timestamp) {
-                const date = this.formatTimestamp(timestamp);
+                const date = formatTimestamp(timestamp);
                 if (settings.showTimestampIcon) {
-                    const iconName = useCreatedTime ? 'calendar' : 'clock';
+                    const sortMethod = this.getSortMethod();
+                    const iconName = getTimestampIcon(sortMethod);
                     const iconEl = container.createSpan('timestamp-icon');
                     setIcon(iconEl, iconName);
                     iconEl.style.display = 'inline-block';
@@ -229,43 +214,29 @@ export class DynamicViewsCardView extends BasesView {
         }
     }
 
-    private isDateValue(value: any): boolean {
-        return value?.date instanceof Date;
-    }
-
-    private extractTimestamp(value: any): number | null {
-        if (this.isDateValue(value)) {
-            return value.date.getTime();
-        }
-        return null;
-    }
-
-    private formatTimestamp(timestamp: number): string {
-        const date = new Date(timestamp);
-        const now = Date.now();
-        const isRecent = now - timestamp < 86400000;
-
-        const yyyy = date.getFullYear();
-        const MM = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-
-        if (isRecent) {
-            const HH = String(date.getHours()).padStart(2, '0');
-            const mm = String(date.getMinutes()).padStart(2, '0');
-            return `${yyyy}-${MM}-${dd} ${HH}:${mm}`;
-        }
-
-        return `${yyyy}-${MM}-${dd}`;
-    }
-
     private getSortMethod(): string {
         // Get sort from Bases config if available
         const sort = this.config.getOrder();
+
+        console.log('// [Bases Sort Debug - Card View] getOrder() returned:', sort);
+        console.log('// [Bases Sort Debug - Card View] Array length:', sort?.length);
+
         if (sort && sort.length > 0) {
             const firstSort = sort[0];
+            console.log('// [Bases Sort Debug - Card View] First element (sort[0]):', firstSort);
+
             // Simple mapping - extend as needed
-            if (firstSort.includes('ctime')) return 'ctime-desc';
-            if (firstSort.includes('mtime')) return 'mtime-desc';
+            if (firstSort.includes('ctime')) {
+                console.log('// [Bases Sort Debug - Card View] Detected: ctime-desc');
+                return 'ctime-desc';
+            }
+            if (firstSort.includes('mtime')) {
+                console.log('// [Bases Sort Debug - Card View] Detected: mtime-desc');
+                return 'mtime-desc';
+            }
+            console.log('// [Bases Sort Debug - Card View] No match, falling back to mtime-desc');
+        } else {
+            console.log('// [Bases Sort Debug - Card View] No sort config, using default mtime-desc');
         }
         return 'mtime-desc';
     }

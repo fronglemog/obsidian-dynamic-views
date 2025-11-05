@@ -17,6 +17,7 @@ export interface CardData {
     snippet?: string;
     imageUrl?: string | string[];
     hasImageAvailable: boolean;
+    displayTimestamp?: number;  // Resolved timestamp after custom property extraction (milliseconds)
 }
 
 export interface CardRendererProps {
@@ -194,7 +195,8 @@ function Card({
 }: CardProps) {
     // Determine which timestamp to show
     const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
-    const timestamp = useCreatedTime ? card.ctime : card.mtime;
+    // Use displayTimestamp if available (already resolved with custom properties), otherwise fall back to ctime/mtime
+    const timestamp = card.displayTimestamp !== undefined ? card.displayTimestamp : (useCreatedTime ? card.ctime : card.mtime);
 
     // Format timestamp
     const now = Date.now();
