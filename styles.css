@@ -1311,17 +1311,15 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     flex-shrink: 0;
 }
 
-/* Grid layout - no flex properties needed, grid handles space distribution */
-/* Tags/path elements maintain scrolling behavior */
-.dynamic-views .meta-left:not(:has(> span)),
-.dynamic-views .meta-right:not(:has(> span)) {
-    /* Grid automatically caps each column at 50% (1fr each) */
-    /* Elements fill available space in their grid cell */
+/* Grid items must be constrained to their grid cells */
+.dynamic-views .meta-left,
+.dynamic-views .meta-right {
+    max-width: 100%;
 }
 
-/* Right alignment for right element in grid */
+/* Right alignment for content within right grid cell */
 .dynamic-views .writing-meta:not(.meta-left-only):not(.meta-right-only) .meta-right {
-    justify-self: end;
+    justify-content: flex-end;
     padding-left: 6px;
 }
 
