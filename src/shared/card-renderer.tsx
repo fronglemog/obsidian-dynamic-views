@@ -213,7 +213,8 @@ function Card({
         : (card.imageUrl ? [card.imageUrl as string] : []);
 
     // Track hovered image index (for multi-image thumbnails)
-    const hoveredImageIndex = 0;
+    // TODO: Implement image cycling on hover
+    // const hoveredImageIndex = 0;
 
     return (
         <div

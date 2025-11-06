@@ -12,7 +12,7 @@ import {
     getFirstDatacoreDatePropertyValue,
     getFirstBasesDatePropertyValue
 } from '../utils/property';
-import { isDatacoreDateValue, isBasesDateValue } from './render-utils';
+import { isBasesDateValue } from './render-utils';
 
 /**
  * Resolve timestamp for Datacore result based on settings and sort method

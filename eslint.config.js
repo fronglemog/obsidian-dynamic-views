@@ -44,7 +44,7 @@ export default [
       "obsidianmd/platform": "error",
 
       // TypeScript overrides
-      "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
+      "@typescript-eslint/no-unused-vars": ["warn", { "args": "none", "varsIgnorePattern": "^_" }],
       "@typescript-eslint/ban-ts-comment": "off",
       "no-prototype-builtins": "off"
     }

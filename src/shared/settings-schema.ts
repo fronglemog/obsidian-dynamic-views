@@ -7,10 +7,10 @@ import type { Settings, DefaultViewSettings } from '../types';
 import { DEFAULT_SETTINGS, DEFAULT_VIEW_SETTINGS } from '../constants';
 
 // Module-level reference to plugin for accessing template settings
-let pluginInstance: any = null;
+let _pluginInstance: any = null;
 
 export function setPluginInstance(plugin: any): void {
-    pluginInstance = plugin;
+    _pluginInstance = plugin;
 }
 
 /**

@@ -163,7 +163,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         .join('\n')
         .trim();
 
-    const [query, setQuery] = dc.useState(cleanQuery);
+    const [_query, setQuery] = dc.useState(cleanQuery);
     const [draftQuery, setDraftQuery] = dc.useState(cleanQuery);
     const [appliedQuery, setAppliedQuery] = dc.useState(cleanQuery);
     const [isShuffled, setIsShuffled] = dc.useState(false);
@@ -184,17 +184,15 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     const [settings, setSettings] = dc.useState(getPersistedSettings());
 
     // Refs
-    const explorerRef = dc.useRef(null);
-    const toolbarRef = dc.useRef(null);
-    const containerRef = dc.useRef(null);
-    const updateLayoutRef = dc.useRef(null);
-    const loadMoreRef = dc.useRef(null);
+    const explorerRef = dc.useRef<HTMLElement | null>(null);
+    const toolbarRef = dc.useRef<HTMLElement | null>(null);
+    const containerRef = dc.useRef<HTMLElement | null>(null);
+    const updateLayoutRef = dc.useRef<(() => void) | null>(null);
+    const loadMoreRef = dc.useRef<(() => void) | null>(null);
     const isLoadingRef = dc.useRef(false);
-    const loadAttemptsRef = dc.useRef(0);
-    const columnCountRef = dc.useRef(null);
+    const columnCountRef = dc.useRef<number | null>(null);
     const displayedCountRef = dc.useRef(displayedCount);
-    const settingsTimeoutRef = dc.useRef(null);
-    const initialToolbarOffset = dc.useRef(0);
+    const settingsTimeoutRef = dc.useRef<ReturnType<typeof setTimeout> | null>(null);
     const isSyncing = dc.useRef(false);
 
     const [stickyTop, setStickyTop] = dc.useState(0);
@@ -305,7 +303,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     }, [appliedQuery]);
 
     // Workaround: Direct Datacore event subscription (fires AFTER reindexing completes)
-    const [indexRevision, setIndexRevision] = dc.useState(0);
+    const [_indexRevision, setIndexRevision] = dc.useState(0);
 
     dc.useEffect(() => {
         // Access Datacore core directly
@@ -630,8 +628,8 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
     // Masonry layout
     const [columnCount, setColumnCount] = dc.useState(1);
-    const [columnHeights, setColumnHeights] = dc.useState<number[]>([]);
-    const columnHeightsRef = dc.useRef([]);
+    const [_columnHeights, setColumnHeights] = dc.useState<number[]>([]);
+    const columnHeightsRef = dc.useRef<number[]>([]);
     const lastPositionedCountRef = dc.useRef(0);
     const lastContainerWidthRef = dc.useRef(0);
 
@@ -688,11 +686,11 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
             // Determine if incremental update possible
             const previousCount = lastPositionedCountRef.current || 0;
-            const widthChanged = Math.abs(containerWidth - lastContainerWidthRef.current) > 1;
+            const widthChanged = Math.abs(containerWidth - lastContainerWidthRef.current!) > 1;
             const isIncremental = previousCount > 0 &&
                                   previousCount < cards.length &&
                                   !widthChanged &&
-                                  columnHeightsRef.current.length === cols;
+                                  columnHeightsRef.current!.length === cols;
 
             // Batch DOM operations
             requestAnimationFrame(() => {
@@ -713,7 +711,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
                 // Calculate positions
                 const heights = isIncremental ?
-                    [...columnHeightsRef.current] :
+                    [...columnHeightsRef.current!] :
                     new Array(cols).fill(0);
                 const positions: any[] = [];
 
@@ -897,7 +895,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
             }
 
             // Get current count from ref (captures latest value)
-            const currentCount = displayedCountRef.current;
+            const currentCount = displayedCountRef.current!;
             if (currentCount >= sorted.length) {
                 // console.log(`[InfiniteScroll] All items loaded (${currentCount}/${sorted.length})`);
                 return false; // All items loaded
@@ -948,17 +946,14 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
         // Setup ResizeObserver (watches masonry container)
         // console.log('[InfiniteScroll] Setting up ResizeObserver on masonry container');
-        const resizeObserver = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                const height = entry.contentRect.height;
-                // console.log(`[InfiniteScroll] ResizeObserver: Container height changed to ${height}px (masonry completed layout)`);
+        const resizeObserver = new ResizeObserver(() => {
+            // console.log('[InfiniteScroll] ResizeObserver: Masonry container height changed (layout completed)');
 
-                // Masonry just completed layout, clear loading flag
-                isLoadingRef.current = false;
+            // Masonry just completed layout, clear loading flag
+            isLoadingRef.current = false;
 
-                // Check if need more items
-                loadMoreItems('ResizeObserver');
-            }
+            // Check if need more items
+            loadMoreItems('ResizeObserver');
         });
         resizeObserver.observe(containerRef.current);
 
@@ -1122,9 +1117,9 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         const randomIndex = Math.floor(Math.random() * sorted.length);
         const randomPath = sorted[randomIndex].$path;
         const file = app.vault.getAbstractFileByPath(randomPath);
-        if (file) {
+        if (file instanceof TFile) {
             const newLeaf = Keymap.isModEvent(event);
-            void app.workspace.getLeaf(newLeaf).openFile(file as TFile);
+            void app.workspace.getLeaf(newLeaf).openFile(file);
         }
     }, [sorted, app]);
 
@@ -1159,35 +1154,39 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         }
     }, [currentFile, app]);
 
-    const handleApplyQuery = dc.useCallback(async () => {
-        const processedQuery = ensurePageSelector(draftQuery.trim());
-        setDraftQuery(processedQuery);  // Update editor to show processed query
-        setAppliedQuery(processedQuery);
-        setQuery(processedQuery);
-        setShowQueryEditor(false);
+    const handleApplyQuery = dc.useCallback(() => {
+        void (async () => {
+            const processedQuery = ensurePageSelector(draftQuery.trim());
+            setDraftQuery(processedQuery);  // Update editor to show processed query
+            setAppliedQuery(processedQuery);
+            setQuery(processedQuery);
+            setShowQueryEditor(false);
 
-        if (currentFile) {
-            try {
-                await syncQueryToCodeBlock(processedQuery);
-            } catch (error) {
-                console.error('Failed to sync query to code block:', error);
+            if (currentFile) {
+                try {
+                    await syncQueryToCodeBlock(processedQuery);
+                } catch (error) {
+                    console.error('Failed to sync query to code block:', error);
+                }
             }
-        }
+        })();
     }, [draftQuery, currentFile, syncQueryToCodeBlock]);
 
-    const handleClearQuery = dc.useCallback(async () => {
-        setDraftQuery('');
-        setAppliedQuery('');
-        setQuery('');
+    const handleClearQuery = dc.useCallback(() => {
+        void (async () => {
+            setDraftQuery('');
+            setAppliedQuery('');
+            setQuery('');
 
-        // Save empty query to code block
-        if (currentFile) {
-            try {
-                await syncQueryToCodeBlock('');
-            } catch (error) {
-                console.error('Failed to sync cleared query to code block:', error);
+            // Save empty query to code block
+            if (currentFile) {
+                try {
+                    await syncQueryToCodeBlock('');
+                } catch (error) {
+                    console.error('Failed to sync cleared query to code block:', error);
+                }
             }
-        }
+        })();
     }, [currentFile, syncQueryToCodeBlock]);
 
     const handleResultLimitChange = dc.useCallback((limit: string) => {
@@ -1199,19 +1198,21 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         setShowLimitDropdown(false);
     }, []);
 
-    const handleCreateNote = dc.useCallback(async (event: MouseEvent) => {
-        const folderPath = currentFile?.parent?.path || '';
-        const filePath = getAvailablePath(app, folderPath, 'Untitled');
-        const file = await app.vault.create(filePath, '');
-        const newLeaf = Keymap.isModEvent(event);
-        void app.workspace.getLeaf(newLeaf).openFile(file);
+    const handleCreateNote = dc.useCallback((event: MouseEvent) => {
+        void (async () => {
+            const folderPath = currentFile?.parent?.path || '';
+            const filePath = getAvailablePath(app, folderPath, 'Untitled');
+            const file = await app.vault.create(filePath, '');
+            const newLeaf = Keymap.isModEvent(event);
+            void app.workspace.getLeaf(newLeaf).openFile(file);
+        })();
     }, [app, currentFile]);
 
     const handleCardClick = dc.useCallback((path: string, newLeaf: boolean) => {
         const file = app.vault.getAbstractFileByPath(path);
-        if (file) {
+        if (file instanceof TFile) {
             if (settings.openFileAction === 'card') {
-                void app.workspace.getLeaf(newLeaf).openFile(file as TFile);
+                void app.workspace.getLeaf(newLeaf).openFile(file);
             } else if (settings.openFileAction === 'title') {
                 // Only open on title click (handled in CardView)
             }

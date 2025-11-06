@@ -45,9 +45,9 @@ export class DynamicViewsMasonryView extends BasesView {
         this.displayedCount = (this.app as any).isMobile ? 25 : 50;
     }
 
-    async onDataUpdated(): Promise<void> {
-        const { app } = this;
-        const entries = this.data.data;
+    onDataUpdated(): void {
+        void (async () => {
+            const entries = this.data.data;
 
         // Read settings from Bases config
         const settings = readBasesSettings(
@@ -142,6 +142,10 @@ export class DynamicViewsMasonryView extends BasesView {
 
         // Setup infinite scroll
         this.setupInfiniteScroll(entries.length);
+
+        // Clear loading flag after async work completes
+        this.isLoading = false;
+        })();
     }
 
     private setupMasonryLayout(settings: any): void {
@@ -530,9 +534,7 @@ export class DynamicViewsMasonryView extends BasesView {
                 // console.log(`// [InfiniteScroll] New displayedCount: ${this.displayedCount}/${totalEntries}`);
 
                 // Re-render (this will call setupInfiniteScroll again)
-                void this.onDataUpdated().then(() => {
-                    this.isLoading = false;
-                });
+                this.onDataUpdated();
             }
         };
 

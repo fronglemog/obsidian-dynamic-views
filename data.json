@@ -44,10 +44,10 @@
   "queryStates": {
     "1762122189077": {
       "sortMethod": "mtime-desc",
-      "viewMode": "card",
+      "viewMode": "masonry",
       "searchQuery": "",
       "resultLimit": "",
-      "widthMode": "max"
+      "widthMode": "wide"
     }
   },
   "viewSettings": {
@@ -57,9 +57,9 @@
       "imageProperty": "",
       "metadataDisplayLeft": "tags",
       "metadataDisplayRight": "path",
-      "showTextPreview": false,
+      "showTextPreview": true,
       "fallbackToContent": true,
-      "showThumbnails": false,
+      "showThumbnails": true,
       "fallbackToEmbeds": true,
       "queryHeight": 0,
       "listMarker": "bullet"

@@ -53,10 +53,10 @@ export class DynamicViewsCardView extends BasesView {
         this.displayedCount = this.app.isMobile ? 25 : 50;
     }
 
-    async onDataUpdated(): Promise<void> {
-        console.log('// DEBUG: card-view onDataUpdated() CALLED');
-        const { app } = this;
-        const entries = this.data.data;
+    onDataUpdated(): void {
+        void (async () => {
+            console.log('// DEBUG: card-view onDataUpdated() CALLED');
+            const entries = this.data.data;
 
         // Read settings from Bases config
         const settings = readBasesSettings(
@@ -146,6 +146,10 @@ export class DynamicViewsCardView extends BasesView {
             });
             this.resizeObserver.observe(this.containerEl);
         }
+
+        // Clear loading flag after async work completes
+        this.isLoading = false;
+        })();
     }
 
     private measureMetadataLayout(metaEl: HTMLElement, metaLeft: HTMLElement, metaRight: HTMLElement): void {
@@ -560,9 +564,7 @@ export class DynamicViewsCardView extends BasesView {
                 // console.log(`// [InfiniteScroll] New displayedCount: ${this.displayedCount}/${totalEntries}`);
 
                 // Re-render (this will call setupInfiniteScroll again)
-                void this.onDataUpdated().then(() => {
-                    this.isLoading = false;
-                });
+                this.onDataUpdated();
             }
 
             // Start throttle cooldown

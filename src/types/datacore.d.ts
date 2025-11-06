@@ -7,7 +7,26 @@
  * Documentation: https://github.com/blacksmithgu/datacore
  */
 
-import type { ComponentType, VNode, Ref, RefObject } from 'preact';
+/**
+ * Preact component type
+ */
+export type ComponentType<P = {}> = (props: P) => any;
+
+/**
+ * Preact virtual node
+ */
+export interface VNode {
+    type: string | ComponentType<any>;
+    props: Record<string, any> | null;
+    key: any;
+}
+
+/**
+ * Preact ref object
+ */
+export interface RefObject<T> {
+    current: T | null;
+}
 
 /**
  * Datacore Preact bundle - provides access to the Preact library
@@ -226,12 +245,3 @@ export interface DatacoreAPI {
     [key: string]: any;
 }
 
-/**
- * Type guard to check if an object is a DatacoreAPI
- */
-export function isDatacoreAPI(obj: any): obj is DatacoreAPI {
-    return obj &&
-           typeof obj.useState === 'function' &&
-           typeof obj.useEffect === 'function' &&
-           typeof obj.preact === 'object';
-}
