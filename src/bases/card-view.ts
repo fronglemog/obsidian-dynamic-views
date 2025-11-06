@@ -95,6 +95,7 @@ export class DynamicViewsCardView extends BasesView {
         this.containerEl.empty();
 
         // Disconnect old metadata observers before re-rendering
+        console.log('// [MetadataLayout] Cleaning up', this.metadataObservers.length, 'observers before re-render');
         this.metadataObservers.forEach(obs => obs.disconnect());
         this.metadataObservers = [];
 
@@ -144,25 +145,45 @@ export class DynamicViewsCardView extends BasesView {
         const leftScrollWidth = metaLeft.scrollWidth;
         const rightScrollWidth = metaRight.scrollWidth;
         const containerWidth = metaEl.clientWidth;
+        const leftClientWidth = metaLeft.clientWidth;
+        const rightClientWidth = metaRight.clientWidth;
 
         const leftPercent = (leftScrollWidth / containerWidth) * 100;
         const rightPercent = (rightScrollWidth / containerWidth) * 100;
+
+        console.log('// [MetadataLayout] Measurement:', {
+            containerWidth,
+            leftScrollWidth,
+            rightScrollWidth,
+            leftClientWidth,
+            rightClientWidth,
+            leftPercent: leftPercent.toFixed(1) + '%',
+            rightPercent: rightPercent.toFixed(1) + '%',
+            currentClasses: metaEl.className,
+            gridTemplateColumns: getComputedStyle(metaEl).gridTemplateColumns
+        });
 
         // Remove all layout classes
         metaEl.removeClass('meta-both-fit', 'meta-left-small', 'meta-right-small');
 
         // Apply conditional logic
+        let appliedClass = 'none (50-50 default)';
         if (leftPercent <= 50 && rightPercent <= 50) {
             // Both content fits: give exact sizes
             metaEl.addClass('meta-both-fit');
+            appliedClass = 'meta-both-fit';
         } else if (leftPercent <= 50 && rightPercent > 50) {
             // Left small, right needs more: left gets exact size, right fills
             metaEl.addClass('meta-left-small');
+            appliedClass = 'meta-left-small';
         } else if (leftPercent > 50 && rightPercent <= 50) {
             // Right small, left needs more: right gets exact size, left fills
             metaEl.addClass('meta-right-small');
+            appliedClass = 'meta-right-small';
         }
-        // Both >50%: default 50-50 split (no class needed)
+
+        console.log('// [MetadataLayout] Applied class:', appliedClass);
+        console.log('// [MetadataLayout] New grid template:', getComputedStyle(metaEl).gridTemplateColumns);
     }
 
     private renderCard(
@@ -257,19 +278,25 @@ export class DynamicViewsCardView extends BasesView {
 
             // Setup dynamic layout measurement for both-sided metadata
             if (effectiveLeft !== 'none' && effectiveRight !== 'none') {
+                const cardPath = cardEl.getAttribute('data-path');
+                console.log('// [MetadataLayout] Setting up measurement for card:', cardPath);
+
                 // Initial measurement after DOM paint
                 requestAnimationFrame(() => {
+                    console.log('// [MetadataLayout] Initial measurement (requestAnimationFrame) for:', cardPath);
                     this.measureMetadataLayout(metaEl, metaLeft, metaRight);
                 });
 
                 // Re-measure on resize
                 const observer = new ResizeObserver(() => {
+                    console.log('// [MetadataLayout] ResizeObserver triggered for:', cardPath);
                     this.measureMetadataLayout(metaEl, metaLeft, metaRight);
                 });
                 observer.observe(metaEl);
 
                 // Store for cleanup
                 this.metadataObservers.push(observer);
+                console.log('// [MetadataLayout] Observer count:', this.metadataObservers.length);
             }
         }
     }
