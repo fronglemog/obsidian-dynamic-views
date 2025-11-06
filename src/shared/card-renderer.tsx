@@ -86,7 +86,7 @@ function renderMetadataContent(
     } else if (displayType === 'tags' && card.tags.length > 0) {
         return (
             <div className="tags-wrapper">
-                {card.tags.map(tag => (
+                {card.tags.map((tag): JSX.Element => (
                     <a
                         key={tag}
                         href="#"
@@ -107,7 +107,7 @@ function renderMetadataContent(
     } else if (displayType === 'path' && card.folderPath.length > 0) {
         return (
             <div className="path-wrapper">
-                {card.folderPath.split('/').filter(f => f).map((folder, idx, array) => {
+                {card.folderPath.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
                     const allParts = card.folderPath.split('/').filter(f => f);
                     const cumulativePath = allParts.slice(0, idx + 1).join('/');
                     return (
@@ -157,7 +157,7 @@ export function CardRenderer({
             className={viewMode === "masonry" ? "cards-masonry" : "cards-feed"}
             style={settings.queryHeight > 0 ? { maxHeight: `${settings.queryHeight}px`, overflowY: 'auto' } : {}}
         >
-            {cards.map((card, index) =>
+            {cards.map((card, index): JSX.Element =>
                 <Card
                     card={card}
                     index={index}
@@ -241,7 +241,7 @@ function Card({
                     if (onCardClick) {
                         onCardClick(card.path, newLeaf);
                     } else {
-                        app.workspace.openLinkText(card.path, "", newLeaf);
+                        void app.workspace.openLinkText(card.path, "", newLeaf);
                     }
                 }
             }}
@@ -258,7 +258,7 @@ function Card({
                         if (onCardClick) {
                             onCardClick(card.path, newLeaf);
                         } else {
-                            app.workspace.openLinkText(card.path, "", newLeaf);
+                            void app.workspace.openLinkText(card.path, "", newLeaf);
                         }
                     }
                 } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -357,6 +357,7 @@ function Card({
                         ? 'none'
                         : settings.metadataDisplayRight;
 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return (effectiveLeft !== 'none' || effectiveRight !== 'none') && (
                     <div className={`writing-meta${
                         effectiveLeft === 'none' && effectiveRight !== 'none' ? ' meta-right-only' :
@@ -383,6 +384,7 @@ function handleArrowKey(
     containerRef: RefObject<HTMLElement | null>,
     onFocusChange?: (index: number) => void
 ): void {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const cards = Array.from(containerRef.current?.querySelectorAll('.writing-card') || []) as HTMLElement[];
     const currentCard = e.currentTarget as HTMLElement;
     const actualIndex = cards.indexOf(currentCard);

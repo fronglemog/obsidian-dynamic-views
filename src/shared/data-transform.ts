@@ -118,7 +118,7 @@ function resolveBasesTimestamp(
 
         if (value && isBasesDateValue(value)) {
             // Found valid date property
-            return value.date!.getTime();
+            return value.date.getTime();
         } else if (fallbackEnabled) {
             // No valid property date found - fall back to file metadata if enabled
             return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
@@ -151,8 +151,9 @@ export function basesEntryToCardData(
 
     // Get title from property (first available from comma-separated list) or fallback to filename
     const titleValue = getFirstBasesPropertyValue(entry, settings.titleProperty) as { data?: unknown } | null;
-    const title = (titleValue && titleValue.data != null && titleValue.data !== '')
-        ? String(titleValue.data)
+    const titleData = titleValue?.data;
+    const title = (titleData != null && titleData !== '' && (typeof titleData === 'string' || typeof titleData === 'number'))
+        ? String(titleData)
         : fileName;
 
     // Get folder path (without filename)
@@ -166,8 +167,8 @@ export function basesEntryToCardData(
     if (tagsValue && tagsValue.data != null) {
         const tagData = tagsValue.data;
         const rawTags = Array.isArray(tagData)
-            ? tagData.map((t: unknown) => String(t))
-            : [String(tagData)];
+            ? tagData.map((t: unknown) => (typeof t === 'string' || typeof t === 'number') ? String(t) : '').filter(t => t)
+            : (typeof tagData === 'string' || typeof tagData === 'number') ? [String(tagData)] : [];
 
         // Strip leading # from tags if present
         tags = rawTags.map(tag => tag.replace(/^#/, ''));

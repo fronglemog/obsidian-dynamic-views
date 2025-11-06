@@ -15,7 +15,7 @@ export function getFirstBasesPropertyValue(entry: BasesEntry, propertyString: st
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Check if property exists and has a value
@@ -42,7 +42,7 @@ export function getFirstDatacorePropertyValue(page: DatacoreFile, propertyString
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
-        const value = page.value(prop);
+        const value: unknown = page.value(prop);
 
         // Check if property exists (not null/undefined)
         if (value !== null && value !== undefined) {
@@ -63,7 +63,7 @@ export function getFirstBasesDatePropertyValue(entry: BasesEntry, propertyString
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Only accept date/datetime values
@@ -86,11 +86,11 @@ export function getFirstDatacoreDatePropertyValue(page: DatacoreFile, propertySt
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
-        const value = page.value(prop);
+        const value: unknown = page.value(prop);
 
         // Only accept DateTime objects (have toMillis method)
         if (value && typeof value === 'object' && 'toMillis' in value) {
-            return value;
+            return value as DatacoreDate;
         }
         // Skip properties with wrong type
     }
@@ -110,7 +110,7 @@ export function getAllBasesImagePropertyValues(entry: BasesEntry, propertyString
     const allImages: string[] = [];
 
     for (const prop of properties) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Skip if property doesn't exist or is not text/list type
@@ -122,16 +122,20 @@ export function getAllBasesImagePropertyValues(entry: BasesEntry, propertyString
         if (Array.isArray(data)) {
             // List property - collect all values
             for (const item of data) {
-                const str = String(item);
-                if (str && str.trim()) {
-                    allImages.push(str);
+                if (typeof item === 'string' || typeof item === 'number') {
+                    const str = String(item);
+                    if (str && str.trim()) {
+                        allImages.push(str);
+                    }
                 }
             }
         } else if (data != null && data !== '') {
             // Text property - single value
-            const str = String(data);
-            if (str.trim()) {
-                allImages.push(str);
+            if (typeof data === 'string' || typeof data === 'number') {
+                const str = String(data);
+                if (str.trim()) {
+                    allImages.push(str);
+                }
             }
         }
     }
@@ -151,7 +155,7 @@ export function getAllDatacoreImagePropertyValues(page: DatacoreFile, propertySt
     const allImages: string[] = [];
 
     for (const prop of properties) {
-        const value = page.value(prop);
+        const value: unknown = page.value(prop);
 
         // Skip if property doesn't exist
         if (value === null || value === undefined) continue;
@@ -161,9 +165,12 @@ export function getAllDatacoreImagePropertyValues(page: DatacoreFile, propertySt
             for (const item of value) {
                 // Handle Link objects with path property
                 if (typeof item === 'object' && item !== null && 'path' in item) {
-                    const str = String(item.path).trim();
-                    if (str) allImages.push(str);
-                } else {
+                    const pathValue = (item as { path: unknown }).path;
+                    if (typeof pathValue === 'string' || typeof pathValue === 'number') {
+                        const str = String(pathValue).trim();
+                        if (str) allImages.push(str);
+                    }
+                } else if (typeof item === 'string' || typeof item === 'number') {
                     const str = String(item).trim();
                     if (str) allImages.push(str);
                 }
@@ -172,9 +179,12 @@ export function getAllDatacoreImagePropertyValues(page: DatacoreFile, propertySt
             // Single value
             // Handle Link objects with path property
             if (typeof value === 'object' && value !== null && 'path' in value) {
-                const str = String(value.path).trim();
-                if (str) allImages.push(str);
-            } else {
+                const pathValue = (value as { path: unknown }).path;
+                if (typeof pathValue === 'string' || typeof pathValue === 'number') {
+                    const str = String(pathValue).trim();
+                    if (str) allImages.push(str);
+                }
+            } else if (typeof value === 'string' || typeof value === 'number') {
                 const str = String(value).trim();
                 if (str) allImages.push(str);
             }

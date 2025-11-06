@@ -45,7 +45,7 @@ function protectEscapedChars(text: string): { text: string; map: Map<string, str
     const map = new Map<string, string>();
     let counter = 0;
 
-    const result = text.replace(/\\(.)/g, (match, char) => {
+    const result = text.replace(/\\(.)/g, (match: string, char: string) => {
         const placeholder = `§§ESCAPED${counter}§§`;
         map.set(placeholder, char);
         counter++;
@@ -138,7 +138,7 @@ function stripMarkdownSyntax(text: string): string {
 
     // Apply each pattern
     markdownPatterns.forEach((pattern) => {
-        result = result.replace(pattern, (match, ...groups) => {
+        result = result.replace(pattern, (match: string, ...groups: string[]) => {
             // Special handling for HTML tag pairs - return content (group 2)
             if (match.match(/<[a-z][a-z0-9]*\b[^>]*>.*?<\//i)) {
                 return groups[1] || '';

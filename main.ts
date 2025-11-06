@@ -20,7 +20,7 @@ export default class DynamicViewsPlugin extends Plugin {
 		setDatacorePreact(dc.preact);
 
 		// Return arrow function component for Datacore to render (preserves 'this' context)
-		return () => {
+		return (): JSX.Element => {
 			// View and all child components now use our h() proxy which delegates to dc.preact.h
 			return View({
 				plugin: this,

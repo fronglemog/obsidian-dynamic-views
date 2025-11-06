@@ -433,11 +433,14 @@ export class DynamicViewsCardView extends BasesView {
                         try {
                             // Try to get text preview from property first
                             const descValue = getFirstBasesPropertyValue(entry, settings.descriptionProperty) as { data?: unknown } | null;
-                            const hasValidDesc = descValue && descValue.data != null && String(descValue.data).trim().length > 0;
+                            const descData = descValue?.data;
+                            const hasValidDesc = descData != null &&
+                                (typeof descData === 'string' || typeof descData === 'number') &&
+                                String(descData).trim().length > 0;
 
                             if (hasValidDesc) {
                                 // Use property value
-                                this.snippets[path] = String(descValue.data).trim();
+                                this.snippets[path] = String(descData).trim();
                             } else if (settings.fallbackToContent) {
                                 // Fallback to note content
                                 const file = this.app.vault.getAbstractFileByPath(path);

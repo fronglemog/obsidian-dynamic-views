@@ -40,7 +40,7 @@ export function CardView({
     dc,
     onCardClick,
     onFocusChange
-}: CardViewProps) {
+}: CardViewProps): JSX.Element {
     // Transform Datacore results to CardData array
     const allCards = transformDatacoreResults(
         results,

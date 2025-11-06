@@ -6,6 +6,14 @@
 import type { Settings } from '../types';
 
 /**
+ * Interface for date values from Datacore/Bases
+ * These external APIs return objects with a date property
+ */
+interface DateValue {
+    date: Date;
+}
+
+/**
  * Format timestamp with automatic date/datetime detection
  * Shows time if within last 24 hours, otherwise just date
  */
@@ -61,14 +69,14 @@ export function getTimestampIcon(sortMethod: string): 'calendar' | 'clock' {
 /**
  * Check if a value is a valid Datacore date value
  */
-export function isDatacoreDateValue(value: any): boolean {
-    return value?.date instanceof Date;
+export function isDatacoreDateValue(value: unknown): value is DateValue {
+    return value !== null && typeof value === 'object' && 'date' in value && value.date instanceof Date;
 }
 
 /**
  * Extract timestamp from Datacore date value
  */
-export function extractDatacoreTimestamp(value: any): number | null {
+export function extractDatacoreTimestamp(value: unknown): number | null {
     if (isDatacoreDateValue(value)) {
         return value.date.getTime();
     }
@@ -78,14 +86,14 @@ export function extractDatacoreTimestamp(value: any): number | null {
 /**
  * Check if a value is a valid Bases date value
  */
-export function isBasesDateValue(value: any): boolean {
-    return value?.date instanceof Date;
+export function isBasesDateValue(value: unknown): value is DateValue {
+    return value !== null && typeof value === 'object' && 'date' in value && value.date instanceof Date;
 }
 
 /**
  * Extract timestamp from Bases date value
  */
-export function extractBasesTimestamp(value: any): number | null {
+export function extractBasesTimestamp(value: unknown): number | null {
     if (isBasesDateValue(value)) {
         return value.date.getTime();
     }

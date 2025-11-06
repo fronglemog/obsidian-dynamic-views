@@ -32,14 +32,14 @@ export function ListView({
     app,
     dc,
     onLinkClick
-}: ListViewProps) {
+}: ListViewProps): JSX.Element {
     return (
         <ul
             ref={containerRef}
             className={`list-view marker-${settings.listMarker}`}
             style={settings.queryHeight > 0 ? { maxHeight: `${settings.queryHeight}px`, overflowY: 'auto' } : {}}
         >
-            {results.slice(0, displayedCount).filter(p => p.$path).map((p, index) => {
+            {results.slice(0, displayedCount).filter(p => p.$path).map((p, index): JSX.Element => {
                 // Get title from property (first available from comma-separated list) or fallback to filename
                 let rawTitle = getFirstDatacorePropertyValue(p, settings.titleProperty);
                 if (Array.isArray(rawTitle)) rawTitle = rawTitle[0];
@@ -58,7 +58,7 @@ export function ListView({
                                     if (onLinkClick) {
                                         onLinkClick(p.$path, false);
                                     } else {
-                                        app.workspace.openLinkText(p.$path, "", false);
+                                        void app.workspace.openLinkText(p.$path, "", false);
                                     }
                                 }
                             }}
@@ -92,11 +92,12 @@ export function ListView({
                                     ? 'none'
                                     : settings.metadataDisplayRight;
 
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                             return (effectiveLeft !== 'none' || effectiveRight !== 'none') && (
                                 <span className="list-meta">
                                     {effectiveLeft === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
-                                            {p.$tags.map((tag: string) => (
+                                            {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
                                                     key={tag}
                                                     href="#"
@@ -118,7 +119,7 @@ export function ListView({
                                     ) : null}
                                     {effectiveRight === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
-                                            {p.$tags.map((tag: string) => (
+                                            {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
                                                     key={tag}
                                                     href="#"

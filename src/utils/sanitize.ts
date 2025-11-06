@@ -15,13 +15,13 @@ export function sanitizeString(value: string): string {
  * @param obj - Object to sanitize
  * @returns New object with sanitized string values
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
     const sanitized = {} as T;
     for (const [key, value] of Object.entries(obj)) {
         if (typeof value === 'string') {
             sanitized[key as keyof T] = sanitizeString(value) as T[keyof T];
         } else {
-            sanitized[key as keyof T] = value;
+            sanitized[key as keyof T] = value as T[keyof T];
         }
     }
     return sanitized;

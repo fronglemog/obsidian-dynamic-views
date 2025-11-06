@@ -19,11 +19,11 @@ export class PersistenceManager {
     }
 
     async load(): Promise<void> {
-        const loadedData = await this.plugin.loadData();
+        const loadedData = await this.plugin.loadData() as Partial<PluginData> | null;
         if (loadedData) {
             this.data = {
-                globalSettings: { ...DEFAULT_SETTINGS, ...loadedData.globalSettings },
-                defaultViewSettings: { ...DEFAULT_VIEW_SETTINGS, ...loadedData.defaultViewSettings },
+                globalSettings: { ...DEFAULT_SETTINGS, ...(loadedData.globalSettings || {}) },
+                defaultViewSettings: { ...DEFAULT_VIEW_SETTINGS, ...(loadedData.defaultViewSettings || {}) },
                 queryStates: loadedData.queryStates || {},
                 viewSettings: loadedData.viewSettings || {},
                 basesViewMetadataWinners: loadedData.basesViewMetadataWinners || {}
@@ -67,12 +67,13 @@ export class PersistenceManager {
         // Sanitize and truncate searchQuery
         const sanitized: Partial<UIState> = {};
         for (const [k, v] of Object.entries(state)) {
+            const key = k as keyof UIState;
             if (k === 'searchQuery' && typeof v === 'string') {
-                sanitized[k as keyof UIState] = sanitizeString(v.slice(0, 500)) as any;
+                (sanitized as Record<string, string>)[key] = sanitizeString(v.slice(0, 500));
             } else if (typeof v === 'string') {
-                sanitized[k as keyof UIState] = sanitizeString(v) as any;
+                (sanitized as Record<string, string>)[key] = sanitizeString(v);
             } else {
-                sanitized[k as keyof UIState] = v as any;
+                (sanitized as Record<string, unknown>)[key] = v;
             }
         }
 

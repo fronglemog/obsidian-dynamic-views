@@ -26,6 +26,6 @@ interface MasonryViewProps {
  * The masonry layout is achieved through CSS and the CardView component handles
  * both card and masonry rendering with appropriate className switching.
  */
-export function MasonryView(props: MasonryViewProps) {
+export function MasonryView(props: MasonryViewProps): JSX.Element {
     return <CardView {...props} viewMode="masonry" />;
 }

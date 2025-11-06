@@ -11,7 +11,7 @@ export function Settings({
     dc,
     settings,
     onSettingsChange,
-}: SettingsProps) {
+}: SettingsProps): JSX.Element {
     return (
         <div className="settings-dropdown-menu">
             {/* Metadata Display (Left) */}
@@ -22,8 +22,9 @@ export function Settings({
                 </div>
                 <select
                     value={settings.metadataDisplayLeft}
-                    onChange={(e) => {
-                        const newValue = e.target.value as 'none' | 'timestamp' | 'tags' | 'path';
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLSelectElement };
+                        const newValue = evt.target.value as 'none' | 'timestamp' | 'tags' | 'path';
                         onSettingsChange({ metadataDisplayLeft: newValue });
                     }}
                     className="dropdown"
@@ -43,8 +44,9 @@ export function Settings({
                 </div>
                 <select
                     value={settings.metadataDisplayRight}
-                    onChange={(e) => {
-                        const newValue = e.target.value as 'none' | 'timestamp' | 'tags' | 'path';
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLSelectElement };
+                        const newValue = evt.target.value as 'none' | 'timestamp' | 'tags' | 'path';
                         onSettingsChange({ metadataDisplayRight: newValue });
                     }}
                     className="dropdown"
@@ -65,7 +67,10 @@ export function Settings({
                 <input
                     type="text"
                     value={settings.titleProperty}
-                    onChange={(e) => onSettingsChange({ titleProperty: e.target.value })}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ titleProperty: evt.target.value });
+                    }}
                     placeholder="Comma-separated if multiple"
                     className="setting-text-input"
                 />
@@ -80,9 +85,10 @@ export function Settings({
                 <div
                     className={`checkbox-container ${settings.showTextPreview ? 'is-enabled' : ''}`}
                     onClick={() => onSettingsChange({ showTextPreview: !settings.showTextPreview })}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                    onKeyDown={(e: unknown) => {
+                        const evt = e as KeyboardEvent;
+                        if (evt.key === 'Enter' || evt.key === ' ') {
+                            evt.preventDefault();
                             onSettingsChange({ showTextPreview: !settings.showTextPreview });
                         }
                     }}
@@ -102,7 +108,10 @@ export function Settings({
                     <input
                         type="text"
                         value={settings.descriptionProperty}
-                        onChange={(e) => onSettingsChange({ descriptionProperty: e.target.value })}
+                        onChange={(e: unknown) => {
+                            const evt = e as Event & { target: HTMLInputElement };
+                            onSettingsChange({ descriptionProperty: evt.target.value });
+                        }}
                         placeholder="Comma-separated if multiple"
                         className="setting-text-input"
                     />
@@ -119,9 +128,10 @@ export function Settings({
                     <div
                         className={`checkbox-container ${settings.fallbackToContent ? 'is-enabled' : ''}`}
                         onClick={() => onSettingsChange({ fallbackToContent: !settings.fallbackToContent })}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
+                        onKeyDown={(e: unknown) => {
+                            const evt = e as KeyboardEvent;
+                            if (evt.key === 'Enter' || evt.key === ' ') {
+                                evt.preventDefault();
                                 onSettingsChange({ fallbackToContent: !settings.fallbackToContent });
                             }
                         }}
@@ -141,9 +151,10 @@ export function Settings({
                 <div
                     className={`checkbox-container ${settings.showThumbnails ? 'is-enabled' : ''}`}
                     onClick={() => onSettingsChange({ showThumbnails: !settings.showThumbnails })}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                    onKeyDown={(e: unknown) => {
+                        const evt = e as KeyboardEvent;
+                        if (evt.key === 'Enter' || evt.key === ' ') {
+                            evt.preventDefault();
                             onSettingsChange({ showThumbnails: !settings.showThumbnails });
                         }
                     }}
@@ -163,7 +174,10 @@ export function Settings({
                     <input
                         type="text"
                         value={settings.imageProperty}
-                        onChange={(e) => onSettingsChange({ imageProperty: e.target.value })}
+                        onChange={(e: unknown) => {
+                            const evt = e as Event & { target: HTMLInputElement };
+                            onSettingsChange({ imageProperty: evt.target.value });
+                        }}
                         placeholder="Comma-separated if multiple"
                         className="setting-text-input"
                     />
@@ -180,9 +194,10 @@ export function Settings({
                     <div
                         className={`checkbox-container ${settings.fallbackToEmbeds ? 'is-enabled' : ''}`}
                         onClick={() => onSettingsChange({ fallbackToEmbeds: !settings.fallbackToEmbeds })}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
+                        onKeyDown={(e: unknown) => {
+                            const evt = e as KeyboardEvent;
+                            if (evt.key === 'Enter' || evt.key === ' ') {
+                                evt.preventDefault();
                                 onSettingsChange({ fallbackToEmbeds: !settings.fallbackToEmbeds });
                             }
                         }}
@@ -201,7 +216,10 @@ export function Settings({
                 </div>
                 <select
                     value={settings.listMarker}
-                    onChange={(e) => onSettingsChange({ listMarker: e.target.value })}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLSelectElement };
+                        onSettingsChange({ listMarker: evt.target.value as 'bullet' | 'number' | 'none' });
+                    }}
                     className="dropdown"
                 >
                     <option value="bullet">Bullet</option>
@@ -232,8 +250,9 @@ export function Settings({
                         min="0"
                         placeholder="500"
                         value={settings.queryHeight}
-                        onChange={(e) => {
-                            const val = parseInt(e.target.value);
+                        onChange={(e: unknown) => {
+                            const evt = e as Event & { target: HTMLInputElement };
+                            const val = parseInt(evt.target.value);
                             if (!isNaN(val) && val >= 0) {
                                 onSettingsChange({ queryHeight: val });
                             }

@@ -12,7 +12,7 @@
 /**
  * Preact component type
  */
-export type ComponentType<P = {}> = (props: P) => any;
+export type ComponentType<P = object> = (props: P) => any;
 
 /**
  * Preact virtual node
@@ -200,7 +200,7 @@ export interface DatacoreAPI {
      * @param path - Path to file or header link to codeblock
      * @returns Whatever the imported code exports/returns
      */
-    require(path: string | any): Promise<any>;
+    require(path: any): Promise<any>;
 
     /**
      * Create a link to a header in a file.

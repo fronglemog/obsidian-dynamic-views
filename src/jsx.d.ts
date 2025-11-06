@@ -9,10 +9,10 @@ declare namespace JSX {
         render: any;
     }
     interface ElementAttributesProperty {
-        props: {};
+        props: object;
     }
     interface ElementChildrenAttribute {
-        children: {};
+        children: object;
     }
 }
 

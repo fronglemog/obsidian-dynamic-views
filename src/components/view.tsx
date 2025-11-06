@@ -30,7 +30,7 @@ interface ViewProps {
     USER_QUERY?: string;
 }
 
-export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
+export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Element {
     // Get file containing this query (memoized to prevent re-fetching on every render)
     // This is used to exclude the query note itself from results
     const currentFile = dc.useMemo(() => {
@@ -88,7 +88,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
         // Apply each pattern
         markdownPatterns.forEach((pattern) => {
-            result = result.replace(pattern, (match, ...groups) => {
+            result = result.replace(pattern, (match: string, ...groups: string[]) => {
                 // Special handling for HTML tag pairs - return content (group 2)
                 if (match.match(/<[a-z][a-z0-9]*\b[^>]*>.*?<\//i)) {
                     return groups[1] || '';
@@ -466,7 +466,10 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                     if (file instanceof TFile) {
                         // Check if property values are actually useful (not empty/whitespace)
                         const descFromProp = getFirstDatacorePropertyValue(p, settings.descriptionProperty);
-                        const hasValidDesc = descFromProp && String(descFromProp).trim().length > 0;
+                        const descAsString = typeof descFromProp === 'string' || typeof descFromProp === 'number'
+                            ? String(descFromProp)
+                            : null;
+                        const hasValidDesc = descAsString && descAsString.trim().length > 0;
 
                         // Get ALL image values from ALL comma-separated properties
                         const propertyImageValues = getAllDatacoreImagePropertyValues(p, settings.imageProperty);
@@ -512,7 +515,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                         // Process text preview only if enabled
                         if (settings.showTextPreview) {
                             // Try to get description from property first
-                            let description: string | null = hasValidDesc ? String(descFromProp) : null;
+                            let description: string | null = hasValidDesc ? descAsString : null;
                             if (!description && text && settings.fallbackToContent) {
                                 // Fallback: extract from file content
                                 const cleaned = text.replace(/^---[\s\S]*?---/, "").trim();
@@ -522,8 +525,8 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                                 const firstLineEnd = stripped.indexOf('\n');
                                 const firstLine = (firstLineEnd !== -1 ? stripped.substring(0, firstLineEnd) : stripped).trim();
                                 const fileName = p.$name;
-                                let titleValue = p.value(settings.titleProperty);
-                                if (Array.isArray(titleValue)) titleValue = titleValue[0];
+                                let titleValue: unknown = p.value(settings.titleProperty);
+                                if (Array.isArray(titleValue)) titleValue = titleValue[0] as unknown;
 
                                 // Omit first line if it matches filename/title or if omitFirstLine enabled
                                 if (firstLine === fileName || (titleValue && firstLine === dc.coerce.string(titleValue)) || settings.omitFirstLine) {
@@ -719,15 +722,15 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                 });
 
                 // Force reflow
-                container.offsetHeight;
+                void container.offsetHeight;
 
                 // Read heights
                 const cardHeights = cardsToProcess.map((card) => card.offsetHeight);
 
                 // Calculate positions
-                const heights = isIncremental ?
+                const heights: number[] = isIncremental ?
                     [...columnHeightsRef.current!] :
-                    new Array(cols).fill(0);
+                    new Array(cols).fill(0) as number[];
                 const positions: { left: number; top: number }[] = [];
 
                 cardHeights.forEach((cardHeight) => {
@@ -917,7 +920,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
             }
 
             // Calculate distance from bottom using the scrollable element we already found
-            let scrollTop, editorHeight, scrollHeight, distanceFromBottom;
+            let scrollTop, editorHeight, scrollHeight;
 
             if (scrollableElement === window) {
                 scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -933,7 +936,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                 return false;
             }
 
-            distanceFromBottom = scrollHeight - (scrollTop + editorHeight);
+            const distanceFromBottom = scrollHeight - (scrollTop + editorHeight);
 
             // Calculate threshold
             const threshold = editorHeight * (app.isMobile ? MOBILE_VIEWPORT_MULTIPLIER : DESKTOP_VIEWPORT_MULTIPLIER);
@@ -1212,7 +1215,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         setResultLimit(limit);
     }, []);
 
-    const handleResetLimit = dc.useCallback(() => {
+    const handleResetLimit = dc.useCallback((): void => {
         setResultLimit('');
         setShowLimitDropdown(false);
     }, []);
@@ -1259,14 +1262,16 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     }, []);
 
     // Copy menu item for Toolbar
-    const copyMenuItem = dc.useMemo(() => (
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const copyMenuItem: JSX.Element = dc.useMemo((): JSX.Element => (
         <div
             className="bases-toolbar-menu-item"
             onClick={handleCopyToClipboard}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleCopyToClipboard(e);
+            onKeyDown={(e: unknown) => {
+                const evt = e as KeyboardEvent;
+                if (evt.key === 'Enter' || evt.key === ' ') {
+                    evt.preventDefault();
+                    handleCopyToClipboard(evt as unknown as MouseEvent);
                 }
             }}
             tabIndex={0}
@@ -1285,7 +1290,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     ), [handleCopyToClipboard]);
 
     // Render appropriate view component
-    const renderView = () => {
+    const renderView = (): JSX.Element => {
         const commonProps = {
             results: sorted,
             displayedCount: Math.min(displayedCount, sorted.length),
@@ -1370,7 +1375,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                     onToggleLimitDropdown={handleToggleLimitDropdown}
                     onResultLimitChange={handleResultLimitChange}
                     onResetLimit={handleResetLimit}
-                    copyMenuItem={copyMenuItem}
+                    copyMenuItem={copyMenuItem /* eslint-disable-line @typescript-eslint/no-unsafe-assignment */}
                     onCreateNote={handleCreateNote}
                     isPinned={isPinned}
                     widthMode={widthMode}
