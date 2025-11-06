@@ -1289,6 +1289,18 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     grid-template-columns: var(--meta-left-width, auto) var(--meta-right-width, auto);
 }
 
+/* Temporary state for measuring unconstrained content widths */
+.dynamic-views .writing-meta.meta-measuring {
+    display: block !important;  /* Break out of grid temporarily */
+}
+
+.dynamic-views .writing-meta.meta-measuring .meta-left,
+.dynamic-views .writing-meta.meta-measuring .meta-right {
+    display: inline-block !important;
+    max-width: none !important;
+    width: auto !important;
+}
+
 .dynamic-views .meta-left {
     overflow-x: auto;
     min-width: 0;

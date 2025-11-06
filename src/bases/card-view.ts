@@ -142,15 +142,14 @@ export class DynamicViewsCardView extends BasesView {
     }
 
     private measureMetadataLayout(metaEl: HTMLElement, metaLeft: HTMLElement, metaRight: HTMLElement): void {
-        // First, temporarily remove the measured class to get unconstrained measurements
-        const hadMeasuredClass = metaEl.hasClass('meta-measured');
-        if (hadMeasuredClass) {
-            metaEl.removeClass('meta-measured');
-        }
+        // Step 1: Enter measuring state to remove ALL constraints
+        metaEl.removeClass('meta-measured');
+        metaEl.addClass('meta-measuring');
 
-        // Force a reflow to get accurate unconstrained measurements
+        // Step 2: Force reflow to apply measuring state
         void metaEl.offsetWidth;
 
+        // Step 3: Measure TRUE unconstrained content widths
         const leftScrollWidth = metaLeft.scrollWidth;
         const rightScrollWidth = metaRight.scrollWidth;
         const containerWidth = metaEl.clientWidth;
@@ -158,7 +157,7 @@ export class DynamicViewsCardView extends BasesView {
         const leftPercent = (leftScrollWidth / containerWidth) * 100;
         const rightPercent = (rightScrollWidth / containerWidth) * 100;
 
-        console.log('// [MetadataLayout] Measurement:', {
+        console.log('// [MetadataLayout] TRUE unconstrained measurement:', {
             containerWidth,
             leftScrollWidth,
             rightScrollWidth,
@@ -166,7 +165,7 @@ export class DynamicViewsCardView extends BasesView {
             rightPercent: rightPercent.toFixed(1) + '%'
         });
 
-        // Calculate optimal widths based on conditional logic
+        // Step 4: Calculate optimal widths based on conditional logic
         let leftWidth: string;
         let rightWidth: string;
         let strategy: string;
@@ -194,7 +193,8 @@ export class DynamicViewsCardView extends BasesView {
             strategy = '50-50';
         }
 
-        // Set CSS variables
+        // Step 5: Exit measuring state, apply calculated values
+        metaEl.removeClass('meta-measuring');
         metaEl.style.setProperty('--meta-left-width', leftWidth);
         metaEl.style.setProperty('--meta-right-width', rightWidth);
         metaEl.addClass('meta-measured');
