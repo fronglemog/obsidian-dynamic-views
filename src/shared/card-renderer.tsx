@@ -3,7 +3,20 @@
  * Works with both Bases and Datacore by accepting normalized card data
  */
 
+import type { App } from 'obsidian';
 import type { Settings } from '../types';
+import type { RefObject } from '../types/datacore';
+
+// Extend App type to include isMobile property
+declare module 'obsidian' {
+    interface App {
+        isMobile: boolean;
+        internalPlugins: {
+            plugins: Record<string, { enabled: boolean; instance?: { openGlobalSearch?: (query: string) => void; revealInFolder?: (file: unknown) => void } }>;
+            getPluginById(id: string): { instance?: unknown } | null;
+        };
+    }
+}
 
 /** Normalized card data structure (framework-agnostic) */
 export interface CardData {
@@ -27,9 +40,9 @@ export interface CardRendererProps {
     sortMethod: string;
     isShuffled: boolean;
     focusableCardIndex: number;
-    containerRef: any;
-    updateLayoutRef: any;
-    app: any;
+    containerRef: RefObject<HTMLElement | null>;
+    updateLayoutRef: RefObject<(() => void) | null>;
+    app: App;
     onCardClick?: (path: string, newLeaf: boolean) => void;
     onFocusChange?: (index: number) => void;
 }
@@ -43,8 +56,8 @@ function renderMetadataContent(
     date: string | null,
     timeIcon: 'calendar' | 'clock',
     settings: Settings,
-    app: any
-) {
+    app: App
+): unknown {
     if (displayType === 'none') return null;
 
     if (displayType === 'timestamp' && date) {
@@ -81,7 +94,7 @@ function renderMetadataContent(
                         onClick={(e: MouseEvent) => {
                             e.preventDefault();
                             const searchPlugin = app.internalPlugins.plugins["global-search"];
-                            if (searchPlugin && searchPlugin.instance) {
+                            if (searchPlugin?.instance?.openGlobalSearch) {
                                 searchPlugin.instance.openGlobalSearch("tag:" + tag);
                             }
                         }}
@@ -104,7 +117,7 @@ function renderMetadataContent(
                                 onClick={(e: MouseEvent) => {
                                     e.stopPropagation();
                                     const fileExplorer = app.internalPlugins?.plugins?.["file-explorer"];
-                                    if (fileExplorer && fileExplorer.instance) {
+                                    if (fileExplorer?.instance?.revealInFolder) {
                                         const folder = app.vault.getAbstractFileByPath(cumulativePath);
                                         if (folder) {
                                             fileExplorer.instance.revealInFolder(folder);
@@ -137,7 +150,7 @@ export function CardRenderer({
     app,
     onCardClick,
     onFocusChange
-}: CardRendererProps) {
+}: CardRendererProps): unknown {
     return (
         <div
             ref={containerRef}
@@ -172,9 +185,9 @@ interface CardProps {
     sortMethod: string;
     isShuffled: boolean;
     focusableCardIndex: number;
-    containerRef: any;
-    updateLayoutRef: any;
-    app: any;
+    containerRef: RefObject<HTMLElement | null>;
+    updateLayoutRef: RefObject<(() => void) | null>;
+    app: App;
     onCardClick?: (path: string, newLeaf: boolean) => void;
     onFocusChange?: (index: number) => void;
 }
@@ -192,7 +205,7 @@ function Card({
     app,
     onCardClick,
     onFocusChange
-}: CardProps) {
+}: CardProps): unknown {
     // Determine which timestamp to show
     const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
     // Use displayTimestamp if available (already resolved with custom properties), otherwise fall back to ctime/mtime
@@ -367,9 +380,9 @@ function handleArrowKey(
     e: KeyboardEvent,
     currentIndex: number,
     viewMode: 'card' | 'masonry',
-    containerRef: any,
+    containerRef: RefObject<HTMLElement | null>,
     onFocusChange?: (index: number) => void
-) {
+): void {
     const cards = Array.from(containerRef.current?.querySelectorAll('.writing-card') || []) as HTMLElement[];
     const currentCard = e.currentTarget as HTMLElement;
     const actualIndex = cards.indexOf(currentCard);

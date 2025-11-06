@@ -6,8 +6,10 @@ import type { App } from 'obsidian';
 // Extend App type to include internal plugins
 declare module 'obsidian' {
     interface App {
+        isMobile: boolean;
         internalPlugins: {
-            plugins: Record<string, { enabled: boolean; instance?: any }>;
+            plugins: Record<string, { enabled: boolean; instance?: { openGlobalSearch?: (query: string) => void; revealInFolder?: (file: unknown) => void } }>;
+            getPluginById(id: string): { instance?: unknown } | null;
         };
     }
 }
