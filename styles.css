@@ -1273,7 +1273,8 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 }
 
 .dynamic-views .writing-meta {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
     font-size: 0.8em;
     margin-top: 4px;
@@ -1285,7 +1286,6 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 
 .dynamic-views .meta-left {
     overflow-x: auto;
-    flex-shrink: 1;
     min-width: 0;
     white-space: nowrap;
     scrollbar-width: none;
@@ -1311,16 +1311,18 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     flex-shrink: 0;
 }
 
-/* Equal width distribution for tags/path (when no timestamp) */
+/* Grid layout - no flex properties needed, grid handles space distribution */
+/* Tags/path elements maintain scrolling behavior */
 .dynamic-views .meta-left:not(:has(> span)),
 .dynamic-views .meta-right:not(:has(> span)) {
-    flex: 1 1 auto;
-    max-width: 50%;
+    /* Grid automatically caps each column at 50% (1fr each) */
+    /* Elements fill available space in their grid cell */
 }
 
-/* Remove auto margin when both sides present for equal distribution */
-.dynamic-views .writing-meta:not(.meta-left-only):not(.meta-right-only) .meta-right:not(:has(> span)) {
-    margin-left: 6px;
+/* Right alignment for right element in grid */
+.dynamic-views .writing-meta:not(.meta-left-only):not(.meta-right-only) .meta-right {
+    justify-self: end;
+    padding-left: 6px;
 }
 
 .dynamic-views .timestamp-icon {
@@ -1339,10 +1341,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 
 .dynamic-views .meta-right {
     overflow-x: auto;
-    flex-shrink: 1;
     min-width: 0;
-    margin-left: auto;
-    padding-left: 6px;
     scrollbar-width: none;
     display: flex;
     align-items: center;
