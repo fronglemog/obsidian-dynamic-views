@@ -1,7 +1,8 @@
 import { Settings as SettingsType } from '../types';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface SettingsProps {
-    dc: any;
+    dc: DatacoreAPI;
     settings: SettingsType;
     onSettingsChange: (settings: Partial<SettingsType>) => void;
 }

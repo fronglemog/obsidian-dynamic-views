@@ -1,8 +1,9 @@
 import { ViewMode, Settings, WidthMode } from '../types';
 import { Settings as SettingsPanel } from './settings';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface ToolbarProps {
-    dc: any;
+    dc: DatacoreAPI;
     // View mode
     viewMode: ViewMode;
     showViewDropdown: boolean;

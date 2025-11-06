@@ -1,6 +1,7 @@
 import type { Settings } from '../types';
 import { CardRenderer } from '../shared/card-renderer';
 import { transformDatacoreResults } from '../shared/data-transform';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface CardViewProps {
     results: any[];
@@ -16,7 +17,7 @@ interface CardViewProps {
     containerRef: any;
     updateLayoutRef: any;
     app: any;
-    dc: any;
+    dc: DatacoreAPI;
     onCardClick?: (path: string, newLeaf: boolean) => void;
     onFocusChange?: (index: number) => void;
 }

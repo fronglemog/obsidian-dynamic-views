@@ -8,12 +8,13 @@ import { DynamicViewsCardView, cardViewOptions } from './src/bases/card-view';
 import { DynamicViewsMasonryView, masonryViewOptions } from './src/bases/masonry-view';
 import { DynamicViewsSettingTab } from './src/settings-tab';
 import { setPluginInstance } from './src/shared/settings-schema';
+import type { DatacoreAPI } from './src/types/datacore';
 
 export default class DynamicViewsPlugin extends Plugin {
 	persistenceManager: PersistenceManager;
 
 	// Helper function for datacorejsx blocks
-	createView(dc: any, userQuery?: string) {
+	createView(dc: DatacoreAPI, userQuery?: string) {
 		const plugin = this;
 		const app = this.app;
 

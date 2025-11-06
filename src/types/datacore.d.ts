@@ -89,8 +89,9 @@ export interface DatacoreAPI {
     /**
      * React-like useState hook for managing component state.
      * Returns a tuple of [value, setter function].
+     * Setter accepts either a new value or a function that receives the previous value.
      */
-    useState<T>(initialValue: T): [T, (newValue: T) => void];
+    useState<T>(initialValue: T): [T, (newValue: T | ((prev: T) => T)) => void];
 
     /**
      * React-like useRef hook for creating mutable refs.
@@ -181,6 +182,36 @@ export interface DatacoreAPI {
      * @param headerName - Name of the header/section
      */
     headerLink(filePath: string, headerName: string): any;
+
+    /**
+     * Type coercion utilities for converting Datacore values to specific types
+     */
+    coerce: {
+        /**
+         * Coerce a value to a string
+         */
+        string(value: any): string;
+
+        /**
+         * Coerce a value to a number
+         */
+        number(value: any): number;
+
+        /**
+         * Coerce a value to a boolean
+         */
+        boolean(value: any): boolean;
+
+        /**
+         * Coerce a value to a date
+         */
+        date(value: any): Date | null;
+
+        /**
+         * Other coercion methods
+         */
+        [key: string]: (value: any) => any;
+    };
 
     /**
      * Additional Datacore APIs that may exist

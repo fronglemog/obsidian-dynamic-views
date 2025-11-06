@@ -10,11 +10,12 @@ import { getCurrentFile, getFileCtime, getAvailablePath } from '../utils/file';
 import { ensurePageSelector, updateQueryInBlock, findQueryInBlock } from '../utils/query-sync';
 import { isExternalUrl, hasValidImageExtension, validateImageUrl } from '../utils/image';
 import { getFirstDatacorePropertyValue, getAllDatacoreImagePropertyValues } from '../utils/property';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface ViewProps {
     plugin: Plugin;
     app: App;
-    dc: any;
+    dc: DatacoreAPI;
     USER_QUERY?: string;
 }
 
@@ -162,7 +163,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     const [draftQuery, setDraftQuery] = dc.useState(cleanQuery);
     const [appliedQuery, setAppliedQuery] = dc.useState(cleanQuery);
     const [isShuffled, setIsShuffled] = dc.useState(false);
-    const [shuffledOrder, setShuffledOrder] = dc.useState([]);
+    const [shuffledOrder, setShuffledOrder] = dc.useState<string[]>([]);
     const [showQueryEditor, setShowQueryEditor] = dc.useState(false);
     const [showLimitDropdown, setShowLimitDropdown] = dc.useState(false);
     const [showSettings, setShowSettings] = dc.useState(false);
@@ -624,7 +625,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
 
     // Masonry layout
     const [columnCount, setColumnCount] = dc.useState(1);
-    const [columnHeights, setColumnHeights] = dc.useState([]);
+    const [columnHeights, setColumnHeights] = dc.useState<number[]>([]);
     const columnHeightsRef = dc.useRef([]);
     const lastPositionedCountRef = dc.useRef(0);
     const lastContainerWidthRef = dc.useRef(0);
@@ -1284,7 +1285,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
         } else if (viewMode === 'masonry') {
             return <MasonryView {...commonProps} />;
         } else {
-            return <CardView {...commonProps} />;
+            return <CardView {...commonProps} viewMode="card" />;
         }
     };
 

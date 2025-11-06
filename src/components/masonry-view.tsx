@@ -1,5 +1,6 @@
 import { CardView } from './card-view';
 import type { Settings } from '../types';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface MasonryViewProps {
     results: any[];
@@ -14,7 +15,7 @@ interface MasonryViewProps {
     containerRef: any;
     updateLayoutRef: any;
     app: any;
-    dc: any;
+    dc: DatacoreAPI;
     onCardClick?: (path: string, newLeaf: boolean) => void;
     onFocusChange?: (index: number) => void;
 }

@@ -5,6 +5,7 @@
 
 import type { CardData } from './card-renderer';
 import type { Settings } from '../types';
+import type { DatacoreAPI } from '../types/datacore';
 import {
     getFirstDatacorePropertyValue,
     getFirstBasesPropertyValue,
@@ -55,7 +56,7 @@ function resolveDatacoreTimestamp(
  */
 export function datacoreResultToCardData(
     result: any,
-    dc: any,
+    dc: DatacoreAPI,
     settings: Settings,
     sortMethod: string,
     isShuffled: boolean,
@@ -198,7 +199,7 @@ export function basesEntryToCardData(
  */
 export function transformDatacoreResults(
     results: any[],
-    dc: any,
+    dc: DatacoreAPI,
     settings: Settings,
     sortMethod: string,
     isShuffled: boolean,

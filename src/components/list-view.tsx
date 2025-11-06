@@ -1,5 +1,6 @@
 import type { Settings } from '../types';
 import { getFirstDatacorePropertyValue } from '../utils/property';
+import type { DatacoreAPI } from '../types/datacore';
 
 interface ListViewProps {
     results: any[];
@@ -7,7 +8,7 @@ interface ListViewProps {
     settings: Settings;
     containerRef: any;
     app: any;
-    dc: any;
+    dc: DatacoreAPI;
     onLinkClick?: (path: string, newLeaf: boolean) => void;
 }
 
