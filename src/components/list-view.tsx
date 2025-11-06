@@ -1,13 +1,23 @@
 import type { Settings } from '../types';
 import { getFirstDatacorePropertyValue } from '../utils/property';
-import type { DatacoreAPI } from '../types/datacore';
+import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
+import type { App } from 'obsidian';
+
+// Extend App type to include internal plugins
+declare module 'obsidian' {
+    interface App {
+        internalPlugins: {
+            plugins: Record<string, { enabled: boolean; instance?: any }>;
+        };
+    }
+}
 
 interface ListViewProps {
-    results: any[];
+    results: DatacoreFile[];
     displayedCount: number;
     settings: Settings;
-    containerRef: any;
-    app: any;
+    containerRef: { current: HTMLElement | null };
+    app: App;
     dc: DatacoreAPI;
     onLinkClick?: (path: string, newLeaf: boolean) => void;
 }

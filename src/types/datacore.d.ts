@@ -36,6 +36,13 @@ export interface DatacorePreact {
 }
 
 /**
+ * Datacore date value with toMillis method
+ */
+export interface DatacoreDate {
+    toMillis(): number;
+}
+
+/**
  * Datacore file metadata object representing a file in the vault.
  * Files have both system properties (prefixed with $) and user-defined frontmatter.
  */
@@ -53,10 +60,10 @@ export interface DatacoreFile {
     $size: number;
 
     /** File creation time */
-    $ctime: Date;
+    $ctime: DatacoreDate;
 
     /** File modification time */
-    $mtime: Date;
+    $mtime: DatacoreDate;
 
     /** Tags on the file (from frontmatter and inline tags) */
     $tags: string[];

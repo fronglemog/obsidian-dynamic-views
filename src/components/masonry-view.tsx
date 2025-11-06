@@ -1,9 +1,10 @@
 import { CardView } from './card-view';
 import type { Settings } from '../types';
-import type { DatacoreAPI } from '../types/datacore';
+import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
+import type { App } from 'obsidian';
 
 interface MasonryViewProps {
-    results: any[];
+    results: DatacoreFile[];
     displayedCount: number;
     settings: Settings;
     sortMethod: string;
@@ -12,9 +13,9 @@ interface MasonryViewProps {
     images: Record<string, string | string[]>;
     hasImageAvailable: Record<string, boolean>;
     focusableCardIndex: number;
-    containerRef: any;
-    updateLayoutRef: any;
-    app: any;
+    containerRef: { current: HTMLElement | null };
+    updateLayoutRef: { current: (() => void) | null };
+    app: App;
     dc: DatacoreAPI;
     onCardClick?: (path: string, newLeaf: boolean) => void;
     onFocusChange?: (index: number) => void;

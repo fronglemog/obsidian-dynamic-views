@@ -3,7 +3,7 @@
  * Primary implementation using Bases API
  */
 
-import { BasesView, TFile, setIcon } from 'obsidian';
+import { BasesView, TFile, setIcon, QueryController } from 'obsidian';
 import { CardData } from '../shared/card-renderer';
 import { transformBasesEntries } from '../shared/data-transform';
 import { readBasesSettings, getBasesViewOptions } from '../shared/settings-schema';
@@ -12,6 +12,13 @@ import { sanitizeForPreview } from '../utils/preview';
 import { getFirstBasesPropertyValue, getAllBasesImagePropertyValues } from '../utils/property';
 import { formatTimestamp, getTimestampIcon } from '../shared/render-utils';
 import type DynamicViewsPlugin from '../../main';
+
+// Extend App type to include isMobile property
+declare module 'obsidian' {
+    interface App {
+        isMobile: boolean;
+    }
+}
 
 export const CARD_VIEW_TYPE = 'dynamic-views-card';
 
@@ -31,7 +38,7 @@ export class DynamicViewsCardView extends BasesView {
     private resizeObserver: ResizeObserver | null = null;
     private metadataObservers: ResizeObserver[] = [];
 
-    constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
+    constructor(controller: QueryController, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
         this.containerEl = containerEl;
         this.plugin = plugin;
@@ -43,7 +50,7 @@ export class DynamicViewsCardView extends BasesView {
         this.containerEl.style.overflowX = 'hidden';
         this.containerEl.style.height = '100%';
         // Set initial batch size based on device
-        this.displayedCount = (this.app as any).isMobile ? 25 : 50;
+        this.displayedCount = this.app.isMobile ? 25 : 50;
     }
 
     async onDataUpdated(): Promise<void> {

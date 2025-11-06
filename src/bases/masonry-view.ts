@@ -3,7 +3,7 @@
  * Masonry layout view using Bases API
  */
 
-import { BasesView, TFile, setIcon } from 'obsidian';
+import { BasesView, TFile, setIcon, QueryController } from 'obsidian';
 import { CardData } from '../shared/card-renderer';
 import { transformBasesEntries } from '../shared/data-transform';
 import { readBasesSettings, getMasonryViewOptions } from '../shared/settings-schema';
@@ -31,7 +31,7 @@ export class DynamicViewsMasonryView extends BasesView {
     private scrollThrottleTimeout: number | null = null;
     private resizeObserver: ResizeObserver | null = null;
 
-    constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
+    constructor(controller: QueryController, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
         this.containerEl = containerEl;
         this.plugin = plugin;

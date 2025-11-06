@@ -10,10 +10,14 @@ import { getCurrentFile, getFileCtime, getAvailablePath } from '../utils/file';
 import { ensurePageSelector, updateQueryInBlock, findQueryInBlock } from '../utils/query-sync';
 import { isExternalUrl, hasValidImageExtension, validateImageUrl } from '../utils/image';
 import { getFirstDatacorePropertyValue, getAllDatacoreImagePropertyValues } from '../utils/property';
-import type { DatacoreAPI } from '../types/datacore';
+import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
+
+interface DynamicViewsPlugin extends Plugin {
+    persistenceManager: PersistenceManager;
+}
 
 interface ViewProps {
-    plugin: Plugin;
+    plugin: DynamicViewsPlugin;
     app: App;
     dc: DatacoreAPI;
     USER_QUERY?: string;
@@ -31,7 +35,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     const ctime = getFileCtime(currentFile);
 
     // Access PersistenceManager from plugin
-    const persistenceManager = (plugin as any).persistenceManager as PersistenceManager;
+    const persistenceManager = plugin.persistenceManager;
 
     // Markdown stripping patterns - compiled once for performance
     const markdownPatterns = dc.useMemo(() => [
@@ -170,7 +174,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     const [showSortDropdown, setShowSortDropdown] = dc.useState(false);
     const [showViewDropdown, setShowViewDropdown] = dc.useState(false);
     const [isPinned, setIsPinned] = dc.useState(false);
-    const [queryError, setQueryError] = dc.useState(null);
+    const [queryError, setQueryError] = dc.useState<string | null>(null);
     const [displayedCount, setDisplayedCount] = dc.useState((app as any).isMobile ? 25 : 50);
     const [focusableCardIndex, setFocusableCardIndex] = dc.useState(0);
     const [isResultsScrolled, setIsResultsScrolled] = dc.useState(false);
@@ -325,11 +329,12 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
     }, [app, dc]);
 
     // Execute query - indexRevision ensures re-execution AFTER Datacore reindexes
-    let pages: any[] = [];
+    let pages: DatacoreFile[] = [];
     try {
         pages = dc.useQuery(validatedQuery) || [];
-    } catch (error: any) {
-        setQueryError(error?.message || 'Query error');
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Query error';
+        setQueryError(errorMessage);
         pages = [];
     }
 
