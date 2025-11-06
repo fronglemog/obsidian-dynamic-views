@@ -154,6 +154,15 @@ export class DynamicViewsCardView extends BasesView {
         const leftInner = metaLeft.querySelector('.tags-wrapper, .path-wrapper, span') as HTMLElement;
         const rightInner = metaRight.querySelector('.tags-wrapper, .path-wrapper, span') as HTMLElement;
 
+        console.log('// [MetadataLayout] DEBUG querySelector results:', {
+            leftInner: leftInner ? `${leftInner.className} (${leftInner.tagName})` : 'NULL',
+            rightInner: rightInner ? `${rightInner.className} (${rightInner.tagName})` : 'NULL',
+            leftScrollWidth: leftInner ? leftInner.scrollWidth : 'N/A',
+            rightScrollWidth: rightInner ? rightInner.scrollWidth : 'N/A',
+            leftDisplay: leftInner ? getComputedStyle(leftInner).display : 'N/A',
+            rightDisplay: rightInner ? getComputedStyle(rightInner).display : 'N/A'
+        });
+
         const leftScrollWidth = leftInner ? leftInner.scrollWidth : 0;
         const rightScrollWidth = rightInner ? rightInner.scrollWidth : 0;
         const containerWidth = metaEl.clientWidth;
