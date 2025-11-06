@@ -15,19 +15,16 @@ export default class DynamicViewsPlugin extends Plugin {
 
 	// Helper function for datacorejsx blocks
 	createView(dc: DatacoreAPI, userQuery?: string) {
-		const plugin = this;
-		const app = this.app;
-
 		// Initialize jsxRuntime with Datacore's Preact BEFORE returning component
 		// This allows all compiled JSX in our components to use Datacore's h function
 		setDatacorePreact(dc.preact);
 
-		// Return function component for Datacore to render
-		return function DynamicView() {
+		// Return arrow function component for Datacore to render (preserves 'this' context)
+		return () => {
 			// View and all child components now use our h() proxy which delegates to dc.preact.h
 			return View({
-				plugin,
-				app,
+				plugin: this,
+				app: this.app,
 				dc,
 				USER_QUERY: userQuery || '@page'
 			});
