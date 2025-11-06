@@ -1284,6 +1284,21 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     white-space: nowrap;
 }
 
+/* Dynamic layout: both content fits in container */
+.dynamic-views .writing-meta.meta-both-fit {
+    grid-template-columns: auto auto;
+}
+
+/* Dynamic layout: left small, right gets remainder */
+.dynamic-views .writing-meta.meta-left-small {
+    grid-template-columns: auto 1fr;
+}
+
+/* Dynamic layout: right small, left gets remainder */
+.dynamic-views .writing-meta.meta-right-small {
+    grid-template-columns: 1fr auto;
+}
+
 .dynamic-views .meta-left {
     overflow-x: auto;
     min-width: 0;

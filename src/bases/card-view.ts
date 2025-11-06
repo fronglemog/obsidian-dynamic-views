@@ -29,6 +29,7 @@ export class DynamicViewsCardView extends BasesView {
     private scrollListener: (() => void) | null = null;
     private scrollThrottleTimeout: number | null = null;
     private resizeObserver: ResizeObserver | null = null;
+    private metadataObservers: ResizeObserver[] = [];
 
     constructor(controller: any, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
@@ -93,6 +94,10 @@ export class DynamicViewsCardView extends BasesView {
         // Clear and re-render
         this.containerEl.empty();
 
+        // Disconnect old metadata observers before re-rendering
+        this.metadataObservers.forEach(obs => obs.disconnect());
+        this.metadataObservers = [];
+
         // Create cards feed container
         const feedEl = this.containerEl.createDiv('cards-feed');
 
@@ -133,6 +138,31 @@ export class DynamicViewsCardView extends BasesView {
             });
             this.resizeObserver.observe(this.containerEl);
         }
+    }
+
+    private measureMetadataLayout(metaEl: HTMLElement, metaLeft: HTMLElement, metaRight: HTMLElement): void {
+        const leftScrollWidth = metaLeft.scrollWidth;
+        const rightScrollWidth = metaRight.scrollWidth;
+        const containerWidth = metaEl.clientWidth;
+
+        const leftPercent = (leftScrollWidth / containerWidth) * 100;
+        const rightPercent = (rightScrollWidth / containerWidth) * 100;
+
+        // Remove all layout classes
+        metaEl.removeClass('meta-both-fit', 'meta-left-small', 'meta-right-small');
+
+        // Apply conditional logic
+        if (leftPercent <= 50 && rightPercent <= 50) {
+            // Both content fits: give exact sizes
+            metaEl.addClass('meta-both-fit');
+        } else if (leftPercent <= 50 && rightPercent > 50) {
+            // Left small, right needs more: left gets exact size, right fills
+            metaEl.addClass('meta-left-small');
+        } else if (leftPercent > 50 && rightPercent <= 50) {
+            // Right small, left needs more: right gets exact size, left fills
+            metaEl.addClass('meta-right-small');
+        }
+        // Both >50%: default 50-50 split (no class needed)
     }
 
     private renderCard(
@@ -224,6 +254,23 @@ export class DynamicViewsCardView extends BasesView {
             // Right side
             const metaRight = metaEl.createDiv('meta-right');
             this.renderMetadataContent(metaRight, effectiveRight, card, entry, settings);
+
+            // Setup dynamic layout measurement for both-sided metadata
+            if (effectiveLeft !== 'none' && effectiveRight !== 'none') {
+                // Initial measurement after DOM paint
+                requestAnimationFrame(() => {
+                    this.measureMetadataLayout(metaEl, metaLeft, metaRight);
+                });
+
+                // Re-measure on resize
+                const observer = new ResizeObserver(() => {
+                    this.measureMetadataLayout(metaEl, metaLeft, metaRight);
+                });
+                observer.observe(metaEl);
+
+                // Store for cleanup
+                this.metadataObservers.push(observer);
+            }
         }
     }
 
@@ -477,6 +524,8 @@ export class DynamicViewsCardView extends BasesView {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
+        this.metadataObservers.forEach(obs => obs.disconnect());
+        this.metadataObservers = [];
     }
 }
 
