@@ -1341,6 +1341,27 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     display: none;
 }
 
+/* Fade effects for scrollable metadata */
+.dynamic-views .meta-left.can-scroll-right {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+}
+
+.dynamic-views .meta-left.can-scroll-left {
+    -webkit-mask-image: linear-gradient(to left, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to left, black calc(100% - 40px), transparent 100%);
+}
+
+.dynamic-views .meta-right.can-scroll-right {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+}
+
+.dynamic-views .meta-right.can-scroll-left {
+    -webkit-mask-image: linear-gradient(to left, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to left, black calc(100% - 40px), transparent 100%);
+}
+
 /* Single-side metadata layout */
 .dynamic-views .writing-meta.meta-left-only .meta-left {
     width: 100%;
@@ -1384,6 +1405,8 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     white-space: nowrap;
     flex-shrink: 1;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dynamic-views .writing-meta .tag {
