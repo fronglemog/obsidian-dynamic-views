@@ -1289,6 +1289,12 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     grid-template-columns: var(--meta-left-width, auto) var(--meta-right-width, auto);
 }
 
+/* Remove max-width constraints when using measured layout */
+.dynamic-views .writing-meta.meta-measured .meta-left,
+.dynamic-views .writing-meta.meta-measured .meta-right {
+    max-width: none;
+}
+
 .dynamic-views .meta-left {
     overflow-x: auto;
     min-width: 0;
