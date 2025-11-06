@@ -1291,14 +1291,20 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 
 /* Temporary state for measuring unconstrained content widths */
 .dynamic-views .writing-meta.meta-measuring {
-    display: block !important;  /* Break out of grid temporarily */
+    display: flex !important;  /* Use flex instead of grid for measurement */
+    gap: 0 !important;
 }
 
 .dynamic-views .writing-meta.meta-measuring .meta-left,
 .dynamic-views .writing-meta.meta-measuring .meta-right {
-    display: inline-block !important;
     max-width: none !important;
     width: auto !important;
+    flex: 0 0 auto !important;  /* Don't grow/shrink, use content width */
+}
+
+/* Disable ::before spacer during measurement */
+.dynamic-views .writing-meta.meta-measuring .meta-right::before {
+    display: none !important;
 }
 
 .dynamic-views .meta-left {
@@ -1349,10 +1355,16 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     justify-content: flex-start;
 }
 
-/* Right column: always right-aligned via justify-self on grid level */
+/* Right column: always right-aligned using margin-left: auto */
 .dynamic-views .writing-meta:not(.meta-left-only):not(.meta-right-only) .meta-right {
-    justify-self: end;  /* Aligns the grid item to the right within its column */
+    margin-left: auto;  /* Pushes to the right within grid column */
     padding-left: 6px;
+}
+
+/* Right column content: create inner wrapper effect for right-alignment with left-to-right scroll */
+.dynamic-views .meta-right::before {
+    content: '';
+    flex-grow: 1;  /* Pushes content to the right, maintains left-to-right overflow */
 }
 
 .dynamic-views .timestamp-icon {
