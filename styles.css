@@ -1287,7 +1287,6 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 /* Dynamic layout using CSS variables for explicit pixel values */
 .dynamic-views .writing-meta.meta-measured {
     grid-template-columns: var(--meta-left-width, auto) var(--meta-right-width, auto);
-    overflow: hidden;  /* Clip content at card boundaries */
 }
 
 /* Temporary state for measuring unconstrained content widths */
@@ -1370,8 +1369,11 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     direction: rtl;  /* Flip coordinate system for right-alignment with proper scrolling */
 }
 
-/* Reset direction for children to preserve normal text flow */
-.dynamic-views .meta-right > * {
+/* Reset direction for text elements to preserve normal text flow */
+/* Don't reset on wrapper containers (tags-wrapper, path-wrapper) - they need RTL for right-alignment */
+.dynamic-views .meta-right span,
+.dynamic-views .meta-right a,
+.dynamic-views .meta-right .tag {
     direction: ltr;
 }
 
