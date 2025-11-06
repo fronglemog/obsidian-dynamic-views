@@ -2,16 +2,20 @@
  * Property utility functions for handling comma-separated properties
  */
 
+import type { BasesEntry } from 'obsidian';
+import type { DatacoreFile, DatacoreDate } from '../types/datacore';
+
 /**
  * Get first non-empty property value from comma-separated list (Bases)
  * Accepts any property type (text, number, checkbox, date, datetime, list)
  */
-export function getFirstBasesPropertyValue(entry: any, propertyString: string): any {
+export function getFirstBasesPropertyValue(entry: BasesEntry, propertyString: string): unknown {
     if (!propertyString || !propertyString.trim()) return null;
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Check if property exists and has a value
@@ -32,7 +36,7 @@ export function getFirstBasesPropertyValue(entry: any, propertyString: string): 
  * Get first non-empty property value from comma-separated list (Datacore)
  * Accepts any property type (text, number, checkbox, date, datetime, list)
  */
-export function getFirstDatacorePropertyValue(page: any, propertyString: string): any {
+export function getFirstDatacorePropertyValue(page: DatacoreFile, propertyString: string): unknown {
     if (!propertyString || !propertyString.trim()) return null;
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
@@ -53,12 +57,13 @@ export function getFirstDatacorePropertyValue(page: any, propertyString: string)
  * Get first valid date/datetime property value from comma-separated list (Bases)
  * Only accepts date and datetime property types
  */
-export function getFirstBasesDatePropertyValue(entry: any, propertyString: string): any {
+export function getFirstBasesDatePropertyValue(entry: BasesEntry, propertyString: string): unknown {
     if (!propertyString || !propertyString.trim()) return null;
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
 
     for (const prop of properties) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Only accept date/datetime values
@@ -75,7 +80,7 @@ export function getFirstBasesDatePropertyValue(entry: any, propertyString: strin
  * Get first valid date/datetime property value from comma-separated list (Datacore)
  * Only accepts DateTime objects with toMillis() method
  */
-export function getFirstDatacoreDatePropertyValue(page: any, propertyString: string): any {
+export function getFirstDatacoreDatePropertyValue(page: DatacoreFile, propertyString: string): DatacoreDate | null {
     if (!propertyString || !propertyString.trim()) return null;
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
@@ -98,13 +103,14 @@ export function getFirstDatacoreDatePropertyValue(page: any, propertyString: str
  * Only accepts text and list property types containing image paths/URLs
  * Returns array of all image paths/URLs found across all properties
  */
-export function getAllBasesImagePropertyValues(entry: any, propertyString: string): string[] {
+export function getAllBasesImagePropertyValues(entry: BasesEntry, propertyString: string): string[] {
     if (!propertyString || !propertyString.trim()) return [];
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);
     const allImages: string[] = [];
 
     for (const prop of properties) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const value = entry.getValue(prop as any);
 
         // Skip if property doesn't exist or is not text/list type
@@ -138,7 +144,7 @@ export function getAllBasesImagePropertyValues(entry: any, propertyString: strin
  * Only accepts text and list property types containing image paths/URLs
  * Returns array of all image paths/URLs found across all properties
  */
-export function getAllDatacoreImagePropertyValues(page: any, propertyString: string): string[] {
+export function getAllDatacoreImagePropertyValues(page: DatacoreFile, propertyString: string): string[] {
     if (!propertyString || !propertyString.trim()) return [];
 
     const properties = propertyString.split(',').map(p => p.trim()).filter(p => p);

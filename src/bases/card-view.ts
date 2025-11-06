@@ -432,7 +432,7 @@ export class DynamicViewsCardView extends BasesView {
                     if (!(path in this.snippets)) {
                         try {
                             // Try to get text preview from property first
-                            const descValue = getFirstBasesPropertyValue(entry, settings.descriptionProperty);
+                            const descValue = getFirstBasesPropertyValue(entry, settings.descriptionProperty) as { data?: unknown } | null;
                             const hasValidDesc = descValue && descValue.data != null && String(descValue.data).trim().length > 0;
 
                             if (hasValidDesc) {

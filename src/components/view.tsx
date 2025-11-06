@@ -497,7 +497,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps) {
                         // Process text preview only if enabled
                         if (settings.showTextPreview) {
                             // Try to get description from property first
-                            let description = hasValidDesc ? descFromProp : null;
+                            let description: string | null = hasValidDesc ? String(descFromProp) : null;
                             if (!description && text && settings.fallbackToContent) {
                                 // Fallback: extract from file content
                                 const cleaned = text.replace(/^---[\s\S]*?---/, "").trim();

@@ -113,11 +113,11 @@ function resolveBasesTimestamp(
 
     if (customProperty) {
         // Try to get first valid date from comma-separated properties
-        const value = getFirstBasesDatePropertyValue(entry, customProperty);
+        const value = getFirstBasesDatePropertyValue(entry, customProperty) as { date?: Date } | null;
 
         if (value && isBasesDateValue(value)) {
             // Found valid date property
-            return value.date.getTime();
+            return value.date!.getTime();
         } else if (fallbackEnabled) {
             // No valid property date found - fall back to file metadata if enabled
             return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
@@ -149,7 +149,7 @@ export function basesEntryToCardData(
     const fileName = entry.file.basename || entry.file.name;
 
     // Get title from property (first available from comma-separated list) or fallback to filename
-    const titleValue = getFirstBasesPropertyValue(entry, settings.titleProperty);
+    const titleValue = getFirstBasesPropertyValue(entry, settings.titleProperty) as { data?: unknown } | null;
     const title = (titleValue && titleValue.data != null && titleValue.data !== '')
         ? String(titleValue.data)
         : fileName;
