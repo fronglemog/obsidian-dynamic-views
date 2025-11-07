@@ -2,16 +2,6 @@ import { App, PluginSettingTab, Setting, AbstractInputSuggest } from 'obsidian';
 import type DynamicViewsPlugin from '../main';
 import { getAllVaultProperties } from './utils/property';
 
-// Extend Obsidian API types
-declare module 'obsidian' {
-    interface App {
-        plugins: {
-            disablePlugin(id: string): Promise<void>;
-            enablePlugin(id: string): Promise<void>;
-        };
-    }
-}
-
 /**
  * Property suggester for searchable property dropdowns
  */
@@ -84,29 +74,23 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Show "Shuffle" in ribbon')
-			.setDesc('Display the shuffle button in the left sidebar ribbon')
+			.setDesc('Display the shuffle button in the left sidebar ribbon. Reload plugin or Obsidian to apply.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(settings.showShuffleInRibbon)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setGlobalSettings({ showShuffleInRibbon: value });
-						// Reload plugin to apply ribbon changes
-						await this.app.plugins.disablePlugin('dynamic-views');
-						await this.app.plugins.enablePlugin('dynamic-views');
 					})
 			);
 
 		new Setting(containerEl)
 			.setName('Show "Open random note" in ribbon')
-			.setDesc('Display the random note button in the left sidebar ribbon')
+			.setDesc('Display the random note button in the left sidebar ribbon. Reload plugin or Obsidian to apply.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(settings.showRandomInRibbon)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setGlobalSettings({ showRandomInRibbon: value });
-						// Reload plugin to apply ribbon changes
-						await this.app.plugins.disablePlugin('dynamic-views');
-						await this.app.plugins.enablePlugin('dynamic-views');
 					})
 			);
 
