@@ -13,8 +13,7 @@ export class PersistenceManager {
             globalSettings: { ...DEFAULT_SETTINGS },
             defaultViewSettings: { ...DEFAULT_VIEW_SETTINGS },
             queryStates: {},
-            viewSettings: {},
-            basesViewMetadataWinners: {}
+            viewSettings: {}
         };
     }
 
@@ -25,8 +24,7 @@ export class PersistenceManager {
                 globalSettings: { ...DEFAULT_SETTINGS, ...(loadedData.globalSettings || {}) },
                 defaultViewSettings: { ...DEFAULT_VIEW_SETTINGS, ...(loadedData.defaultViewSettings || {}) },
                 queryStates: loadedData.queryStates || {},
-                viewSettings: loadedData.viewSettings || {},
-                basesViewMetadataWinners: loadedData.basesViewMetadataWinners || {}
+                viewSettings: loadedData.viewSettings || {}
             };
         }
     }
@@ -107,16 +105,4 @@ export class PersistenceManager {
         await this.save();
     }
 
-    getBasesViewMetadataWinner(viewId: string): 'left' | 'right' | null {
-        return this.data.basesViewMetadataWinners[viewId] ?? null;
-    }
-
-    async setBasesViewMetadataWinner(viewId: string, winner: 'left' | 'right' | null): Promise<void> {
-        if (winner === null) {
-            delete this.data.basesViewMetadataWinners[viewId];
-        } else {
-            this.data.basesViewMetadataWinners[viewId] = winner;
-        }
-        await this.save();
-    }
 }

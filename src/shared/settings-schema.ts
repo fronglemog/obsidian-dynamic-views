@@ -34,30 +34,47 @@ export function setPluginInstance(plugin: PluginInstance): void {
 export function getBasesViewOptions(): any[] {
     // Use static defaults from DEFAULT_VIEW_SETTINGS
     // The template values will be used as fallbacks in readBasesSettings() instead
+    // TODO Phase 2: Add property suggester for these fields
     return [
         {
-            type: 'dropdown',
-            displayName: 'Metadata display (left)',
-            key: 'metadataDisplayLeft',
-            default: DEFAULT_VIEW_SETTINGS.metadataDisplayLeft,
-            options: {
-                'timestamp': 'Timestamp',
-                'path': 'File path',
-                'tags': 'File tags',
-                'none': 'None'
-            }
+            type: 'text',
+            displayName: 'Metadata display (1)',
+            key: 'metadataDisplay1',
+            placeholder: 'e.g., file tags, status',
+            default: DEFAULT_VIEW_SETTINGS.metadataDisplay1
         },
         {
-            type: 'dropdown',
-            displayName: 'Metadata display (right)',
-            key: 'metadataDisplayRight',
-            default: DEFAULT_VIEW_SETTINGS.metadataDisplayRight,
-            options: {
-                'timestamp': 'Timestamp',
-                'path': 'File path',
-                'tags': 'File tags',
-                'none': 'None'
-            }
+            type: 'text',
+            displayName: 'Metadata display (2)',
+            key: 'metadataDisplay2',
+            placeholder: 'Leave empty for none',
+            default: DEFAULT_VIEW_SETTINGS.metadataDisplay2
+        },
+        {
+            type: 'toggle',
+            displayName: 'Show (1) and (2) side-by-side',
+            key: 'metadataLayout12SideBySide',
+            default: DEFAULT_VIEW_SETTINGS.metadataLayout12SideBySide
+        },
+        {
+            type: 'text',
+            displayName: 'Metadata display (3)',
+            key: 'metadataDisplay3',
+            placeholder: 'Leave empty for none',
+            default: DEFAULT_VIEW_SETTINGS.metadataDisplay3
+        },
+        {
+            type: 'text',
+            displayName: 'Metadata display (4)',
+            key: 'metadataDisplay4',
+            placeholder: 'Leave empty for none',
+            default: DEFAULT_VIEW_SETTINGS.metadataDisplay4
+        },
+        {
+            type: 'toggle',
+            displayName: 'Show (3) and (4) side-by-side',
+            key: 'metadataLayout34SideBySide',
+            default: DEFAULT_VIEW_SETTINGS.metadataLayout34SideBySide
         },
         {
             type: 'text',
@@ -137,15 +154,24 @@ export function readBasesSettings(config: BasesConfig, globalSettings: Settings,
         fallbackToEmbeds: Boolean(config.get('fallbackToEmbeds') ?? defaultViewSettings.fallbackToEmbeds),
         fallbackToCtime: Boolean(config.get('fallbackToCtime') ?? DEFAULT_SETTINGS.fallbackToCtime),
         fallbackToMtime: Boolean(config.get('fallbackToMtime') ?? DEFAULT_SETTINGS.fallbackToMtime),
-        metadataDisplayLeft: (() => {
-            const value = config.get('metadataDisplayLeft');
-            return (typeof value === 'string' ? value : defaultViewSettings.metadataDisplayLeft) as 'none' | 'timestamp' | 'tags' | 'path';
+        metadataDisplay1: (() => {
+            const value = config.get('metadataDisplay1');
+            return typeof value === 'string' ? value : defaultViewSettings.metadataDisplay1;
         })(),
-        metadataDisplayRight: (() => {
-            const value = config.get('metadataDisplayRight');
-            return (typeof value === 'string' ? value : defaultViewSettings.metadataDisplayRight) as 'none' | 'timestamp' | 'tags' | 'path';
+        metadataDisplay2: (() => {
+            const value = config.get('metadataDisplay2');
+            return typeof value === 'string' ? value : defaultViewSettings.metadataDisplay2;
         })(),
-        metadataDisplayWinner: null, // Computed at runtime by view instances
+        metadataDisplay3: (() => {
+            const value = config.get('metadataDisplay3');
+            return typeof value === 'string' ? value : defaultViewSettings.metadataDisplay3;
+        })(),
+        metadataDisplay4: (() => {
+            const value = config.get('metadataDisplay4');
+            return typeof value === 'string' ? value : defaultViewSettings.metadataDisplay4;
+        })(),
+        metadataLayout12SideBySide: Boolean(config.get('metadataLayout12SideBySide') ?? defaultViewSettings.metadataLayout12SideBySide),
+        metadataLayout34SideBySide: Boolean(config.get('metadataLayout34SideBySide') ?? defaultViewSettings.metadataLayout34SideBySide),
         timestampDisplay: globalSettings.timestampDisplay, // From global settings
         listMarker: (() => {
             const value = config.get('listMarker');

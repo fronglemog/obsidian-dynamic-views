@@ -36,18 +36,22 @@ export function formatTimestamp(timestamp: number): string {
 
 /**
  * Determine effective metadata display values
- * Handles duplicate detection: left always wins when both are the same non-none value
+ * TODO Phase 4: Update to return all 4 fields with proper layout flags
  */
 export function getEffectiveMetadata(settings: Settings): {
-    left: 'none' | 'timestamp' | 'tags' | 'path';
-    right: 'none' | 'timestamp' | 'tags' | 'path';
+    left: string;
+    right: string;
 } {
-    const isDuplicate = settings.metadataDisplayLeft !== 'none' &&
-        settings.metadataDisplayLeft === settings.metadataDisplayRight;
+    // Temporary stub: map new fields to old two-field system
+    const left = settings.metadataDisplay1;
+    const right = settings.metadataDisplay3;
+
+    // Detect duplicates (field 1 takes priority)
+    const isDuplicate = left !== '' && left === right;
 
     return {
-        left: settings.metadataDisplayLeft,
-        right: isDuplicate ? 'none' : settings.metadataDisplayRight
+        left,
+        right: isDuplicate ? '' : right
     };
 }
 

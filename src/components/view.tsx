@@ -123,8 +123,12 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         baseSettings.titleProperty = viewSettings.titleProperty ?? defaultViewSettings.titleProperty;
         baseSettings.descriptionProperty = viewSettings.descriptionProperty ?? defaultViewSettings.descriptionProperty;
         baseSettings.imageProperty = viewSettings.imageProperty ?? defaultViewSettings.imageProperty;
-        baseSettings.metadataDisplayLeft = viewSettings.metadataDisplayLeft ?? defaultViewSettings.metadataDisplayLeft;
-        baseSettings.metadataDisplayRight = viewSettings.metadataDisplayRight ?? defaultViewSettings.metadataDisplayRight;
+        baseSettings.metadataDisplay1 = viewSettings.metadataDisplay1 ?? defaultViewSettings.metadataDisplay1;
+        baseSettings.metadataDisplay2 = viewSettings.metadataDisplay2 ?? defaultViewSettings.metadataDisplay2;
+        baseSettings.metadataDisplay3 = viewSettings.metadataDisplay3 ?? defaultViewSettings.metadataDisplay3;
+        baseSettings.metadataDisplay4 = viewSettings.metadataDisplay4 ?? defaultViewSettings.metadataDisplay4;
+        baseSettings.metadataLayout12SideBySide = viewSettings.metadataLayout12SideBySide ?? defaultViewSettings.metadataLayout12SideBySide;
+        baseSettings.metadataLayout34SideBySide = viewSettings.metadataLayout34SideBySide ?? defaultViewSettings.metadataLayout34SideBySide;
         baseSettings.showTextPreview = viewSettings.showTextPreview ?? defaultViewSettings.showTextPreview;
         baseSettings.fallbackToContent = viewSettings.fallbackToContent ?? defaultViewSettings.fallbackToContent;
         baseSettings.showThumbnails = viewSettings.showThumbnails ?? defaultViewSettings.showThumbnails;
@@ -247,8 +251,12 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
                     titleProperty: settings.titleProperty,
                     descriptionProperty: settings.descriptionProperty,
                     imageProperty: settings.imageProperty,
-                    metadataDisplayLeft: settings.metadataDisplayLeft,
-                    metadataDisplayRight: settings.metadataDisplayRight,
+                    metadataDisplay1: settings.metadataDisplay1,
+                    metadataDisplay2: settings.metadataDisplay2,
+                    metadataDisplay3: settings.metadataDisplay3,
+                    metadataDisplay4: settings.metadataDisplay4,
+                    metadataLayout12SideBySide: settings.metadataLayout12SideBySide,
+                    metadataLayout34SideBySide: settings.metadataLayout34SideBySide,
                     showTextPreview: settings.showTextPreview,
                     fallbackToContent: settings.fallbackToContent,
                     showThumbnails: settings.showThumbnails,

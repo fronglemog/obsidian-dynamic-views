@@ -132,32 +132,72 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		const defaultViewSettings = this.plugin.persistenceManager.getDefaultViewSettings();
 
 		new Setting(containerEl)
-			.setName('Metadata display (left)')
-			.setDesc('Default metadata to show on left side of cards')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOption('timestamp', 'Timestamp')
-					.addOption('path', 'File path')
-					.addOption('tags', 'File tags')
-					.addOption('none', 'None')
-					.setValue(defaultViewSettings.metadataDisplayLeft)
-					.onChange(async (value: 'none' | 'timestamp' | 'tags' | 'path') => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplayLeft: value });
+			.setName('Metadata display (1)')
+			.setDesc('Property to show in first metadata position')
+			.addText((text) =>
+				text
+					.setPlaceholder('Property name (e.g., file tags, status)')
+					.setValue(defaultViewSettings.metadataDisplay1)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay1: value });
 					})
 			);
 
 		new Setting(containerEl)
-			.setName('Metadata display (right)')
-			.setDesc('Default metadata to show on right side of cards')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOption('timestamp', 'Timestamp')
-					.addOption('path', 'File path')
-					.addOption('tags', 'File tags')
-					.addOption('none', 'None')
-					.setValue(defaultViewSettings.metadataDisplayRight)
-					.onChange(async (value: 'none' | 'timestamp' | 'tags' | 'path') => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplayRight: value });
+			.setName('Metadata display (2)')
+			.setDesc('Property to show in second metadata position')
+			.addText((text) =>
+				text
+					.setPlaceholder('Property name (leave empty for none)')
+					.setValue(defaultViewSettings.metadataDisplay2)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay2: value });
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Show (1) and (2) side-by-side')
+			.setDesc('Display first two metadata items horizontally')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(defaultViewSettings.metadataLayout12SideBySide)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataLayout12SideBySide: value });
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Metadata display (3)')
+			.setDesc('Property to show in third metadata position')
+			.addText((text) =>
+				text
+					.setPlaceholder('Property name (leave empty for none)')
+					.setValue(defaultViewSettings.metadataDisplay3)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay3: value });
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Metadata display (4)')
+			.setDesc('Property to show in fourth metadata position')
+			.addText((text) =>
+				text
+					.setPlaceholder('Property name (leave empty for none)')
+					.setValue(defaultViewSettings.metadataDisplay4)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay4: value });
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Show (3) and (4) side-by-side')
+			.setDesc('Display third and fourth metadata items horizontally')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(defaultViewSettings.metadataLayout34SideBySide)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataLayout34SideBySide: value });
 					})
 			);
 

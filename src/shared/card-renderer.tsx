@@ -50,18 +50,20 @@ export interface CardRendererProps {
 
 /**
  * Helper function to render metadata content based on display type
+ * TODO Phase 3: Implement full property resolution
  */
 function renderMetadataContent(
-    displayType: 'none' | 'timestamp' | 'tags' | 'path',
+    displayType: string,
     card: CardData,
     date: string | null,
     timeIcon: 'calendar' | 'clock',
     settings: Settings,
     app: App
 ): unknown {
-    if (displayType === 'none') return null;
+    if (displayType === '') return null;
 
-    if (displayType === 'timestamp' && date) {
+    // Map old built-in types to new property names
+    if ((displayType === 'timestamp' || displayType === 'modified time' || displayType === 'created time') && date) {
         return (
             <>
                 {showTimestampIcon() && (
@@ -84,7 +86,7 @@ function renderMetadataContent(
                 <span>{date}</span>
             </>
         );
-    } else if (displayType === 'tags' && card.tags.length > 0) {
+    } else if ((displayType === 'tags' || displayType === 'file tags') && card.tags.length > 0) {
         const tagStyle = getTagStyle();
         const showHashPrefix = tagStyle === 'minimal';
 
@@ -108,7 +110,7 @@ function renderMetadataContent(
                 ))}
             </div>
         );
-    } else if (displayType === 'path' && card.folderPath.length > 0) {
+    } else if ((displayType === 'path' || displayType === 'file path') && card.folderPath.length > 0) {
         return (
             <div className="path-wrapper">
                 {card.folderPath.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
@@ -351,27 +353,23 @@ function Card({
                 </div>
             )}
 
-            {/* Metadata */}
+            {/* Metadata - TODO: Implement full 4-field rendering in Phase 4 */}
             {(() => {
-                // Left always wins: if both match and are non-none, suppress right
-                const effectiveLeft = settings.metadataDisplayLeft;
-                const effectiveRight = settings.metadataDisplayLeft !== 'none' &&
-                    settings.metadataDisplayRight !== 'none' &&
-                    settings.metadataDisplayLeft === settings.metadataDisplayRight
-                        ? 'none'
-                        : settings.metadataDisplayRight;
+                // Temporary stub: map new fields to old two-field rendering
+                const effectiveLeft = settings.metadataDisplay1;
+                const effectiveRight = settings.metadataDisplay3;
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- JSX.Element resolves to any due to Datacore's JSX runtime
-                return (effectiveLeft !== 'none' || effectiveRight !== 'none') && (
+                return (effectiveLeft !== '' || effectiveRight !== '') && (
                     <div className={`writing-meta${
-                        effectiveLeft === 'none' && effectiveRight !== 'none' ? ' meta-right-only' :
-                        effectiveLeft !== 'none' && effectiveRight === 'none' ? ' meta-left-only' : ''
+                        effectiveLeft === '' && effectiveRight !== '' ? ' meta-right-only' :
+                        effectiveLeft !== '' && effectiveRight === '' ? ' meta-left-only' : ''
                     }`}>
                         <div className="meta-left">
-                            {renderMetadataContent(effectiveLeft, card, date, timeIcon, settings, app)}
+                            {effectiveLeft !== '' && renderMetadataContent(effectiveLeft, card, date, timeIcon, settings, app)}
                         </div>
                         <div className="meta-right">
-                            {renderMetadataContent(effectiveRight, card, date, timeIcon, settings, app)}
+                            {effectiveRight !== '' && renderMetadataContent(effectiveRight, card, date, timeIcon, settings, app)}
                         </div>
                     </div>
                 );

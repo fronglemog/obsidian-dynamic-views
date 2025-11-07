@@ -14,48 +14,110 @@ export function Settings({
 }: SettingsProps): JSX.Element {
     return (
         <div className="settings-dropdown-menu">
-            {/* Metadata Display (Left) */}
+            {/* Metadata Display (1) */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata display (left)</label>
-                    <div className="setting-desc">Set what metadata to show on the left side.</div>
+                    <label>Metadata display (1)</label>
+                    <div className="setting-desc">Property to show in first metadata position</div>
                 </div>
-                <select
-                    value={settings.metadataDisplayLeft}
+                <input
+                    type="text"
+                    value={settings.metadataDisplay1}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLSelectElement };
-                        const newValue = evt.target.value as 'none' | 'timestamp' | 'tags' | 'path';
-                        onSettingsChange({ metadataDisplayLeft: newValue });
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataDisplay1: evt.target.value });
                     }}
-                    className="dropdown"
-                >
-                    <option value="timestamp">Timestamp</option>
-                    <option value="path">File path</option>
-                    <option value="tags">File tags</option>
-                    <option value="none">None</option>
-                </select>
+                    placeholder="e.g., file tags, status"
+                    className="setting-text-input"
+                />
             </div>
 
-            {/* Metadata Display (Right) */}
+            {/* Metadata Display (2) */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata display (right)</label>
-                    <div className="setting-desc">Set what metadata to show on the right side.</div>
+                    <label>Metadata display (2)</label>
+                    <div className="setting-desc">Property to show in second metadata position</div>
                 </div>
-                <select
-                    value={settings.metadataDisplayRight}
+                <input
+                    type="text"
+                    value={settings.metadataDisplay2}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLSelectElement };
-                        const newValue = evt.target.value as 'none' | 'timestamp' | 'tags' | 'path';
-                        onSettingsChange({ metadataDisplayRight: newValue });
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataDisplay2: evt.target.value });
                     }}
-                    className="dropdown"
-                >
-                    <option value="timestamp">Timestamp</option>
-                    <option value="path">File path</option>
-                    <option value="tags">File tags</option>
-                    <option value="none">None</option>
-                </select>
+                    placeholder="Leave empty for none"
+                    className="setting-text-input"
+                />
+            </div>
+
+            {/* Layout Toggle (1 & 2) */}
+            <div className="setting-item setting-item-toggle">
+                <div className="setting-item-info">
+                    <label>Show (1) and (2) side-by-side</label>
+                    <div className="setting-desc">Display first two metadata items horizontally</div>
+                </div>
+                <input
+                    type="checkbox"
+                    checked={settings.metadataLayout12SideBySide}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataLayout12SideBySide: evt.target.checked });
+                    }}
+                    className="checkbox-toggle"
+                />
+            </div>
+
+            {/* Metadata Display (3) */}
+            <div className="setting-item setting-item-text">
+                <div className="setting-item-info">
+                    <label>Metadata display (3)</label>
+                    <div className="setting-desc">Property to show in third metadata position</div>
+                </div>
+                <input
+                    type="text"
+                    value={settings.metadataDisplay3}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataDisplay3: evt.target.value });
+                    }}
+                    placeholder="Leave empty for none"
+                    className="setting-text-input"
+                />
+            </div>
+
+            {/* Metadata Display (4) */}
+            <div className="setting-item setting-item-text">
+                <div className="setting-item-info">
+                    <label>Metadata display (4)</label>
+                    <div className="setting-desc">Property to show in fourth metadata position</div>
+                </div>
+                <input
+                    type="text"
+                    value={settings.metadataDisplay4}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataDisplay4: evt.target.value });
+                    }}
+                    placeholder="Leave empty for none"
+                    className="setting-text-input"
+                />
+            </div>
+
+            {/* Layout Toggle (3 & 4) */}
+            <div className="setting-item setting-item-toggle">
+                <div className="setting-item-info">
+                    <label>Show (3) and (4) side-by-side</label>
+                    <div className="setting-desc">Display third and fourth metadata items horizontally</div>
+                </div>
+                <input
+                    type="checkbox"
+                    checked={settings.metadataLayout34SideBySide}
+                    onChange={(e: unknown) => {
+                        const evt = e as Event & { target: HTMLInputElement };
+                        onSettingsChange({ metadataLayout34SideBySide: evt.target.checked });
+                    }}
+                    className="checkbox-toggle"
+                />
             </div>
 
             {/* Title Property */}

@@ -377,20 +377,20 @@ export class DynamicViewsMasonryView extends BasesView {
             }
         }
 
-        // Metadata - left always wins when both are the same non-none value
-        const isDuplicate = settings.metadataDisplayLeft !== 'none' &&
-            settings.metadataDisplayLeft === settings.metadataDisplayRight;
+        // Metadata - TODO: Temporary stub until Phase 4 implements full 4-field rendering
+        const effectiveLeft = settings.metadataDisplay1;
+        const effectiveRight = settings.metadataDisplay3;
 
-        const effectiveLeft = settings.metadataDisplayLeft;
-        const effectiveRight = isDuplicate ? 'none' : settings.metadataDisplayRight;
+        // Detect duplicates (field 1 takes priority)
+        const isDuplicate = effectiveLeft !== '' && effectiveLeft === effectiveRight;
 
-        if (effectiveLeft !== 'none' || effectiveRight !== 'none') {
+        if (effectiveLeft !== '' || (effectiveRight !== '' && !isDuplicate)) {
             const metaEl = cardEl.createDiv('writing-meta');
 
             // Add class if only one side has content (for full-width styling)
-            if (effectiveLeft === 'none' && effectiveRight !== 'none') {
+            if (effectiveLeft === '' && effectiveRight !== '' && !isDuplicate) {
                 metaEl.addClass('meta-right-only');
-            } else if (effectiveLeft !== 'none' && effectiveRight === 'none') {
+            } else if (effectiveLeft !== '' && (effectiveRight === '' || isDuplicate)) {
                 metaEl.addClass('meta-left-only');
             }
 
@@ -496,14 +496,16 @@ export class DynamicViewsMasonryView extends BasesView {
 
     private renderMetadataContent(
         container: HTMLElement,
-        displayType: 'none' | 'timestamp' | 'tags' | 'path',
+        displayType: string,
         card: CardData,
         entry: BasesEntry,
         settings: Settings
     ): void {
-        if (displayType === 'none') return;
+        if (displayType === '') return;
 
-        if (displayType === 'timestamp') {
+        // TODO Phase 3: Implement full property resolution
+        // For now, map old built-in types to new property names
+        if (displayType === 'timestamp' || displayType === 'modified time' || displayType === 'created time') {
             // Use resolved displayTimestamp from CardData (already handles custom properties)
             const timestamp = card.displayTimestamp;
 
@@ -519,7 +521,7 @@ export class DynamicViewsMasonryView extends BasesView {
                 }
                 timestampWrapper.appendText(date);
             }
-        } else if (displayType === 'tags' && card.tags.length > 0) {
+        } else if ((displayType === 'tags' || displayType === 'file tags') && card.tags.length > 0) {
             const tagStyle = getTagStyle();
             const showHashPrefix = tagStyle === 'minimal';
             const tagsWrapper = container.createDiv('tags-wrapper');
@@ -537,7 +539,7 @@ export class DynamicViewsMasonryView extends BasesView {
                     }
                 });
             });
-        } else if (displayType === 'path' && card.folderPath.length > 0) {
+        } else if ((displayType === 'path' || displayType === 'file path') && card.folderPath.length > 0) {
             const pathWrapper = container.createDiv('path-wrapper');
             const folders = card.folderPath.split('/').filter(f => f);
             folders.forEach((folder, idx) => {

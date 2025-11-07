@@ -78,24 +78,19 @@ export function ListView({
                             {titleValue}
                         </a>
                         {/* Metadata - show both left and right inline */}
+                        {/* TODO Phase 4: Implement full 4-field rendering */}
                         {(() => {
-                            // Apply winner logic: if both match and there's a winner, treat loser as 'none'
-                            const effectiveLeft = settings.metadataDisplayWinner === 'right' &&
-                                settings.metadataDisplayLeft !== 'none' &&
-                                settings.metadataDisplayLeft === settings.metadataDisplayRight
-                                    ? 'none'
-                                    : settings.metadataDisplayLeft;
+                            // Temporary stub: map new fields to old two-field rendering
+                            const effectiveLeft = settings.metadataDisplay1;
+                            const effectiveRight = settings.metadataDisplay3;
 
-                            const effectiveRight = settings.metadataDisplayWinner === 'left' &&
-                                settings.metadataDisplayRight !== 'none' &&
-                                settings.metadataDisplayLeft === settings.metadataDisplayRight
-                                    ? 'none'
-                                    : settings.metadataDisplayRight;
+                            // Detect duplicates (field 1 takes priority)
+                            const isDuplicate = effectiveLeft !== '' && effectiveLeft === effectiveRight;
 
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- JSX.Element resolves to any due to Datacore's JSX runtime
-                            return (effectiveLeft !== 'none' || effectiveRight !== 'none') && (
+                            return (effectiveLeft !== '' || (effectiveRight !== '' && !isDuplicate)) && (
                                 <span className="list-meta">
-                                    {effectiveLeft === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {(effectiveLeft === 'tags' || effectiveLeft === 'file tags') && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -114,10 +109,10 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : effectiveLeft === 'path' && folderPath ? (
+                                    ) : (effectiveLeft === 'path' || effectiveLeft === 'file path') && folderPath ? (
                                         <span className="list-path">{folderPath}</span>
                                     ) : null}
-                                    {effectiveRight === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {!isDuplicate && (effectiveRight === 'tags' || effectiveRight === 'file tags') && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -136,7 +131,7 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : effectiveRight === 'path' && folderPath ? (
+                                    ) : !isDuplicate && (effectiveRight === 'path' || effectiveRight === 'file path') && folderPath ? (
                                         <span className="list-path">{folderPath}</span>
                                     ) : null}
                                 </span>

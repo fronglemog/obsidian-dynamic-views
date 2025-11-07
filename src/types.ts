@@ -11,9 +11,12 @@ export interface Settings {
     fallbackToEmbeds: boolean;
     fallbackToCtime: boolean;
     fallbackToMtime: boolean;
-    metadataDisplayLeft: 'none' | 'timestamp' | 'tags' | 'path';
-    metadataDisplayRight: 'none' | 'timestamp' | 'tags' | 'path';
-    metadataDisplayWinner: 'left' | 'right' | null;
+    metadataDisplay1: string;
+    metadataDisplay2: string;
+    metadataDisplay3: string;
+    metadataDisplay4: string;
+    metadataLayout12SideBySide: boolean;
+    metadataLayout34SideBySide: boolean;
     timestampDisplay: 'ctime' | 'mtime' | 'sort-based';
     listMarker: string;
     randomizeAction: string;
@@ -35,8 +38,12 @@ export interface DefaultViewSettings {
     titleProperty: string;
     descriptionProperty: string;
     imageProperty: string;
-    metadataDisplayLeft: 'none' | 'timestamp' | 'tags' | 'path';
-    metadataDisplayRight: 'none' | 'timestamp' | 'tags' | 'path';
+    metadataDisplay1: string;
+    metadataDisplay2: string;
+    metadataDisplay3: string;
+    metadataDisplay4: string;
+    metadataLayout12SideBySide: boolean;
+    metadataLayout34SideBySide: boolean;
     showTextPreview: boolean;
     fallbackToContent: boolean;
     showThumbnails: boolean;
@@ -50,7 +57,6 @@ export interface PluginData {
     defaultViewSettings: DefaultViewSettings;
     queryStates: Record<string, UIState>;
     viewSettings: Record<string, Partial<DefaultViewSettings>>;
-    basesViewMetadataWinners: Record<string, 'left' | 'right' | null>;
 }
 
 export type ViewMode = 'card' | 'masonry' | 'list';

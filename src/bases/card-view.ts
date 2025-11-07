@@ -315,22 +315,22 @@ export class DynamicViewsCardView extends BasesView {
             }
         }
 
-        // Metadata - left always wins when both are the same non-none value
-        const isDuplicate = settings.metadataDisplayLeft !== 'none' &&
-            settings.metadataDisplayLeft === settings.metadataDisplayRight;
+        // Metadata - TODO: Temporary stub until Phase 4 implements full 4-field rendering
+        const effectiveLeft = settings.metadataDisplay1;
+        const effectiveRight = settings.metadataDisplay3;
 
-        const effectiveLeft = settings.metadataDisplayLeft;
-        const effectiveRight = isDuplicate ? 'none' : settings.metadataDisplayRight;
+        // Detect duplicates (field 1 takes priority)
+        const isDuplicate = effectiveLeft !== '' && effectiveLeft === effectiveRight;
 
         console.log(`// [DEBUG Setup] File: ${card.path}, effectiveLeft: ${effectiveLeft}, effectiveRight: ${effectiveRight}, isDuplicate: ${isDuplicate}`);
 
-        if (effectiveLeft !== 'none' || effectiveRight !== 'none') {
+        if (effectiveLeft !== '' || (effectiveRight !== '' && !isDuplicate)) {
             const metaEl = cardEl.createDiv('writing-meta');
 
             // Add class if only one side has content (for full-width styling)
-            if (effectiveLeft === 'none' && effectiveRight !== 'none') {
+            if (effectiveLeft === '' && effectiveRight !== '' && !isDuplicate) {
                 metaEl.addClass('meta-right-only');
-            } else if (effectiveLeft !== 'none' && effectiveRight === 'none') {
+            } else if (effectiveLeft !== '' && (effectiveRight === '' || isDuplicate)) {
                 metaEl.addClass('meta-left-only');
             }
 
@@ -445,15 +445,17 @@ export class DynamicViewsCardView extends BasesView {
 
     private renderMetadataContent(
         container: HTMLElement,
-        displayType: 'none' | 'timestamp' | 'tags' | 'path',
+        displayType: string,
         card: CardData,
         entry: BasesEntry,
         settings: Settings
     ): void {
         console.log(`// [DEBUG Render] File: ${card.path}, displayType: ${displayType}, tags:`, card.tags, 'length:', card.tags.length);
-        if (displayType === 'none') return;
+        if (displayType === '') return;
 
-        if (displayType === 'timestamp') {
+        // TODO Phase 3: Implement full property resolution
+        // For now, map old built-in types to new property names
+        if (displayType === 'timestamp' || displayType === 'modified time' || displayType === 'created time') {
             // Use resolved displayTimestamp from CardData (already handles custom properties)
             const timestamp = card.displayTimestamp;
 
@@ -469,7 +471,7 @@ export class DynamicViewsCardView extends BasesView {
                 }
                 timestampWrapper.appendText(date);
             }
-        } else if (displayType === 'tags' && card.tags.length > 0) {
+        } else if ((displayType === 'tags' || displayType === 'file tags') && card.tags.length > 0) {
             console.log(`// [DEBUG Render] Rendering tags for ${card.path}:`, card.tags);
             const tagStyle = getTagStyle();
             const showHashPrefix = tagStyle === 'minimal';
@@ -488,9 +490,9 @@ export class DynamicViewsCardView extends BasesView {
                     }
                 });
             });
-        } else if (displayType === 'tags') {
+        } else if (displayType === 'tags' || displayType === 'file tags') {
             console.log(`// [DEBUG Render] Tags displayType but no tags for ${card.path}, tags.length:`, card.tags.length);
-        } else if (displayType === 'path' && card.folderPath.length > 0) {
+        } else if ((displayType === 'path' || displayType === 'file path') && card.folderPath.length > 0) {
             const pathWrapper = container.createDiv('path-wrapper');
             const folders = card.folderPath.split('/').filter(f => f);
             folders.forEach((folder, idx) => {
