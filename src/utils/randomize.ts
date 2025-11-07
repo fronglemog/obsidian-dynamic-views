@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
-import { App, View, BasesEntry } from 'obsidian';
+import { App, Notice, View, BasesEntry } from 'obsidian';
 import type { DynamicViewsCardView } from '../bases/card-view';
 import type { DynamicViewsMasonryView } from '../bases/masonry-view';
 
@@ -93,6 +93,7 @@ export async function openRandomFile(app: App, openInNewPane: boolean): Promise<
 	const basesView = getActiveBasesView(app);
 
 	if (!basesView) {
+		new Notice('No Bases view is currently active');
 		return;
 	}
 
@@ -122,6 +123,7 @@ export function toggleShuffleActiveView(app: App): void {
 	const basesView = getActiveBasesView(app);
 
 	if (!basesView) {
+		new Notice('No Bases view is currently active');
 		return;
 	}
 
