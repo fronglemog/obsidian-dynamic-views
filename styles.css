@@ -1794,8 +1794,9 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
     flex: 1 1 0;
     min-width: 0;
     max-width: 50%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
 }
 
 .dynamic-views .meta-row.meta-row-single .meta-field {
@@ -1831,17 +1832,25 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
     text-align: left !important;
 }
 
-/* Tags and paths in side-by-side: scrollable with hidden scrollbar */
-.dynamic-views .meta-row-sidebyside .meta-field .tags-wrapper,
-.dynamic-views .meta-row-sidebyside .meta-field .path-wrapper {
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
+/* Hide scrollbar for side-by-side fields */
+.dynamic-views .meta-row-sidebyside .meta-field::-webkit-scrollbar {
+    display: none;
 }
 
-.dynamic-views .meta-row-sidebyside .meta-field .tags-wrapper::-webkit-scrollbar,
-.dynamic-views .meta-row-sidebyside .meta-field .path-wrapper::-webkit-scrollbar {
-    display: none;
+/* Gradient masks for side-by-side fields when content is scrollable */
+body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-left {
+    mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black 100%);
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black 100%);
+}
+
+body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-right {
+    mask-image: linear-gradient(to right, black 0, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
+}
+
+body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-both {
+    mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
 }
 
 /* Hide empty fields */

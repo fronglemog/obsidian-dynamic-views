@@ -94,7 +94,7 @@ export default class DynamicViewsPlugin extends Plugin {
 		const settings = this.persistenceManager.getGlobalSettings();
 
 		if (settings.showRandomInRibbon) {
-			const randomRibbon = this.addRibbonIcon('dices', 'Open random file from Bases view', async (evt: MouseEvent) => {
+			const _randomRibbon = this.addRibbonIcon('dices', 'Open random file from Bases view', async (evt: MouseEvent) => {
 				const defaultOpenInNewPane = this.persistenceManager.getGlobalSettings().openRandomInNewPane;
 				// If modifier key is pressed, invert the default behavior
 				const openInNewPane = Keymap.isModEvent(evt) ? !defaultOpenInNewPane : defaultOpenInNewPane;
