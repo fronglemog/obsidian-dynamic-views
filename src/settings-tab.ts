@@ -106,10 +106,11 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 			);
 
 		// Appearance section
-		containerEl.createEl('h2', { text: 'Appearance' });
+		new Setting(containerEl)
+			.setName('Appearance')
+			.setDesc('');
 
-		const appearanceContainer = containerEl.createDiv();
-		const appearanceDesc = appearanceContainer.createEl('p', { cls: 'setting-item-description' });
+		const appearanceDesc = containerEl.createEl('p', { cls: 'setting-item-description' });
 		appearanceDesc.appendText('Appearance settings can be configured via ');
 		appearanceDesc.createEl('a', {
 			text: 'Style Settings',
@@ -117,7 +118,7 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		});
 		appearanceDesc.appendText('.');
 
-		const appearanceTip = appearanceContainer.createEl('p', { cls: 'setting-item-description' });
+		const appearanceTip = containerEl.createEl('p', { cls: 'setting-item-description' });
 		appearanceTip.createEl('strong').appendText('Tip: ');
 		appearanceTip.appendText('Run ');
 		appearanceTip.createEl('em').appendText('Show style settings view');
