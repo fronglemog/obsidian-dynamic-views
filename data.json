@@ -62,7 +62,7 @@
       "viewMode": "masonry",
       "searchQuery": "",
       "resultLimit": "",
-      "widthMode": "normal"
+      "widthMode": "max"
     },
     "1762375187564": {
       "sortMethod": "mtime-desc",

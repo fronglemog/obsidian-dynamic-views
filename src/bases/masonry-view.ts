@@ -229,7 +229,8 @@ export class DynamicViewsMasonryView extends BasesView {
                 card.style.position = 'absolute';
                 card.style.left = `${left}px`;
                 card.style.top = `${top}px`;
-                card.style.transition = index < 50 ? 'none' : 'all 0.3s ease';  // No transition for initial render
+                card.style.transition = 'none';  // No transitions
+                // card.style.transition = (index < 50 || this.isShuffled) ? 'none' : 'all 0.3s ease';  // No transition for initial render or shuffle
 
                 // Update column height
                 const cardHeight = card.offsetHeight;
