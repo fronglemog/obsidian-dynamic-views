@@ -164,14 +164,26 @@ export function basesEntryToCardData(
     const tagsValue = entry.getValue('file.tags') as { data?: unknown } | null;
     let tags: string[] = [];
 
+    console.log(`// [DEBUG Tags] File: ${path}, tagsValue:`, tagsValue, 'data:', tagsValue?.data);
+
     if (tagsValue && tagsValue.data != null) {
         const tagData = tagsValue.data;
         const rawTags = Array.isArray(tagData)
-            ? tagData.map((t: unknown) => (typeof t === 'string' || typeof t === 'number') ? String(t) : '').filter(t => t)
+            ? tagData.map((t: unknown) => {
+                // Handle Bases tag objects - extract the actual tag string
+                if (t && typeof t === 'object' && 'data' in t) {
+                    return String((t as { data: unknown }).data);
+                }
+                // Fallback to string/number conversion
+                return (typeof t === 'string' || typeof t === 'number') ? String(t) : '';
+            }).filter(t => t)
             : (typeof tagData === 'string' || typeof tagData === 'number') ? [String(tagData)] : [];
 
         // Strip leading # from tags if present
         tags = rawTags.map(tag => tag.replace(/^#/, ''));
+        console.log(`// [DEBUG Tags] Extracted tags:`, tags);
+    } else {
+        console.log(`// [DEBUG Tags] No tags found for ${path}`);
     }
 
     // Get timestamps

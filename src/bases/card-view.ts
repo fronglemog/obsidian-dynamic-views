@@ -301,6 +301,8 @@ export class DynamicViewsCardView extends BasesView {
         const effectiveLeft = settings.metadataDisplayLeft;
         const effectiveRight = isDuplicate ? 'none' : settings.metadataDisplayRight;
 
+        console.log(`// [DEBUG Setup] File: ${card.path}, effectiveLeft: ${effectiveLeft}, effectiveRight: ${effectiveRight}, isDuplicate: ${isDuplicate}`);
+
         if (effectiveLeft !== 'none' || effectiveRight !== 'none') {
             const metaEl = cardEl.createDiv('writing-meta');
 
@@ -320,6 +322,7 @@ export class DynamicViewsCardView extends BasesView {
             this.renderMetadataContent(metaRight, effectiveRight, card, entry, settings);
 
             // Setup dynamic layout measurement for both-sided metadata
+            console.log(`// [DEBUG Condition] Checking: effectiveLeft=${effectiveLeft} !== 'none' && effectiveRight=${effectiveRight} !== 'none' =`, effectiveLeft !== 'none' && effectiveRight !== 'none');
             if (effectiveLeft !== 'none' && effectiveRight !== 'none') {
                 const cardPath = cardEl.getAttribute('data-path');
                 console.log('// [MetadataLayout] Setting up measurement for card:', cardPath);
@@ -351,6 +354,7 @@ export class DynamicViewsCardView extends BasesView {
         entry: BasesEntry,
         settings: Settings
     ): void {
+        console.log(`// [DEBUG Render] File: ${card.path}, displayType: ${displayType}, tags:`, card.tags, 'length:', card.tags.length);
         if (displayType === 'none') return;
 
         if (displayType === 'timestamp') {
@@ -370,6 +374,7 @@ export class DynamicViewsCardView extends BasesView {
                 timestampWrapper.appendText(date);
             }
         } else if (displayType === 'tags' && card.tags.length > 0) {
+            console.log(`// [DEBUG Render] Rendering tags for ${card.path}:`, card.tags);
             const tagsWrapper = container.createDiv('tags-wrapper');
             card.tags.forEach(tag => {
                 tagsWrapper.createEl('a', {
@@ -378,6 +383,8 @@ export class DynamicViewsCardView extends BasesView {
                     href: '#'
                 });
             });
+        } else if (displayType === 'tags') {
+            console.log(`// [DEBUG Render] Tags displayType but no tags for ${card.path}, tags.length:`, card.tags.length);
         } else if (displayType === 'path' && card.folderPath.length > 0) {
             const pathWrapper = container.createDiv('path-wrapper');
             const folders = card.folderPath.split('/').filter(f => f);
