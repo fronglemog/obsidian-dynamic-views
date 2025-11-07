@@ -1321,6 +1321,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     display: flex;
     align-items: center;
     gap: 4px;
+    position: relative;  /* For gradient ::after positioning */
 }
 
 .dynamic-views .meta-left::-webkit-scrollbar {
@@ -1386,6 +1387,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     display: flex;
     align-items: center;
     gap: 4px;
+    position: relative;  /* For gradient ::after positioning */
 }
 
 .dynamic-views .meta-right::-webkit-scrollbar {
@@ -1476,9 +1478,13 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 }
 
 /* Gradient overlay using ::after pseudo-element for visible shadow effect */
-.dynamic-views .scroll-gradient-left::after,
-.dynamic-views .scroll-gradient-right::after,
-.dynamic-views .scroll-gradient-both::after {
+/* Applied to meta-left/meta-right containers, which are parents of scrollable elements */
+.dynamic-views .meta-left.scroll-gradient-left::after,
+.dynamic-views .meta-left.scroll-gradient-right::after,
+.dynamic-views .meta-left.scroll-gradient-both::after,
+.dynamic-views .meta-right.scroll-gradient-left::after,
+.dynamic-views .meta-right.scroll-gradient-right::after,
+.dynamic-views .meta-right.scroll-gradient-both::after {
     content: '';
     position: absolute;
     top: 0;
@@ -1487,19 +1493,22 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     z-index: 1;
 }
 
-.dynamic-views .scroll-gradient-left::after {
+.dynamic-views .meta-left.scroll-gradient-left::after,
+.dynamic-views .meta-right.scroll-gradient-left::after {
     left: 0;
     width: 20px;
     background: linear-gradient(to right, var(--background-primary), transparent);
 }
 
-.dynamic-views .scroll-gradient-right::after {
+.dynamic-views .meta-left.scroll-gradient-right::after,
+.dynamic-views .meta-right.scroll-gradient-right::after {
     right: 0;
     width: 20px;
     background: linear-gradient(to left, var(--background-primary), transparent);
 }
 
-.dynamic-views .scroll-gradient-both::after {
+.dynamic-views .meta-left.scroll-gradient-both::after,
+.dynamic-views .meta-right.scroll-gradient-both::after {
     left: 0;
     right: 0;
     background: linear-gradient(to right, var(--background-primary), transparent 20px, transparent calc(100% - 20px), var(--background-primary));

@@ -392,13 +392,17 @@ export class DynamicViewsCardView extends BasesView {
     }
 
     private updateScrollGradient(element: HTMLElement): void {
+        // Apply gradient classes to parent container, not scrollable element
+        const parent = element.parentElement;
+        if (!parent) return;
+
         const isScrollable = element.scrollWidth > element.clientWidth;
 
         if (!isScrollable) {
-            // Not scrollable - remove all gradient classes
-            element.removeClass('scroll-gradient-left');
-            element.removeClass('scroll-gradient-right');
-            element.removeClass('scroll-gradient-both');
+            // Not scrollable - remove all gradient classes from parent
+            parent.removeClass('scroll-gradient-left');
+            parent.removeClass('scroll-gradient-right');
+            parent.removeClass('scroll-gradient-both');
             return;
         }
 
@@ -408,21 +412,21 @@ export class DynamicViewsCardView extends BasesView {
         const atStart = scrollLeft <= 1; // Allow 1px tolerance
         const atEnd = scrollLeft + clientWidth >= scrollWidth - 1; // Allow 1px tolerance
 
-        // Remove all gradient classes first
-        element.removeClass('scroll-gradient-left');
-        element.removeClass('scroll-gradient-right');
-        element.removeClass('scroll-gradient-both');
+        // Remove all gradient classes first from parent
+        parent.removeClass('scroll-gradient-left');
+        parent.removeClass('scroll-gradient-right');
+        parent.removeClass('scroll-gradient-both');
 
-        // Apply appropriate gradient based on position
+        // Apply appropriate gradient based on position to parent
         if (atStart && !atEnd) {
             // At start, content extends right
-            element.addClass('scroll-gradient-right');
+            parent.addClass('scroll-gradient-right');
         } else if (atEnd && !atStart) {
             // At end, content extends left
-            element.addClass('scroll-gradient-left');
+            parent.addClass('scroll-gradient-left');
         } else if (!atStart && !atEnd) {
             // In middle, content extends both directions
-            element.addClass('scroll-gradient-both');
+            parent.addClass('scroll-gradient-both');
         }
         // If atStart && atEnd, content fits fully - no gradient
     }
