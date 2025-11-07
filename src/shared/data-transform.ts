@@ -125,6 +125,13 @@ export function datacoreResultToCardData(
     });
     console.log(`// [DEBUG Datacore Result] Effective props after deduplication:`, effectiveProps);
 
+    // Store property names for rendering
+    cardData.metadataProperty1 = effectiveProps[0] || undefined;
+    cardData.metadataProperty2 = effectiveProps[1] || undefined;
+    cardData.metadataProperty3 = effectiveProps[2] || undefined;
+    cardData.metadataProperty4 = effectiveProps[3] || undefined;
+
+    // Resolve property values
     cardData.metadata1 = effectiveProps[0] ? resolveDatacoreMetadataProperty(effectiveProps[0], result, cardData, settings, dc) : null;
     cardData.metadata2 = effectiveProps[1] ? resolveDatacoreMetadataProperty(effectiveProps[1], result, cardData, settings, dc) : null;
     cardData.metadata3 = effectiveProps[2] ? resolveDatacoreMetadataProperty(effectiveProps[2], result, cardData, settings, dc) : null;
@@ -275,6 +282,13 @@ export function basesEntryToCardData(
     });
     console.log(`// [DEBUG Bases Entry] Effective props after deduplication:`, effectiveProps);
 
+    // Store property names for rendering
+    cardData.metadataProperty1 = effectiveProps[0] || undefined;
+    cardData.metadataProperty2 = effectiveProps[1] || undefined;
+    cardData.metadataProperty3 = effectiveProps[2] || undefined;
+    cardData.metadataProperty4 = effectiveProps[3] || undefined;
+
+    // Resolve property values
     cardData.metadata1 = effectiveProps[0] ? resolveBasesMetadataProperty(effectiveProps[0], entry, cardData, settings) : null;
     cardData.metadata2 = effectiveProps[1] ? resolveBasesMetadataProperty(effectiveProps[1], entry, cardData, settings) : null;
     cardData.metadata3 = effectiveProps[2] ? resolveBasesMetadataProperty(effectiveProps[2], entry, cardData, settings) : null;

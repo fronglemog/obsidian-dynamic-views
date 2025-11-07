@@ -32,6 +32,11 @@ export interface CardData {
     imageUrl?: string | string[];
     hasImageAvailable: boolean;
     displayTimestamp?: number;  // Resolved timestamp after custom property extraction (milliseconds)
+    // Metadata property names (for rendering special properties)
+    metadataProperty1?: string;
+    metadataProperty2?: string;
+    metadataProperty3?: string;
+    metadataProperty4?: string;
     // Resolved metadata property values (null if missing/empty)
     metadata1?: string | null;
     metadata2?: string | null;
@@ -58,17 +63,19 @@ export interface CardRendererProps {
  * TODO Phase 3: Implement full property resolution
  */
 function renderMetadataContent(
-    displayType: string,
+    propertyName: string,
     card: CardData,
-    date: string | null,
+    resolvedValue: string,
     timeIcon: 'calendar' | 'clock',
     settings: Settings,
     app: App
 ): unknown {
-    if (displayType === '') return null;
+    if (propertyName === '' || !resolvedValue) return null;
 
-    // Map old built-in types to new property names
-    if ((displayType === 'timestamp' || displayType === 'modified time' || displayType === 'created time') && date) {
+    // Handle special properties by property name
+    // For timestamps: file.mtime, file.ctime, or legacy formats
+    if (propertyName === 'file.mtime' || propertyName === 'file.ctime' ||
+        propertyName === 'timestamp' || propertyName === 'modified time' || propertyName === 'created time') {
         return (
             <>
                 {showTimestampIcon() && (
@@ -88,10 +95,10 @@ function renderMetadataContent(
                         )}
                     </svg>
                 )}
-                <span>{date}</span>
+                <span>{resolvedValue}</span>
             </>
         );
-    } else if ((displayType === 'tags' || displayType === 'file tags') && card.tags.length > 0) {
+    } else if ((propertyName === 'file.tags' || propertyName === 'tags' || propertyName === 'file tags') && card.tags.length > 0) {
         const tagStyle = getTagStyle();
         const showHashPrefix = tagStyle === 'minimal';
 
@@ -115,11 +122,11 @@ function renderMetadataContent(
                 ))}
             </div>
         );
-    } else if ((displayType === 'path' || displayType === 'file path') && card.folderPath.length > 0) {
+    } else if ((propertyName === 'file.path' || propertyName === 'path' || propertyName === 'file path') && resolvedValue) {
         return (
             <div className="path-wrapper">
-                {card.folderPath.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
-                    const allParts = card.folderPath.split('/').filter(f => f);
+                {resolvedValue.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
+                    const allParts = resolvedValue.split('/').filter(f => f);
                     const cumulativePath = allParts.slice(0, idx + 1).join('/');
                     return (
                         <span key={idx} style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -146,7 +153,8 @@ function renderMetadataContent(
         );
     }
 
-    return null;
+    // Generic property: just render the resolved value as text
+    return <span>{resolvedValue}</span>;
 }
 
 export function CardRenderer({
@@ -219,13 +227,7 @@ function Card({
 }: CardProps): unknown {
     // Determine which timestamp to show
     const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
-    // Use displayTimestamp if available (already resolved with custom properties), otherwise fall back to ctime/mtime
-    const timestamp = card.displayTimestamp !== undefined ? card.displayTimestamp : (useCreatedTime ? card.ctime : card.mtime);
-
-    // Format timestamp
-    const now = Date.now();
-    const isRecent = now - timestamp < 86400000;
-    const date = timestamp ? (isRecent ? formatDate(timestamp, "HH:mm") : formatDate(timestamp, "yyyy-MM-dd")) : "";
+    // Determine time icon (calendar for ctime, clock for mtime)
     const timeIcon = useCreatedTime ? "calendar" : "clock";
 
     // Handle images
@@ -375,10 +377,10 @@ function Card({
                                 (card.metadata1 === null && card.metadata2 !== null) || (card.metadata1 !== null && card.metadata2 === null) ? ' meta-row-single' : ''
                             }`}>
                                 <div className="meta-field meta-field-1">
-                                    {card.metadata1 && renderMetadataContent(card.metadata1, card, date, timeIcon, settings, app)}
+                                    {card.metadata1 && renderMetadataContent(card.metadataProperty1 || '', card, card.metadata1, timeIcon, settings, app)}
                                 </div>
                                 <div className="meta-field meta-field-2">
-                                    {card.metadata2 && renderMetadataContent(card.metadata2, card, date, timeIcon, settings, app)}
+                                    {card.metadata2 && renderMetadataContent(card.metadataProperty2 || '', card, card.metadata2, timeIcon, settings, app)}
                                 </div>
                             </div>
                         )}
@@ -388,10 +390,10 @@ function Card({
                                 (card.metadata3 === null && card.metadata4 !== null) || (card.metadata3 !== null && card.metadata4 === null) ? ' meta-row-single' : ''
                             }`}>
                                 <div className="meta-field meta-field-3">
-                                    {card.metadata3 && renderMetadataContent(card.metadata3, card, date, timeIcon, settings, app)}
+                                    {card.metadata3 && renderMetadataContent(card.metadataProperty3 || '', card, card.metadata3, timeIcon, settings, app)}
                                 </div>
                                 <div className="meta-field meta-field-4">
-                                    {card.metadata4 && renderMetadataContent(card.metadata4, card, date, timeIcon, settings, app)}
+                                    {card.metadata4 && renderMetadataContent(card.metadataProperty4 || '', card, card.metadata4, timeIcon, settings, app)}
                                 </div>
                             </div>
                         )}
@@ -488,18 +490,3 @@ function handleArrowKey(
     }
 }
 
-// Simple date formatter
-function formatDate(timestamp: number, format: string): string {
-    const date = new Date(timestamp);
-
-    if (format === "HH:mm") {
-        const HH = String(date.getHours()).padStart(2, '0');
-        const mm = String(date.getMinutes()).padStart(2, '0');
-        return `${HH}:${mm}`;
-    }
-
-    const yyyy = date.getFullYear();
-    const MM = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${MM}-${dd}`;
-}
