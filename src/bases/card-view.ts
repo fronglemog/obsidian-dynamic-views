@@ -38,6 +38,7 @@ export class DynamicViewsCardView extends BasesView {
     private scrollThrottleTimeout: number | null = null;
     private resizeObserver: ResizeObserver | null = null;
     private metadataObservers: ResizeObserver[] = [];
+    isShuffled: boolean = false;
 
     constructor(controller: QueryController, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
@@ -93,7 +94,7 @@ export class DynamicViewsCardView extends BasesView {
             visibleEntries,
             settings,
             sortMethod,
-            false, // Bases views don't shuffle
+            this.isShuffled,
             this.snippets,
             this.images,
             this.hasImageAvailable

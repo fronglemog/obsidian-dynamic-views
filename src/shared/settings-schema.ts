@@ -163,6 +163,7 @@ export function readBasesSettings(config: BasesConfig, globalSettings: Settings,
         thumbnailCacheSize: globalSettings.thumbnailCacheSize, // From global settings
         queryHeight: 0, // Not configurable in Bases
         openFileAction: globalSettings.openFileAction, // From global settings
-        addCardBackground: globalSettings.addCardBackground // From global settings
+        addCardBackground: globalSettings.addCardBackground, // From global settings
+        openRandomInNewPane: globalSettings.openRandomInNewPane // From global settings
     };
 }

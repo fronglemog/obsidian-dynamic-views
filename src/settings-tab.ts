@@ -43,6 +43,17 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName('Open random file in new pane')
+			.setDesc('When opening a random file from Bases view, open it in a new pane instead of the same pane')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(settings.openRandomInNewPane)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setGlobalSettings({ openRandomInNewPane: value });
+					})
+			);
+
+		new Setting(containerEl)
 			.setName('Thumbnail cache size')
 			.setDesc('Size of cached thumbnails (affects performance and quality)')
 			.addDropdown((dropdown) =>

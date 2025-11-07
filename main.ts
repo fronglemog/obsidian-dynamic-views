@@ -9,6 +9,7 @@ import { DynamicViewsMasonryView, masonryViewOptions } from './src/bases/masonry
 import { DynamicViewsSettingTab } from './src/settings-tab';
 import { setPluginInstance } from './src/shared/settings-schema';
 import type { DatacoreAPI } from './src/types/datacore';
+import { openRandomFile, toggleShuffleActiveView } from './src/utils/randomize';
 
 export default class DynamicViewsPlugin extends Plugin {
 	persistenceManager: PersistenceManager;
@@ -86,6 +87,34 @@ export default class DynamicViewsPlugin extends Plugin {
 				}
 
 				return false;
+			}
+		});
+
+		// Add ribbon icons for Random and Shuffle
+		this.addRibbonIcon('dices', 'Open random file from Bases view', async () => {
+			const openInNewPane = this.persistenceManager.getGlobalSettings().openRandomInNewPane;
+			await openRandomFile(this.app, openInNewPane);
+		});
+
+		this.addRibbonIcon('shuffle', 'Shuffle current Bases view', () => {
+			toggleShuffleActiveView(this.app);
+		});
+
+		// Add commands for Random and Shuffle
+		this.addCommand({
+			id: 'random-file-from-bases',
+			name: 'Open random file from Bases view',
+			callback: async () => {
+				const openInNewPane = this.persistenceManager.getGlobalSettings().openRandomInNewPane;
+				await openRandomFile(this.app, openInNewPane);
+			}
+		});
+
+		this.addCommand({
+			id: 'shuffle-bases-view',
+			name: 'Shuffle current Bases view',
+			callback: () => {
+				toggleShuffleActiveView(this.app);
 			}
 		});
 	}

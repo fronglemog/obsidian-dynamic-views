@@ -25,6 +25,7 @@ export interface Settings {
     thumbnailCacheSize: 'minimal' | 'small' | 'balanced' | 'large' | 'unlimited';
     queryHeight: number;
     openFileAction: 'card' | 'title';
+    openRandomInNewPane: boolean;
     addCardBackground: 'tinted' | 'transparent';
 }
 
