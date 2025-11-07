@@ -1791,8 +1791,11 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
 }
 
 .dynamic-views .meta-row.meta-row-sidebyside .meta-field {
-    flex: 1;
+    flex: 1 1 0;
     min-width: 0;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dynamic-views .meta-row.meta-row-single .meta-field {
@@ -1826,6 +1829,19 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
 .dynamic-views .meta-row:not(.meta-row-sidebyside) .meta-field {
     justify-content: flex-start !important;
     text-align: left !important;
+}
+
+/* Tags and paths in side-by-side: scrollable with hidden scrollbar */
+.dynamic-views .meta-row-sidebyside .meta-field .tags-wrapper,
+.dynamic-views .meta-row-sidebyside .meta-field .path-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.dynamic-views .meta-row-sidebyside .meta-field .tags-wrapper::-webkit-scrollbar,
+.dynamic-views .meta-row-sidebyside .meta-field .path-wrapper::-webkit-scrollbar {
+    display: none;
 }
 
 /* Hide empty fields */
