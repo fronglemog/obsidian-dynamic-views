@@ -132,19 +132,9 @@ settings:
    PLUGIN SETTINGS STYLES
    ============================================ */
 
-/* Section header styling */
+/* Section header styling - add underline only */
 .dynamic-views-section-header {
-    border-top: none !important;
-    border-bottom: 1px solid var(--background-modifier-border) !important;
-}
-
-.dynamic-views-section-header.setting-item {
-    border-bottom: 1px solid var(--background-modifier-border) !important;
-}
-
-/* Remove border-top from setting items that follow section headers to prevent double-border */
-.dynamic-views-section-header + .setting-item {
-    border-top: none !important;
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
 /* ============================================
