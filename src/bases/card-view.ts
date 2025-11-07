@@ -7,7 +7,7 @@ import { BasesView, BasesEntry, TFile, setIcon, QueryController } from 'obsidian
 import { CardData } from '../shared/card-renderer';
 import { transformBasesEntries } from '../shared/data-transform';
 import { readBasesSettings, getBasesViewOptions } from '../shared/settings-schema';
-import { loadImageForFile, isExternalUrl, validateImageUrl, stripWikilinkSyntax } from '../utils/image';
+import { processImagePaths, resolveInternalImagePaths } from '../utils/image';
 import { loadFilePreview } from '../utils/preview';
 import { getFirstBasesPropertyValue, getAllBasesImagePropertyValues } from '../utils/property';
 import { formatTimestamp, getTimestampIcon } from '../shared/render-utils';
@@ -468,43 +468,15 @@ export class DynamicViewsCardView extends BasesView {
                         try {
                             // Get ALL images from ALL comma-separated properties
                             const imageValues = getAllBasesImagePropertyValues(entry, settings.imageProperty);
-                            const validImages: string[] = [];
 
-                            for (let imageStr of imageValues) {
-                                // Strip wikilink syntax if present: [[path]] or ![[path]] or [[path|caption]]
-                                imageStr = stripWikilinkSyntax(imageStr);
+                            // Process and validate image paths using shared utility
+                            const { internalPaths, externalUrls } = await processImagePaths(imageValues);
 
-                                // Handle external URLs
-                                if (isExternalUrl(imageStr)) {
-                                    const isValid = await validateImageUrl(imageStr);
-                                    if (isValid) {
-                                        validImages.push(imageStr);
-                                    }
-                                } else {
-                                    // Handle internal file paths
-                                    // Normalize cache size for loadImageForFile (which only accepts small/balanced/large)
-                                    const cacheSize = settings.thumbnailCacheSize === 'minimal' ? 'small' :
-                                                      settings.thumbnailCacheSize === 'unlimited' ? 'large' :
-                                                      settings.thumbnailCacheSize;
-                                    const result = await loadImageForFile(
-                                        this.app,
-                                        path,
-                                        imageStr,
-                                        cacheSize,
-                                        settings.fallbackToEmbeds,
-                                        settings.imageProperty
-                                    );
-
-                                    if (result) {
-                                        // loadImageForFile can return string or string[]
-                                        if (Array.isArray(result)) {
-                                            validImages.push(...result);
-                                        } else {
-                                            validImages.push(result);
-                                        }
-                                    }
-                                }
-                            }
+                            // Convert internal paths to resource URLs using shared utility
+                            const validImages: string[] = [
+                                ...resolveInternalImagePaths(internalPaths, path, this.app),
+                                ...externalUrls  // External URLs already validated by processImagePaths
+                            ];
 
                             if (validImages.length > 0) {
                                 // Store as array if multiple, string if single

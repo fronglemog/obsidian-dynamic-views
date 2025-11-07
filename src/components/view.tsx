@@ -8,7 +8,7 @@ import { ListView } from './list-view';
 import { Toolbar } from './toolbar';
 import { getCurrentFile, getFileCtime, getAvailablePath } from '../utils/file';
 import { ensurePageSelector, updateQueryInBlock, findQueryInBlock } from '../utils/query-sync';
-import { isExternalUrl, hasValidImageExtension, validateImageUrl, stripWikilinkSyntax } from '../utils/image';
+import { isExternalUrl, hasValidImageExtension, validateImageUrl, processImagePaths, resolveInternalImagePaths } from '../utils/image';
 import { loadFilePreview } from '../utils/preview';
 import { getFirstDatacorePropertyValue, getAllDatacoreImagePropertyValues } from '../utils/property';
 import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
@@ -474,29 +474,9 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
                         // Get ALL image values from ALL comma-separated properties
                         const propertyImageValues = getAllDatacoreImagePropertyValues(p, settings.imageProperty);
 
-                        // Separate external URLs from internal paths
-                        const propertyImagePaths: string[] = [];
-                        const propertyExternalUrls: string[] = [];
-
-                        for (const imgValue of propertyImageValues) {
-                            // Strip wikilink syntax if present: [[path]] or ![[path]] or [[path|caption]]
-                            const imgStr = stripWikilinkSyntax(imgValue);
-
-                            // Check if it's an external URL or internal path
-                            if (imgStr.length > 0) {
-                                if (isExternalUrl(imgStr)) {
-                                    // External URL - validate extension if present
-                                    if (hasValidImageExtension(imgStr) || !imgStr.includes('.')) {
-                                        propertyExternalUrls.push(imgStr);
-                                    }
-                                } else {
-                                    // Internal path - validate extension
-                                    if (hasValidImageExtension(imgStr)) {
-                                        propertyImagePaths.push(imgStr);
-                                    }
-                                }
-                            }
-                        }
+                        // Process and validate image paths using shared utility
+                        const { internalPaths: propertyImagePaths, externalUrls: propertyExternalUrls } =
+                            await processImagePaths(propertyImageValues);
 
                         // Process text preview only if enabled
                         if (settings.showTextPreview) {
@@ -524,26 +504,11 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
 
                         // Process thumbnails only if enabled
                         if (settings.showThumbnails) {
-                            // Phase A: Convert property image paths to resource paths
-                            const propertyResourcePaths: string[] = [];
-
-                            // Process internal paths
-                            for (const propPath of propertyImagePaths) {
-                                const imageFile = app.metadataCache.getFirstLinkpathDest(propPath, p.$path);
-                                if (imageFile && validImageExtensions.includes(imageFile.extension)) {
-                                    const resourcePath = app.vault.getResourcePath(imageFile);
-                                    propertyResourcePaths.push(resourcePath);
-                                }
-                            }
-
-                            // Process external URLs with async validation
-                            for (const externalUrl of propertyExternalUrls) {
-                                // Validate URL asynchronously
-                                const isValid = await validateImageUrl(externalUrl);
-                                if (isValid) {
-                                    propertyResourcePaths.push(externalUrl);
-                                }
-                            }
+                            // Phase A: Convert property image paths to resource paths using shared utility
+                            const propertyResourcePaths: string[] = [
+                                ...resolveInternalImagePaths(propertyImagePaths, p.$path, app),
+                                ...propertyExternalUrls  // External URLs already validated by processImagePaths
+                            ];
 
                             // Phase B: Extract body embed resource paths
                             const metadata = app.metadataCache.getFileCache(file);

@@ -47,6 +47,70 @@ export function stripWikilinkSyntax(path: string): string {
 }
 
 /**
+ * Process and validate image paths from property values
+ * Handles wikilink stripping, URL validation, and path separation
+ * @param imagePaths - Raw image paths from properties (may contain wikilinks)
+ * @returns Object with validated internal paths and external URLs
+ */
+export async function processImagePaths(
+    imagePaths: string[]
+): Promise<{ internalPaths: string[]; externalUrls: string[] }> {
+    const internalPaths: string[] = [];
+    const externalUrls: string[] = [];
+
+    for (const imgPath of imagePaths) {
+        // Strip wikilink syntax
+        const cleanPath = stripWikilinkSyntax(imgPath);
+
+        if (cleanPath.length === 0) continue;
+
+        if (isExternalUrl(cleanPath)) {
+            // External URL - validate extension if present
+            if (hasValidImageExtension(cleanPath) || !cleanPath.includes('.')) {
+                // Validate URL asynchronously
+                const isValid = await validateImageUrl(cleanPath);
+                if (isValid) {
+                    externalUrls.push(cleanPath);
+                }
+            }
+        } else {
+            // Internal path - validate extension
+            if (hasValidImageExtension(cleanPath)) {
+                internalPaths.push(cleanPath);
+            }
+        }
+    }
+
+    return { internalPaths, externalUrls };
+}
+
+/**
+ * Convert internal image paths to resource URLs
+ * @param internalPaths - Array of internal file paths
+ * @param sourcePath - Path of the source file (for link resolution)
+ * @param app - Obsidian App instance
+ * @returns Array of resource URLs
+ */
+export function resolveInternalImagePaths(
+    internalPaths: string[],
+    sourcePath: string,
+    app: App
+): string[] {
+    const validImageExtensions = ['avif', 'bmp', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp'];
+    const resourcePaths: string[] = [];
+
+    for (const propPath of internalPaths) {
+        const imageFile = app.metadataCache.getFirstLinkpathDest(propPath, sourcePath);
+        if (imageFile && validImageExtensions.includes(imageFile.extension)) {
+            const resourcePath = app.vault.getResourcePath(imageFile);
+            resourcePaths.push(resourcePath);
+        }
+    }
+
+    return resourcePaths;
+}
+
+/**
  * Load image for a file from property or embeds
  * @param app - Obsidian App instance
  * @param filePath - Path of the file to load image for
