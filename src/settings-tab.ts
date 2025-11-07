@@ -1,6 +1,37 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, AbstractInputSuggest } from 'obsidian';
 import type DynamicViewsPlugin from '../main';
 import { getAllVaultProperties } from './utils/property';
+
+/**
+ * Property suggester for searchable property dropdowns
+ */
+class PropertySuggest extends AbstractInputSuggest<string> {
+	private properties: string[];
+	private textInputEl: HTMLInputElement;
+
+	constructor(app: App, inputEl: HTMLInputElement, properties: string[]) {
+		super(app, inputEl);
+		this.properties = properties;
+		this.textInputEl = inputEl;
+	}
+
+	getSuggestions(query: string): string[] {
+		const lowerQuery = query.toLowerCase();
+		return this.properties.filter(prop =>
+			prop.toLowerCase().includes(lowerQuery)
+		);
+	}
+
+	renderSuggestion(value: string, el: HTMLElement): void {
+		el.setText(value || '(None)');
+	}
+
+	selectSuggestion(value: string): void {
+		this.textInputEl.value = value;
+		this.textInputEl.trigger('input');
+		this.close();
+	}
+}
 
 export class DynamicViewsSettingTab extends PluginSettingTab {
 	plugin: DynamicViewsPlugin;
@@ -132,36 +163,34 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 
 		const defaultViewSettings = this.plugin.persistenceManager.getDefaultViewSettings();
 
-		// Get all vault properties for dropdowns
+		// Get all vault properties for searchable dropdowns
 		const allProperties = getAllVaultProperties(this.app);
-		const propertyOptions: Record<string, string> = { '': 'None' };
-		for (const prop of allProperties) {
-			propertyOptions[prop] = prop;
-		}
 
 		new Setting(containerEl)
 			.setName('Metadata display (1)')
 			.setDesc('Property to show in first metadata position')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(propertyOptions)
+			.addSearch((search) => {
+				search
+					.setPlaceholder('Search properties')
 					.setValue(defaultViewSettings.metadataDisplay1)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay1: value });
-					})
-			);
+					});
+				new PropertySuggest(this.app, search.inputEl, allProperties);
+			});
 
 		new Setting(containerEl)
 			.setName('Metadata display (2)')
 			.setDesc('Property to show in second metadata position')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(propertyOptions)
+			.addSearch((search) => {
+				search
+					.setPlaceholder('Search properties')
 					.setValue(defaultViewSettings.metadataDisplay2)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay2: value });
-					})
-			);
+					});
+				new PropertySuggest(this.app, search.inputEl, allProperties);
+			});
 
 		new Setting(containerEl)
 			.setName('Show (1) and (2) side-by-side')
@@ -177,26 +206,28 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Metadata display (3)')
 			.setDesc('Property to show in third metadata position')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(propertyOptions)
+			.addSearch((search) => {
+				search
+					.setPlaceholder('Search properties')
 					.setValue(defaultViewSettings.metadataDisplay3)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay3: value });
-					})
-			);
+					});
+				new PropertySuggest(this.app, search.inputEl, allProperties);
+			});
 
 		new Setting(containerEl)
 			.setName('Metadata display (4)')
 			.setDesc('Property to show in fourth metadata position')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(propertyOptions)
+			.addSearch((search) => {
+				search
+					.setPlaceholder('Search properties')
 					.setValue(defaultViewSettings.metadataDisplay4)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay4: value });
-					})
-			);
+					});
+				new PropertySuggest(this.app, search.inputEl, allProperties);
+			});
 
 		new Setting(containerEl)
 			.setName('Show (3) and (4) side-by-side')
