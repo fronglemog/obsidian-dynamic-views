@@ -96,7 +96,7 @@ export default class DynamicViewsPlugin extends Plugin {
 			await openRandomFile(this.app, openInNewPane);
 		});
 
-		this.addRibbonIcon('shuffle', 'Shuffle current Bases view', () => {
+		this.addRibbonIcon('shuffle', 'Shuffle Bases view', () => {
 			toggleShuffleActiveView(this.app);
 		});
 
@@ -112,7 +112,7 @@ export default class DynamicViewsPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'shuffle-bases-view',
-			name: 'Shuffle current Bases view',
+			name: 'Shuffle Bases view',
 			callback: () => {
 				toggleShuffleActiveView(this.app);
 			}

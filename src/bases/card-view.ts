@@ -39,6 +39,7 @@ export class DynamicViewsCardView extends BasesView {
     private resizeObserver: ResizeObserver | null = null;
     private metadataObservers: ResizeObserver[] = [];
     isShuffled: boolean = false;
+    private lastSortMethod: string | null = null;
 
     constructor(controller: QueryController, containerEl: HTMLElement, plugin: DynamicViewsPlugin) {
         super(controller);
@@ -90,6 +91,13 @@ export class DynamicViewsCardView extends BasesView {
 
         // Transform to CardData (only visible entries)
         const sortMethod = this.getSortMethod();
+
+        // Reset shuffle if sort method changed
+        if (this.lastSortMethod !== null && this.lastSortMethod !== sortMethod) {
+            this.isShuffled = false;
+        }
+        this.lastSortMethod = sortMethod;
+
         const cards = transformBasesEntries(
             visibleEntries,
             settings,
