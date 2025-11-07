@@ -12,9 +12,12 @@
     "fallbackToEmbeds": true,
     "fallbackToCtime": true,
     "fallbackToMtime": true,
-    "metadataDisplayLeft": "timestamp",
-    "metadataDisplayRight": "path",
-    "metadataDisplayWinner": null,
+    "metadataDisplay1": "file tags",
+    "metadataDisplay2": "",
+    "metadataDisplay3": "file path",
+    "metadataDisplay4": "modified time",
+    "metadataLayout12SideBySide": false,
+    "metadataLayout34SideBySide": true,
     "timestampDisplay": "sort-based",
     "listMarker": "bullet",
     "randomizeAction": "shuffle",
@@ -22,6 +25,9 @@
     "queryHeight": 0,
     "openFileAction": "card",
     "openRandomInNewPane": false,
+    "metadataDisplayLeft": "timestamp",
+    "metadataDisplayRight": "path",
+    "metadataDisplayWinner": null,
     "minCardWidth": 400,
     "thumbnailPosition": "right",
     "showTimestampIcon": false,
@@ -33,14 +39,20 @@
     "titleProperty": "",
     "descriptionProperty": "",
     "imageProperty": "",
-    "metadataDisplayLeft": "timestamp",
-    "metadataDisplayRight": "path",
+    "metadataDisplay1": "file tags",
+    "metadataDisplay2": "",
+    "metadataDisplay3": "file path",
+    "metadataDisplay4": "modified time",
+    "metadataLayout12SideBySide": false,
+    "metadataLayout34SideBySide": true,
     "showTextPreview": true,
     "fallbackToContent": true,
     "showThumbnails": true,
     "fallbackToEmbeds": true,
     "queryHeight": 0,
-    "listMarker": "bullet"
+    "listMarker": "bullet",
+    "metadataDisplayLeft": "timestamp",
+    "metadataDisplayRight": "path"
   },
   "queryStates": {
     "1762122189077": {
@@ -70,7 +82,13 @@
       "showThumbnails": true,
       "fallbackToEmbeds": true,
       "queryHeight": 0,
-      "listMarker": "bullet"
+      "listMarker": "bullet",
+      "metadataDisplay1": "file tags",
+      "metadataDisplay2": "",
+      "metadataDisplay3": "file path",
+      "metadataDisplay4": "modified time",
+      "metadataLayout12SideBySide": false,
+      "metadataLayout34SideBySide": true
     },
     "1762375187564": {
       "titleProperty": "",
@@ -85,6 +103,5 @@
       "queryHeight": 0,
       "listMarker": "bullet"
     }
-  },
-  "basesViewMetadataWinners": {}
+  }
 }

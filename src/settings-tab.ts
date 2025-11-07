@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type DynamicViewsPlugin from '../main';
+import { getAllVaultProperties } from './utils/property';
 
 export class DynamicViewsSettingTab extends PluginSettingTab {
 	plugin: DynamicViewsPlugin;
@@ -131,12 +132,19 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 
 		const defaultViewSettings = this.plugin.persistenceManager.getDefaultViewSettings();
 
+		// Get all vault properties for dropdowns
+		const allProperties = getAllVaultProperties(this.app);
+		const propertyOptions: Record<string, string> = { '': 'None' };
+		for (const prop of allProperties) {
+			propertyOptions[prop] = prop;
+		}
+
 		new Setting(containerEl)
 			.setName('Metadata display (1)')
 			.setDesc('Property to show in first metadata position')
-			.addText((text) =>
-				text
-					.setPlaceholder('Property name (e.g., file tags, status)')
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(propertyOptions)
 					.setValue(defaultViewSettings.metadataDisplay1)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay1: value });
@@ -146,9 +154,9 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Metadata display (2)')
 			.setDesc('Property to show in second metadata position')
-			.addText((text) =>
-				text
-					.setPlaceholder('Property name (leave empty for none)')
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(propertyOptions)
 					.setValue(defaultViewSettings.metadataDisplay2)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay2: value });
@@ -169,9 +177,9 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Metadata display (3)')
 			.setDesc('Property to show in third metadata position')
-			.addText((text) =>
-				text
-					.setPlaceholder('Property name (leave empty for none)')
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(propertyOptions)
 					.setValue(defaultViewSettings.metadataDisplay3)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay3: value });
@@ -181,9 +189,9 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Metadata display (4)')
 			.setDesc('Property to show in fourth metadata position')
-			.addText((text) =>
-				text
-					.setPlaceholder('Property name (leave empty for none)')
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(propertyOptions)
 					.setValue(defaultViewSettings.metadataDisplay4)
 					.onChange(async (value) => {
 						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay4: value });

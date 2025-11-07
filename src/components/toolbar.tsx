@@ -1,9 +1,11 @@
 import { ViewMode, Settings, WidthMode } from '../types';
 import { Settings as SettingsPanel } from './settings';
 import type { DatacoreAPI } from '../types/datacore';
+import type { App } from 'obsidian';
 
 interface ToolbarProps {
     dc: DatacoreAPI;
+    app: App;
     // View mode
     viewMode: ViewMode;
     showViewDropdown: boolean;
@@ -71,6 +73,7 @@ interface ToolbarProps {
 
 export function Toolbar({
     dc,
+    app,
     viewMode,
     showViewDropdown,
     onToggleViewDropdown,
@@ -597,6 +600,7 @@ export function Toolbar({
                     {showSettings ? (
                         <SettingsPanel
                             dc={dc}
+                            app={app}
                             settings={settings}
                             onSettingsChange={onSettingsChange}
                         />

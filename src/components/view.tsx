@@ -1247,6 +1247,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
             >
                 <Toolbar
                     dc={dc}
+                    app={app}
                     viewMode={viewMode}
                     showViewDropdown={showViewDropdown}
                     onToggleViewDropdown={handleToggleViewDropdown}

@@ -1,17 +1,24 @@
 import { Settings as SettingsType } from '../types';
 import type { DatacoreAPI } from '../types/datacore';
+import type { App } from 'obsidian';
+import { getAllVaultProperties } from '../utils/property';
 
 interface SettingsProps {
     dc: DatacoreAPI;
+    app: App;
     settings: SettingsType;
     onSettingsChange: (settings: Partial<SettingsType>) => void;
 }
 
 export function Settings({
     dc,
+    app,
     settings,
     onSettingsChange,
 }: SettingsProps): JSX.Element {
+    // Get all vault properties for dropdowns
+    const allProperties = getAllVaultProperties(app);
+
     return (
         <div className="settings-dropdown-menu">
             {/* Metadata Display (1) */}
@@ -20,16 +27,19 @@ export function Settings({
                     <label>Metadata display (1)</label>
                     <div className="setting-desc">Property to show in first metadata position</div>
                 </div>
-                <input
-                    type="text"
+                <select
                     value={settings.metadataDisplay1}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLInputElement };
+                        const evt = e as Event & { target: HTMLSelectElement };
                         onSettingsChange({ metadataDisplay1: evt.target.value });
                     }}
-                    placeholder="e.g., file tags, status"
-                    className="setting-text-input"
-                />
+                    className="dropdown"
+                >
+                    <option value="">None</option>
+                    {allProperties.map((prop): JSX.Element => (
+                        <option key={prop} value={prop}>{prop}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Metadata Display (2) */}
@@ -38,16 +48,19 @@ export function Settings({
                     <label>Metadata display (2)</label>
                     <div className="setting-desc">Property to show in second metadata position</div>
                 </div>
-                <input
-                    type="text"
+                <select
                     value={settings.metadataDisplay2}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLInputElement };
+                        const evt = e as Event & { target: HTMLSelectElement };
                         onSettingsChange({ metadataDisplay2: evt.target.value });
                     }}
-                    placeholder="Leave empty for none"
-                    className="setting-text-input"
-                />
+                    className="dropdown"
+                >
+                    <option value="">None</option>
+                    {allProperties.map((prop): JSX.Element => (
+                        <option key={prop} value={prop}>{prop}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Layout Toggle (1 & 2) */}
@@ -73,16 +86,19 @@ export function Settings({
                     <label>Metadata display (3)</label>
                     <div className="setting-desc">Property to show in third metadata position</div>
                 </div>
-                <input
-                    type="text"
+                <select
                     value={settings.metadataDisplay3}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLInputElement };
+                        const evt = e as Event & { target: HTMLSelectElement };
                         onSettingsChange({ metadataDisplay3: evt.target.value });
                     }}
-                    placeholder="Leave empty for none"
-                    className="setting-text-input"
-                />
+                    className="dropdown"
+                >
+                    <option value="">None</option>
+                    {allProperties.map((prop): JSX.Element => (
+                        <option key={prop} value={prop}>{prop}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Metadata Display (4) */}
@@ -91,16 +107,19 @@ export function Settings({
                     <label>Metadata display (4)</label>
                     <div className="setting-desc">Property to show in fourth metadata position</div>
                 </div>
-                <input
-                    type="text"
+                <select
                     value={settings.metadataDisplay4}
                     onChange={(e: unknown) => {
-                        const evt = e as Event & { target: HTMLInputElement };
+                        const evt = e as Event & { target: HTMLSelectElement };
                         onSettingsChange({ metadataDisplay4: evt.target.value });
                     }}
-                    placeholder="Leave empty for none"
-                    className="setting-text-input"
-                />
+                    className="dropdown"
+                >
+                    <option value="">None</option>
+                    {allProperties.map((prop): JSX.Element => (
+                        <option key={prop} value={prop}>{prop}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Layout Toggle (3 & 4) */}
