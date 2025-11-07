@@ -201,11 +201,13 @@ export class DynamicViewsCardView extends BasesView {
         const leftScrollWidth = leftInner ? leftInner.scrollWidth : 0;
         const rightScrollWidth = rightInner ? rightInner.scrollWidth : 0;
         const containerWidth = metaEl.clientWidth;
+        const gap = 8;  // column-gap between left and right
+        const availableWidth = containerWidth - gap;
 
-        const leftPercent = (leftScrollWidth / containerWidth) * 100;
-        const rightPercent = (rightScrollWidth / containerWidth) * 100;
+        const leftPercent = (leftScrollWidth / availableWidth) * 100;
+        const rightPercent = (rightScrollWidth / availableWidth) * 100;
 
-        console.log(`// [MetadataLayout] TRUE unconstrained measurement: containerWidth=${containerWidth}px, leftScrollWidth=${leftScrollWidth}px (${leftPercent.toFixed(1)}%), rightScrollWidth=${rightScrollWidth}px (${rightPercent.toFixed(1)}%)`);
+        console.log(`// [MetadataLayout] TRUE unconstrained measurement: containerWidth=${containerWidth}px, availableWidth=${availableWidth}px, leftScrollWidth=${leftScrollWidth}px (${leftPercent.toFixed(1)}%), rightScrollWidth=${rightScrollWidth}px (${rightPercent.toFixed(1)}%)`);
 
         // Step 4: Calculate optimal widths based on conditional logic
         let leftWidth: string;
@@ -215,21 +217,21 @@ export class DynamicViewsCardView extends BasesView {
         if (leftPercent <= 50 && rightPercent <= 50) {
             // Both content fits: left gets exact size, right fills remainder to ensure full width
             leftWidth = `${leftScrollWidth}px`;
-            rightWidth = `${containerWidth - leftScrollWidth}px`;
+            rightWidth = `${availableWidth - leftScrollWidth}px`;
             strategy = 'both-fit';
         } else if (leftPercent <= 50 && rightPercent > 50) {
             // Left small, right needs more: left gets exact size, right fills remainder
             leftWidth = `${leftScrollWidth}px`;
-            rightWidth = `${containerWidth - leftScrollWidth}px`;
+            rightWidth = `${availableWidth - leftScrollWidth}px`;
             strategy = 'left-small';
         } else if (leftPercent > 50 && rightPercent <= 50) {
             // Right small, left needs more: right gets exact size, left fills remainder
-            leftWidth = `${containerWidth - rightScrollWidth}px`;
+            leftWidth = `${availableWidth - rightScrollWidth}px`;
             rightWidth = `${rightScrollWidth}px`;
             strategy = 'right-small';
         } else {
             // Both >50%: split 50-50
-            const half = containerWidth / 2;
+            const half = availableWidth / 2;
             leftWidth = `${half}px`;
             rightWidth = `${half}px`;
             strategy = '50-50';

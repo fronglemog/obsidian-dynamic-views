@@ -1275,6 +1275,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 .dynamic-views .writing-meta {
     display: grid;
     grid-template-columns: minmax(auto, 50%) minmax(auto, 50%);
+    column-gap: 8px;
     align-items: center;
     font-size: 0.8em;
     margin-top: 4px;
