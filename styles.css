@@ -1409,8 +1409,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 .dynamic-views .writing-meta.meta-right-only .meta-right {
     width: 100%;
     flex: 1;
-    margin-left: 0;
-    /* Keep justify-self: end from parent rule - right column always right-aligned */
+    justify-content: flex-end;  /* Right-align content when only right column */
 }
 
 .dynamic-views .writing-meta.no-timestamp .meta-right {
