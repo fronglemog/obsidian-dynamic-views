@@ -58,13 +58,43 @@ export function getActiveBasesView(app: App): BasesViewWrapper['basesView'] | nu
 		if (wrapper.controller) {
 			console.log('// [Randomize Debug] wrapper.controller keys:', Object.keys(wrapper.controller));
 			console.log('// [Randomize Debug] wrapper.controller.results exists:', !!wrapper.controller.results);
+			console.log('// [Randomize Debug] wrapper.controller.view exists:', !!wrapper.controller.view);
+
+			// Check if controller.view has the data
+			if (wrapper.controller.view) {
+				console.log('// [Randomize Debug] wrapper.controller.view keys:', Object.keys(wrapper.controller.view));
+				console.log('// [Randomize Debug] wrapper.controller.view.data exists:', !!wrapper.controller.view?.data);
+				if (wrapper.controller.view.data) {
+					console.log('// [Randomize Debug] wrapper.controller.view.data.data exists:', !!wrapper.controller.view.data?.data);
+					console.log('// [Randomize Debug] wrapper.controller.view.data.data length:', wrapper.controller.view.data?.data?.length);
+				}
+			}
 
 			if (wrapper.controller.results) {
 				console.log('// [Randomize Debug] wrapper.controller.results type:', typeof wrapper.controller.results);
+				console.log('// [Randomize Debug] wrapper.controller.results constructor:', wrapper.controller.results?.constructor?.name);
 				console.log('// [Randomize Debug] wrapper.controller.results keys:', Object.keys(wrapper.controller.results));
+				console.log('// [Randomize Debug] wrapper.controller.results is Map:', wrapper.controller.results instanceof Map);
 				console.log('// [Randomize Debug] wrapper.controller.results.data exists:', !!wrapper.controller.results?.data);
 				console.log('// [Randomize Debug] wrapper.controller.results.data length:', wrapper.controller.results?.data?.length);
+
+				// Log all own property names (including non-enumerable)
+				const allProps = Object.getOwnPropertyNames(wrapper.controller.results);
+				console.log('// [Randomize Debug] wrapper.controller.results all properties:', allProps);
 			}
+		}
+
+		// Check controller.view.data.data
+		if (wrapper.controller?.view?.data?.data && Array.isArray(wrapper.controller.view.data.data)) {
+			console.log('// [Randomize Debug] Using controller.view.data as basesView data');
+
+			// Create a compatible basesView object
+			return {
+				type: wrapper.controller?.id || 'unknown',
+				data: wrapper.controller.view.data,
+				onDataUpdated: wrapper.onDataUpdated?.bind(wrapper),
+				isShuffled: wrapper.isShuffled
+			};
 		}
 
 		// The controller holds the query results in .results.data

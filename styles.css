@@ -1471,7 +1471,7 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     scrollbar-width: none;
 }
 
-/* Path: ellipsis by default, scrollable on hover */
+/* Path: ellipsis by default, gradient fade on hover when scrolling */
 .dynamic-views .meta-left .path-wrapper {
     max-width: 100%;
     overflow: hidden;
@@ -1481,6 +1481,9 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 .dynamic-views .meta-left .path-wrapper:hover {
     overflow-x: auto;
     text-overflow: clip;
+    position: relative;
+    mask-image: linear-gradient(to right, transparent 0, black 8px, black calc(100% - 8px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 8px, black calc(100% - 8px), transparent 100%);
 }
 
 .dynamic-views .meta-right .path-wrapper {
@@ -1493,6 +1496,9 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
 .dynamic-views .meta-right .path-wrapper:hover {
     overflow-x: auto;
     text-overflow: clip;
+    position: relative;
+    mask-image: linear-gradient(to right, transparent 0, black 8px, black calc(100% - 8px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 8px, black calc(100% - 8px), transparent 100%);
 }
 
 /* Hide scrollbars */
