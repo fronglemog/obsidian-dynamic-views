@@ -41,10 +41,63 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
+	/**
+	 * Trim whitespace from all text field settings
+	 */
+	private async trimTextFieldSettings(): Promise<void> {
+		const globalSettings = this.plugin.persistenceManager.getGlobalSettings();
+		const defaultViewSettings = this.plugin.persistenceManager.getDefaultViewSettings();
+
+		// Trim global settings
+		const trimmedGlobalSettings: Partial<typeof globalSettings> = {};
+		let hasGlobalChanges = false;
+
+		if (globalSettings.timestampFormat.trim() !== globalSettings.timestampFormat) {
+			trimmedGlobalSettings.timestampFormat = globalSettings.timestampFormat.trim();
+			hasGlobalChanges = true;
+		}
+		if (globalSettings.createdTimeProperty.trim() !== globalSettings.createdTimeProperty) {
+			trimmedGlobalSettings.createdTimeProperty = globalSettings.createdTimeProperty.trim();
+			hasGlobalChanges = true;
+		}
+		if (globalSettings.modifiedTimeProperty.trim() !== globalSettings.modifiedTimeProperty) {
+			trimmedGlobalSettings.modifiedTimeProperty = globalSettings.modifiedTimeProperty.trim();
+			hasGlobalChanges = true;
+		}
+
+		// Trim default view settings
+		const trimmedDefaultViewSettings: Partial<typeof defaultViewSettings> = {};
+		let hasDefaultViewChanges = false;
+
+		if (defaultViewSettings.titleProperty.trim() !== defaultViewSettings.titleProperty) {
+			trimmedDefaultViewSettings.titleProperty = defaultViewSettings.titleProperty.trim();
+			hasDefaultViewChanges = true;
+		}
+		if (defaultViewSettings.descriptionProperty.trim() !== defaultViewSettings.descriptionProperty) {
+			trimmedDefaultViewSettings.descriptionProperty = defaultViewSettings.descriptionProperty.trim();
+			hasDefaultViewChanges = true;
+		}
+		if (defaultViewSettings.imageProperty.trim() !== defaultViewSettings.imageProperty) {
+			trimmedDefaultViewSettings.imageProperty = defaultViewSettings.imageProperty.trim();
+			hasDefaultViewChanges = true;
+		}
+
+		// Save if changes detected
+		if (hasGlobalChanges) {
+			await this.plugin.persistenceManager.setGlobalSettings(trimmedGlobalSettings);
+		}
+		if (hasDefaultViewChanges) {
+			await this.plugin.persistenceManager.setDefaultViewSettings(trimmedDefaultViewSettings);
+		}
+	}
+
 	display(): void {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		// Trim whitespace from text fields on open
+		void this.trimTextFieldSettings();
 
 		const settings = this.plugin.persistenceManager.getGlobalSettings();
 
@@ -53,11 +106,14 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 			.setDesc('How files should open when clicked')
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption('card', 'Press on card')
+					.addOption('card', 'Press on title or card')
 					.addOption('title', 'Press on title')
 					.setValue(settings.openFileAction)
 					.onChange(async (value: 'card' | 'title') => {
 						await this.plugin.persistenceManager.setGlobalSettings({ openFileAction: value });
+						// Update body classes for CSS and MutationObserver detection
+						document.body.classList.remove('dynamic-views-open-on-card', 'dynamic-views-open-on-title');
+						document.body.classList.add(`dynamic-views-open-on-${value}`);
 					})
 			);
 
@@ -95,6 +151,23 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName('Expand images on click')
+			.setDesc('Click and hold on images (thumbnails and covers) to view full-screen. Desktop only.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(settings.expandImagesOnClick)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setGlobalSettings({ expandImagesOnClick: value });
+						// Update body class for CSS
+						if (value) {
+							document.body.classList.add('dynamic-views-thumbnail-expand-click');
+						} else {
+							document.body.classList.remove('dynamic-views-thumbnail-expand-click');
+						}
+					})
+			);
+
+		new Setting(containerEl)
 			.setName('Thumbnail cache size')
 			.setDesc('Size of cached thumbnails (affects performance and quality)')
 			.addDropdown((dropdown) =>
@@ -111,20 +184,6 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName('Timestamp reflects')
-			.setDesc('Which timestamp to display in card metadata')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOption('mtime', 'Modified time')
-					.addOption('ctime', 'Created time')
-					.addOption('sort-based', 'Sort method')
-					.setValue(settings.timestampDisplay)
-					.onChange(async (value: 'ctime' | 'mtime' | 'sort-based') => {
-						await this.plugin.persistenceManager.setGlobalSettings({ timestampDisplay: value });
-					})
-			);
-
-		new Setting(containerEl)
 			.setName('Omit first line in text preview')
 			.setDesc('Always skip first line in text previews (in addition to automatic omission when first line matches title/filename)')
 			.addToggle((toggle) =>
@@ -135,29 +194,119 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl)
-			.setName('Date created property')
-			.setDesc('Set property to show as created timestamp. Will use file created time if unavailable. Must be a date or datetime property.')
+		const timestampFormatSetting = new Setting(containerEl)
+			.setName('Timestamp format')
 			.addText((text) =>
 				text
-					.setPlaceholder('Comma-separated if multiple')
-					.setValue(settings.createdProperty)
+					.setPlaceholder('YYYY-MM-DD HH:mm')
+					.setValue(settings.timestampFormat)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setGlobalSettings({ createdProperty: value });
+						await this.plugin.persistenceManager.setGlobalSettings({ timestampFormat: value });
 					})
 			);
 
-		new Setting(containerEl)
-			.setName('Date modified property')
-			.setDesc('Set property to show as modified timestamp. Will use file modified time if unavailable. Must be a date or datetime property.')
-			.addText((text) =>
-				text
-					.setPlaceholder('Comma-separated if multiple')
-					.setValue(settings.modifiedProperty)
+		const timestampFormatDesc = timestampFormatSetting.descEl;
+		timestampFormatDesc.createEl('a', {
+			text: 'Moment.js',
+			href: 'https://momentjs.com/docs/#/displaying/format/'
+		});
+		timestampFormatDesc.appendText(' format for displaying date properties.');
+
+		// Smart timestamp section
+		const smartTimestampSetting = new Setting(containerEl)
+			.setName('Smart timestamp')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(settings.smartTimestamp)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setGlobalSettings({ modifiedProperty: value });
+						await this.plugin.persistenceManager.setGlobalSettings({ smartTimestamp: value });
+						if (value) {
+							conditionalText.show();
+							smartTimestampSubSettings.show();
+						} else {
+							conditionalText.hide();
+							smartTimestampSubSettings.hide();
+						}
 					})
 			);
+
+		const smartTimestampDesc = smartTimestampSetting.descEl;
+		smartTimestampDesc.createSpan({
+			text: 'Automatically show the created or modified time when sorting by that property. '
+		});
+		const conditionalText = smartTimestampDesc.createSpan({
+			text: 'One of the properties below must be shown in one of the property fields below.'
+		});
+
+		// Create container for child settings with indentation
+		const smartTimestampSubSettings = containerEl.createDiv('smart-timestamp-sub-settings');
+
+		// Track text field values for conditional fallback visibility
+		let createdTimeValue = settings.createdTimeProperty;
+		let modifiedTimeValue = settings.modifiedTimeProperty;
+		// eslint-disable-next-line prefer-const
+		let fallbackSetting: Setting;
+
+		// Helper to update fallback setting visibility
+		const updateFallbackVisibility = () => {
+			const hasValue = createdTimeValue.trim() !== '' || modifiedTimeValue.trim() !== '';
+			if (hasValue) {
+				fallbackSetting.settingEl.show();
+			} else {
+				fallbackSetting.settingEl.hide();
+			}
+		};
+
+		new Setting(smartTimestampSubSettings)
+			.setName('Created time property')
+			.setDesc('Leave blank to use file metadata.')
+			.addText((text) =>
+				text
+					.setPlaceholder('created')
+					.setValue(settings.createdTimeProperty)
+					.onChange(async (value) => {
+						createdTimeValue = value;
+						await this.plugin.persistenceManager.setGlobalSettings({ createdTimeProperty: value });
+						updateFallbackVisibility();
+					})
+			);
+
+		new Setting(smartTimestampSubSettings)
+			.setName('Modified time property')
+			.setDesc('Leave blank to use file metadata.')
+			.addText((text) =>
+				text
+					.setPlaceholder('modified')
+					.setValue(settings.modifiedTimeProperty)
+					.onChange(async (value) => {
+						modifiedTimeValue = value;
+						await this.plugin.persistenceManager.setGlobalSettings({ modifiedTimeProperty: value });
+						updateFallbackVisibility();
+					})
+			);
+
+		fallbackSetting = new Setting(smartTimestampSubSettings)
+			.setName('Fall back to file metadata')
+			.setDesc('Use file metadata if a property above is missing or empty.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(settings.fallbackToFileMetadata)
+					.onChange(async (value) => {
+						await this.plugin.persistenceManager.setGlobalSettings({ fallbackToFileMetadata: value });
+					})
+			);
+
+		// Initialize fallback visibility
+		updateFallbackVisibility();
+
+		// Initialize visibility
+		if (settings.smartTimestamp) {
+			conditionalText.show();
+			smartTimestampSubSettings.show();
+		} else {
+			conditionalText.hide();
+			smartTimestampSubSettings.hide();
+		}
 
 		// Appearance section
 		const appearanceHeading = new Setting(containerEl)
@@ -189,76 +338,76 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 		const allProperties = getAllVaultProperties(this.app);
 
 		new Setting(containerEl)
-			.setName('Metadata item one')
-			.setDesc('Property to show in first metadata position')
+			.setName('First property')
+			.setDesc('Property to show in first position')
 			.addSearch((search) => {
 				search
 					.setPlaceholder('Search properties')
-					.setValue(defaultViewSettings.metadataDisplay1)
+					.setValue(defaultViewSettings.propertyDisplay1)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay1: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyDisplay1: value });
 					});
 				new PropertySuggest(this.app, search.inputEl, allProperties);
 			});
 
 		new Setting(containerEl)
-			.setName('Metadata item two')
-			.setDesc('Property to show in second metadata position')
+			.setName('Second property')
+			.setDesc('Property to show in second position')
 			.addSearch((search) => {
 				search
 					.setPlaceholder('Search properties')
-					.setValue(defaultViewSettings.metadataDisplay2)
+					.setValue(defaultViewSettings.propertyDisplay2)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay2: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyDisplay2: value });
 					});
 				new PropertySuggest(this.app, search.inputEl, allProperties);
 			});
 
 		new Setting(containerEl)
-			.setName('Show items one and two side-by-side')
-			.setDesc('Display first two metadata items horizontally')
+			.setName('Show first and second properties side-by-side')
+			.setDesc('Display first two properties horizontally')
 			.addToggle((toggle) =>
 				toggle
-					.setValue(defaultViewSettings.metadataLayout12SideBySide)
+					.setValue(defaultViewSettings.propertyLayout12SideBySide)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataLayout12SideBySide: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyLayout12SideBySide: value });
 					})
 			);
 
 		new Setting(containerEl)
-			.setName('Metadata item three')
-			.setDesc('Property to show in third metadata position')
+			.setName('Third property')
+			.setDesc('Property to show in third position')
 			.addSearch((search) => {
 				search
 					.setPlaceholder('Search properties')
-					.setValue(defaultViewSettings.metadataDisplay3)
+					.setValue(defaultViewSettings.propertyDisplay3)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay3: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyDisplay3: value });
 					});
 				new PropertySuggest(this.app, search.inputEl, allProperties);
 			});
 
 		new Setting(containerEl)
-			.setName('Metadata item four')
-			.setDesc('Property to show in fourth metadata position')
+			.setName('Fourth property')
+			.setDesc('Property to show in fourth position')
 			.addSearch((search) => {
 				search
 					.setPlaceholder('Search properties')
-					.setValue(defaultViewSettings.metadataDisplay4)
+					.setValue(defaultViewSettings.propertyDisplay4)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataDisplay4: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyDisplay4: value });
 					});
 				new PropertySuggest(this.app, search.inputEl, allProperties);
 			});
 
 		new Setting(containerEl)
-			.setName('Show items three and four side-by-side')
-			.setDesc('Display third and fourth metadata items horizontally')
+			.setName('Show third and fourth properties side-by-side')
+			.setDesc('Display third and fourth properties horizontally')
 			.addToggle((toggle) =>
 				toggle
-					.setValue(defaultViewSettings.metadataLayout34SideBySide)
+					.setValue(defaultViewSettings.propertyLayout34SideBySide)
 					.onChange(async (value) => {
-						await this.plugin.persistenceManager.setDefaultViewSettings({ metadataLayout34SideBySide: value });
+						await this.plugin.persistenceManager.setDefaultViewSettings({ propertyLayout34SideBySide: value });
 					})
 			);
 
@@ -370,5 +519,10 @@ export class DynamicViewsSettingTab extends PluginSettingTab {
 						}
 					})
 			);
+	}
+
+	hide(): void {
+		// Trim whitespace from text fields on close
+		void this.trimTextFieldSettings();
 	}
 }

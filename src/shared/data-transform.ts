@@ -9,47 +9,88 @@ import type { Settings } from '../types';
 import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
 import {
     getFirstDatacorePropertyValue,
-    getFirstBasesPropertyValue,
-    getFirstDatacoreDatePropertyValue,
-    getFirstBasesDatePropertyValue
+    getFirstBasesPropertyValue
 } from '../utils/property';
-import { isBasesDateValue, formatTimestamp } from './render-utils';
+import { formatTimestamp, extractBasesTimestamp, extractDatacoreTimestamp } from './render-utils';
 
 /**
- * Resolve timestamp for Datacore result based on settings and sort method
+ * Apply smart timestamp logic to properties
+ * If sorting by created/modified time, automatically show that timestamp
+ * (unless both are already shown)
  */
-function resolveDatacoreTimestamp(
-    result: DatacoreFile,
-    settings: Settings,
+function applySmartTimestamp(
+    props: string[],
     sortMethod: string,
-    isShuffled: boolean
-): number | null {
-    const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
-    const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
-    const fallbackEnabled = useCreatedTime ? settings.fallbackToCtime : settings.fallbackToMtime;
+    settings: Settings
+): string[] {
+    console.log('// [Smart Timestamp] applySmartTimestamp called');
+    console.log('// [Smart Timestamp] Input props:', props);
+    console.log('// [Smart Timestamp] sortMethod:', sortMethod);
+    console.log('// [Smart Timestamp] settings.smartTimestamp:', settings.smartTimestamp);
+    console.log('// [Smart Timestamp] settings.createdTimeProperty:', settings.createdTimeProperty);
+    console.log('// [Smart Timestamp] settings.modifiedTimeProperty:', settings.modifiedTimeProperty);
 
-    if (customProperty) {
-        // Try to get first valid date from comma-separated properties
-        const propValue = getFirstDatacoreDatePropertyValue(result, customProperty);
-
-        if (propValue && typeof propValue === 'object' && 'toMillis' in propValue) {
-            // Found valid date property
-            return propValue.toMillis();
-        } else if (fallbackEnabled) {
-            // No valid property date found - fall back to file metadata if enabled
-            const fileTimestamp = useCreatedTime ? result.$ctime : result.$mtime;
-            return fileTimestamp?.toMillis?.() || null;
-        }
-        // If no valid property and fallback disabled, return null
-        return null;
-    } else if (fallbackEnabled) {
-        // No custom property configured - use file metadata if fallback enabled
-        const fileTimestamp = useCreatedTime ? result.$ctime : result.$mtime;
-        return fileTimestamp?.toMillis?.() || null;
+    // Only apply if smart timestamp is enabled
+    if (!settings.smartTimestamp) {
+        console.log('// [Smart Timestamp] Feature disabled, returning original props');
+        return props;
     }
 
-    return null;
+    // Determine which timestamp we're sorting by
+    const sortingByCtime = sortMethod.includes('ctime');
+    const sortingByMtime = sortMethod.includes('mtime');
+    console.log('// [Smart Timestamp] sortingByCtime:', sortingByCtime);
+    console.log('// [Smart Timestamp] sortingByMtime:', sortingByMtime);
+
+    // Only proceed if sorting by a timestamp
+    if (!sortingByCtime && !sortingByMtime) {
+        console.log('// [Smart Timestamp] Not sorting by timestamp, returning original props');
+        return props;
+    }
+
+    // Check if both timestamps are already shown
+    const hasCtimeProperty = props.some(p =>
+        p === 'file.ctime' || p === 'created time' ||
+        (settings.createdTimeProperty && p === settings.createdTimeProperty)
+    );
+    const hasMtimeProperty = props.some(p =>
+        p === 'file.mtime' || p === 'modified time' ||
+        (settings.modifiedTimeProperty && p === settings.modifiedTimeProperty)
+    );
+    console.log('// [Smart Timestamp] hasCtimeProperty:', hasCtimeProperty);
+    console.log('// [Smart Timestamp] hasMtimeProperty:', hasMtimeProperty);
+
+    // If both are shown, don't change anything
+    if (hasCtimeProperty && hasMtimeProperty) {
+        console.log('// [Smart Timestamp] Both timestamps shown, returning original props');
+        return props;
+    }
+
+    // Determine which timestamp property to show and which to replace
+    const targetProperty = sortingByCtime
+        ? (settings.createdTimeProperty || 'file.ctime')
+        : (settings.modifiedTimeProperty || 'file.mtime');
+
+    const propertiesToReplace = sortingByCtime
+        ? ['file.mtime', 'modified time', settings.modifiedTimeProperty].filter(Boolean)
+        : ['file.ctime', 'created time', settings.createdTimeProperty].filter(Boolean);
+
+    console.log('// [Smart Timestamp] targetProperty:', targetProperty);
+    console.log('// [Smart Timestamp] propertiesToReplace:', propertiesToReplace);
+
+    // Replace mismatched timestamp properties
+    const result = props.map(prop => {
+        if (propertiesToReplace.includes(prop)) {
+            console.log(`// [Smart Timestamp] Replacing "${prop}" with "${targetProperty}"`);
+            return targetProperty;
+        }
+        return prop;
+    });
+
+    console.log('// [Smart Timestamp] Output props:', result);
+    return result;
 }
+
 
 /**
  * Transform Datacore result into CardData
@@ -81,9 +122,6 @@ export function datacoreResultToCardData(
     const ctime = result.$ctime?.toMillis?.() || 0;
     const mtime = result.$mtime?.toMillis?.() || 0;
 
-    // Resolve display timestamp based on custom properties
-    const displayTimestamp = resolveDatacoreTimestamp(result, settings, sortMethod, isShuffled);
-
     // Create base card data
     const cardData: CardData = {
         path,
@@ -95,17 +133,19 @@ export function datacoreResultToCardData(
         folderPath,
         snippet,
         imageUrl,
-        hasImageAvailable: hasImageAvailable || false,
-        displayTimestamp: displayTimestamp || undefined
+        hasImageAvailable: hasImageAvailable || false
     };
 
-    // Resolve metadata properties
-    const props = [
-        settings.metadataDisplay1,
-        settings.metadataDisplay2,
-        settings.metadataDisplay3,
-        settings.metadataDisplay4
+    // Resolve properties
+    let props = [
+        settings.propertyDisplay1,
+        settings.propertyDisplay2,
+        settings.propertyDisplay3,
+        settings.propertyDisplay4
     ];
+
+    // Apply smart timestamp logic
+    props = applySmartTimestamp(props, sortMethod, settings);
 
     // Detect duplicates (priority: 1 > 2 > 3 > 4)
     const seen = new Set<string>();
@@ -117,53 +157,20 @@ export function datacoreResultToCardData(
     });
 
     // Store property names for rendering
-    cardData.metadataProperty1 = effectiveProps[0] || undefined;
-    cardData.metadataProperty2 = effectiveProps[1] || undefined;
-    cardData.metadataProperty3 = effectiveProps[2] || undefined;
-    cardData.metadataProperty4 = effectiveProps[3] || undefined;
+    cardData.propertyName1 = effectiveProps[0] || undefined;
+    cardData.propertyName2 = effectiveProps[1] || undefined;
+    cardData.propertyName3 = effectiveProps[2] || undefined;
+    cardData.propertyName4 = effectiveProps[3] || undefined;
 
     // Resolve property values
-    cardData.metadata1 = effectiveProps[0] ? resolveDatacoreMetadataProperty(effectiveProps[0], result, cardData, settings, dc) : null;
-    cardData.metadata2 = effectiveProps[1] ? resolveDatacoreMetadataProperty(effectiveProps[1], result, cardData, settings, dc) : null;
-    cardData.metadata3 = effectiveProps[2] ? resolveDatacoreMetadataProperty(effectiveProps[2], result, cardData, settings, dc) : null;
-    cardData.metadata4 = effectiveProps[3] ? resolveDatacoreMetadataProperty(effectiveProps[3], result, cardData, settings, dc) : null;
+    cardData.property1 = effectiveProps[0] ? resolveDatacoreProperty(effectiveProps[0], result, cardData, settings, dc) : null;
+    cardData.property2 = effectiveProps[1] ? resolveDatacoreProperty(effectiveProps[1], result, cardData, settings, dc) : null;
+    cardData.property3 = effectiveProps[2] ? resolveDatacoreProperty(effectiveProps[2], result, cardData, settings, dc) : null;
+    cardData.property4 = effectiveProps[3] ? resolveDatacoreProperty(effectiveProps[3], result, cardData, settings, dc) : null;
 
     return cardData;
 }
 
-/**
- * Resolve timestamp for Bases entry based on settings and sort method
- */
-function resolveBasesTimestamp(
-    entry: BasesEntry,
-    settings: Settings,
-    sortMethod: string,
-    isShuffled: boolean
-): number | null {
-    const useCreatedTime = sortMethod.startsWith('ctime') && !isShuffled;
-    const customProperty = useCreatedTime ? settings.createdProperty : settings.modifiedProperty;
-    const fallbackEnabled = useCreatedTime ? settings.fallbackToCtime : settings.fallbackToMtime;
-
-    if (customProperty) {
-        // Try to get first valid date from comma-separated properties
-        const value = getFirstBasesDatePropertyValue(entry, customProperty) as { date?: Date } | null;
-
-        if (value && isBasesDateValue(value)) {
-            // Found valid date property
-            return value.date.getTime();
-        } else if (fallbackEnabled) {
-            // No valid property date found - fall back to file metadata if enabled
-            return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
-        }
-        // If no valid property and fallback disabled, return null
-        return null;
-    } else if (fallbackEnabled) {
-        // No custom property configured - use file metadata if fallback enabled
-        return useCreatedTime ? entry.file.stat.ctime : entry.file.stat.mtime;
-    }
-
-    return null;
-}
 
 /**
  * Transform Bases entry into CardData
@@ -217,9 +224,6 @@ export function basesEntryToCardData(
     const ctime = entry.file.stat.ctime;
     const mtime = entry.file.stat.mtime;
 
-    // Resolve display timestamp based on custom properties
-    const displayTimestamp = resolveBasesTimestamp(entry, settings, sortMethod, isShuffled);
-
     // Create base card data
     const cardData: CardData = {
         path,
@@ -231,17 +235,19 @@ export function basesEntryToCardData(
         folderPath,
         snippet,
         imageUrl,
-        hasImageAvailable: hasImageAvailable || false,
-        displayTimestamp: displayTimestamp || undefined
+        hasImageAvailable: hasImageAvailable || false
     };
 
-    // Resolve metadata properties
-    const props = [
-        settings.metadataDisplay1,
-        settings.metadataDisplay2,
-        settings.metadataDisplay3,
-        settings.metadataDisplay4
+    // Resolve properties
+    let props = [
+        settings.propertyDisplay1,
+        settings.propertyDisplay2,
+        settings.propertyDisplay3,
+        settings.propertyDisplay4
     ];
+
+    // Apply smart timestamp logic
+    props = applySmartTimestamp(props, sortMethod, settings);
 
     // Detect duplicates (priority: 1 > 2 > 3 > 4)
     const seen = new Set<string>();
@@ -253,16 +259,16 @@ export function basesEntryToCardData(
     });
 
     // Store property names for rendering
-    cardData.metadataProperty1 = effectiveProps[0] || undefined;
-    cardData.metadataProperty2 = effectiveProps[1] || undefined;
-    cardData.metadataProperty3 = effectiveProps[2] || undefined;
-    cardData.metadataProperty4 = effectiveProps[3] || undefined;
+    cardData.propertyName1 = effectiveProps[0] || undefined;
+    cardData.propertyName2 = effectiveProps[1] || undefined;
+    cardData.propertyName3 = effectiveProps[2] || undefined;
+    cardData.propertyName4 = effectiveProps[3] || undefined;
 
     // Resolve property values
-    cardData.metadata1 = effectiveProps[0] ? resolveBasesMetadataProperty(effectiveProps[0], entry, cardData, settings) : null;
-    cardData.metadata2 = effectiveProps[1] ? resolveBasesMetadataProperty(effectiveProps[1], entry, cardData, settings) : null;
-    cardData.metadata3 = effectiveProps[2] ? resolveBasesMetadataProperty(effectiveProps[2], entry, cardData, settings) : null;
-    cardData.metadata4 = effectiveProps[3] ? resolveBasesMetadataProperty(effectiveProps[3], entry, cardData, settings) : null;
+    cardData.property1 = effectiveProps[0] ? resolveBasesProperty(effectiveProps[0], entry, cardData, settings) : null;
+    cardData.property2 = effectiveProps[1] ? resolveBasesProperty(effectiveProps[1], entry, cardData, settings) : null;
+    cardData.property3 = effectiveProps[2] ? resolveBasesProperty(effectiveProps[2], entry, cardData, settings) : null;
+    cardData.property4 = effectiveProps[3] ? resolveBasesProperty(effectiveProps[3], entry, cardData, settings) : null;
 
     return cardData;
 }
@@ -318,10 +324,10 @@ export function transformBasesEntries(
 }
 
 /**
- * Resolve metadata property value for Bases entry
+ * Resolve property value for Bases entry
  * Returns null for missing/empty properties
  */
-export function resolveBasesMetadataProperty(
+export function resolveBasesProperty(
     propertyName: string,
     entry: BasesEntry,
     cardData: CardData,
@@ -347,29 +353,65 @@ export function resolveBasesMetadataProperty(
         return result;
     }
 
-    // Check if property is a timestamp property
-    const isCreatedTimestamp = propertyName === 'file.ctime' || propertyName === 'created time' ||
-        settings.createdProperty.split(',').map(p => p.trim()).includes(propertyName);
-    const isModifiedTimestamp = propertyName === 'file.mtime' || propertyName === 'modified time' ||
-        settings.modifiedProperty.split(',').map(p => p.trim()).includes(propertyName);
-
-    if (isCreatedTimestamp || isModifiedTimestamp) {
-        const timestamp = cardData.displayTimestamp ||
-            (isCreatedTimestamp ? cardData.ctime : cardData.mtime);
-
-        if (!timestamp) {
-            return null;
-        }
-        const formatted = formatTimestamp(timestamp);
+    // Handle file timestamp properties directly
+    if (propertyName === 'file.ctime' || propertyName === 'created time') {
+        const formatted = formatTimestamp(cardData.ctime, settings);
+        return formatted;
+    }
+    if (propertyName === 'file.mtime' || propertyName === 'modified time') {
+        const formatted = formatTimestamp(cardData.mtime, settings);
         return formatted;
     }
 
     // Generic property: read from frontmatter
-    const value = getFirstBasesPropertyValue(entry, propertyName) as { data?: unknown } | null;
-    const data = value?.data;
+    const value = getFirstBasesPropertyValue(entry, propertyName);
 
-    // Return null for missing or empty values
+    // Handle fallback for custom timestamp properties
+    if (!value) {
+        // Check if this is a custom timestamp property
+        const isCustomCreatedTime = settings.createdTimeProperty && propertyName === settings.createdTimeProperty;
+        const isCustomModifiedTime = settings.modifiedTimeProperty && propertyName === settings.modifiedTimeProperty;
+
+        if (isCustomCreatedTime || isCustomModifiedTime) {
+            if (settings.fallbackToFileMetadata) {
+                // Fall back to file metadata
+                const timestamp = isCustomCreatedTime ? cardData.ctime : cardData.mtime;
+                return formatTimestamp(timestamp, settings);
+            } else {
+                // Show placeholder but still render as timestamp (for icon)
+                return '...';
+            }
+        }
+        return null;
+    }
+
+    // Check if it's a date/datetime value - format with custom format
+    // Date properties return { date: Date, time: boolean } directly
+    const timestampData = extractBasesTimestamp(value);
+    if (timestampData) {
+        const formatted = formatTimestamp(timestampData.timestamp, settings, timestampData.isDateOnly);
+        return formatted;
+    }
+
+    // For non-date properties, extract .data
+    const data = (value as { data?: unknown })?.data;
+
+    // Handle empty values for custom timestamp properties
     if (data == null || data === '' || (Array.isArray(data) && data.length === 0)) {
+        // Check if this is a custom timestamp property
+        const isCustomCreatedTime = settings.createdTimeProperty && propertyName === settings.createdTimeProperty;
+        const isCustomModifiedTime = settings.modifiedTimeProperty && propertyName === settings.modifiedTimeProperty;
+
+        if (isCustomCreatedTime || isCustomModifiedTime) {
+            if (settings.fallbackToFileMetadata) {
+                // Fall back to file metadata
+                const timestamp = isCustomCreatedTime ? cardData.ctime : cardData.mtime;
+                return formatTimestamp(timestamp, settings);
+            } else {
+                // Show placeholder but still render as timestamp (for icon)
+                return '...';
+            }
+        }
         return null;
     }
 
@@ -384,10 +426,10 @@ export function resolveBasesMetadataProperty(
 }
 
 /**
- * Resolve metadata property value for Datacore file
+ * Resolve property value for Datacore file
  * Returns null for missing/empty properties
  */
-export function resolveDatacoreMetadataProperty(
+export function resolveDatacoreProperty(
     propertyName: string,
     result: DatacoreFile,
     cardData: CardData,
@@ -411,28 +453,45 @@ export function resolveDatacoreMetadataProperty(
         return cardData.tags.length > 0 ? 'tags' : null; // Special marker
     }
 
-    // Check if property is a timestamp property
-    const isCreatedTimestamp = propertyName === 'file.ctime' || propertyName === 'created time' ||
-        settings.createdProperty.split(',').map(p => p.trim()).includes(propertyName);
-    const isModifiedTimestamp = propertyName === 'file.mtime' || propertyName === 'modified time' ||
-        settings.modifiedProperty.split(',').map(p => p.trim()).includes(propertyName);
-
-    if (isCreatedTimestamp || isModifiedTimestamp) {
-        // Use displayTimestamp if available, otherwise fall back to file timestamps
-        const timestamp = cardData.displayTimestamp ||
-            (isCreatedTimestamp ? cardData.ctime : cardData.mtime);
-
-        if (!timestamp) return null;
-        return formatTimestamp(timestamp);
+    // Handle file timestamp properties directly
+    if (propertyName === 'file.ctime' || propertyName === 'created time') {
+        return formatTimestamp(cardData.ctime, settings);
+    }
+    if (propertyName === 'file.mtime' || propertyName === 'modified time') {
+        return formatTimestamp(cardData.mtime, settings);
     }
 
     // Generic property: read from frontmatter
     let rawValue = getFirstDatacorePropertyValue(result, propertyName);
     if (Array.isArray(rawValue)) rawValue = rawValue[0];
+
+    // Check if it's a date/datetime value - format with custom format
+    const timestampData = extractDatacoreTimestamp(rawValue);
+    if (timestampData) {
+        return formatTimestamp(timestampData.timestamp, settings, timestampData.isDateOnly);
+    }
+
+    // Coerce to string for non-date values
     const value = dc.coerce.string(rawValue || '');
 
-    // Return null for empty values
-    if (!value || value === '') return null;
+    // Handle empty values for custom timestamp properties
+    if (!value || value === '') {
+        // Check if this is a custom timestamp property
+        const isCustomCreatedTime = settings.createdTimeProperty && propertyName === settings.createdTimeProperty;
+        const isCustomModifiedTime = settings.modifiedTimeProperty && propertyName === settings.modifiedTimeProperty;
+
+        if (isCustomCreatedTime || isCustomModifiedTime) {
+            if (settings.fallbackToFileMetadata) {
+                // Fall back to file metadata
+                const timestamp = isCustomCreatedTime ? cardData.ctime : cardData.mtime;
+                return formatTimestamp(timestamp, settings);
+            } else {
+                // Show placeholder but still render as timestamp (for icon)
+                return '...';
+            }
+        }
+        return null;
+    }
 
     return value;
 }

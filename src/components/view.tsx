@@ -11,7 +11,8 @@ import { ensurePageSelector, updateQueryInBlock, findQueryInBlock } from '../uti
 import { processImagePaths, resolveInternalImagePaths, extractEmbedImages } from '../utils/image';
 import { loadFilePreview } from '../utils/preview';
 import { getFirstDatacorePropertyValue, getAllDatacoreImagePropertyValues } from '../utils/property';
-import { getMinCardWidth, getMinMasonryColumns, getMinGridColumns } from '../utils/style-settings';
+import { getMinCardWidth, getMinMasonryColumns, getMinGridColumns, getCardSpacing } from '../utils/style-settings';
+import { calculateMasonryLayout, applyMasonryLayout } from '../utils/masonry-layout';
 import type { DatacoreAPI, DatacoreFile } from '../types/datacore';
 
 // Extend App type to include isMobile property
@@ -123,12 +124,12 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         baseSettings.titleProperty = viewSettings.titleProperty ?? defaultViewSettings.titleProperty;
         baseSettings.descriptionProperty = viewSettings.descriptionProperty ?? defaultViewSettings.descriptionProperty;
         baseSettings.imageProperty = viewSettings.imageProperty ?? defaultViewSettings.imageProperty;
-        baseSettings.metadataDisplay1 = viewSettings.metadataDisplay1 ?? defaultViewSettings.metadataDisplay1;
-        baseSettings.metadataDisplay2 = viewSettings.metadataDisplay2 ?? defaultViewSettings.metadataDisplay2;
-        baseSettings.metadataDisplay3 = viewSettings.metadataDisplay3 ?? defaultViewSettings.metadataDisplay3;
-        baseSettings.metadataDisplay4 = viewSettings.metadataDisplay4 ?? defaultViewSettings.metadataDisplay4;
-        baseSettings.metadataLayout12SideBySide = viewSettings.metadataLayout12SideBySide ?? defaultViewSettings.metadataLayout12SideBySide;
-        baseSettings.metadataLayout34SideBySide = viewSettings.metadataLayout34SideBySide ?? defaultViewSettings.metadataLayout34SideBySide;
+        baseSettings.propertyDisplay1 = viewSettings.propertyDisplay1 ?? defaultViewSettings.propertyDisplay1;
+        baseSettings.propertyDisplay2 = viewSettings.propertyDisplay2 ?? defaultViewSettings.propertyDisplay2;
+        baseSettings.propertyDisplay3 = viewSettings.propertyDisplay3 ?? defaultViewSettings.propertyDisplay3;
+        baseSettings.propertyDisplay4 = viewSettings.propertyDisplay4 ?? defaultViewSettings.propertyDisplay4;
+        baseSettings.propertyLayout12SideBySide = viewSettings.propertyLayout12SideBySide ?? defaultViewSettings.propertyLayout12SideBySide;
+        baseSettings.propertyLayout34SideBySide = viewSettings.propertyLayout34SideBySide ?? defaultViewSettings.propertyLayout34SideBySide;
         baseSettings.showTextPreview = viewSettings.showTextPreview ?? defaultViewSettings.showTextPreview;
         baseSettings.fallbackToContent = viewSettings.fallbackToContent ?? defaultViewSettings.fallbackToContent;
         baseSettings.showThumbnails = viewSettings.showThumbnails ?? defaultViewSettings.showThumbnails;
@@ -202,6 +203,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
     const isLoadingRef = dc.useRef(false);
     const columnCountRef = dc.useRef<number | null>(null);
     const displayedCountRef = dc.useRef(displayedCount);
+    const sortedLengthRef = dc.useRef<number>(0);
     const settingsTimeoutRef = dc.useRef<ReturnType<typeof setTimeout> | null>(null);
     const isSyncing = dc.useRef(false);
 
@@ -251,12 +253,12 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
                     titleProperty: settings.titleProperty,
                     descriptionProperty: settings.descriptionProperty,
                     imageProperty: settings.imageProperty,
-                    metadataDisplay1: settings.metadataDisplay1,
-                    metadataDisplay2: settings.metadataDisplay2,
-                    metadataDisplay3: settings.metadataDisplay3,
-                    metadataDisplay4: settings.metadataDisplay4,
-                    metadataLayout12SideBySide: settings.metadataLayout12SideBySide,
-                    metadataLayout34SideBySide: settings.metadataLayout34SideBySide,
+                    propertyDisplay1: settings.propertyDisplay1,
+                    propertyDisplay2: settings.propertyDisplay2,
+                    propertyDisplay3: settings.propertyDisplay3,
+                    propertyDisplay4: settings.propertyDisplay4,
+                    propertyLayout12SideBySide: settings.propertyLayout12SideBySide,
+                    propertyLayout34SideBySide: settings.propertyLayout34SideBySide,
                     showTextPreview: settings.showTextPreview,
                     fallbackToContent: settings.fallbackToContent,
                     showThumbnails: settings.showThumbnails,
@@ -552,14 +554,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         void loadSnippets();
     }, [sorted, displayedCount, stripMarkdownSyntax, settings.showTextPreview, settings.showThumbnails, settings, app, dc]);
 
-    // Masonry layout
-    const [columnCount, setColumnCount] = dc.useState(1);
-    const [_columnHeights, setColumnHeights] = dc.useState<number[]>([]);
-    const columnHeightsRef = dc.useRef<number[]>([]);
-    const lastPositionedCountRef = dc.useRef(0);
-    const lastContainerWidthRef = dc.useRef(0);
-
-    // Masonry layout effect
+    // Masonry layout - Direct DOM manipulation (no React re-renders on shuffle)
     dc.useEffect(() => {
         // Clean up masonry styles if not in masonry mode
         if (viewMode !== 'masonry') {
@@ -575,145 +570,67 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
                 });
                 container.style.height = '';
             }
-            // Clear the ref so image onLoad handlers don't trigger masonry layout
             updateLayoutRef.current = null;
             return;
         }
 
-        // Reset state
-        setColumnCount(1);
-        setColumnHeights([]);
-        columnHeightsRef.current = [];
-        lastPositionedCountRef.current = 0;
-        lastContainerWidthRef.current = 0;
-
+        // Setup masonry layout function using shared logic
         const updateLayout = () => {
             const container = containerRef.current;
             if (!container) return;
 
-            const cards = container.querySelectorAll('.writing-card');
-            const containerWidth = container.clientWidth;
-
-            // Skip if container not visible
-            if (containerWidth < 100) return;
-
-            const cardMinWidth = getMinCardWidth();
-            const gap = 8;
-
-            // Calculate columns
-            const cols = Math.max(getMinMasonryColumns(), Math.floor((containerWidth + gap) / (cardMinWidth + gap)));
-            setColumnCount(cols);
-
-            // Calculate card width
-            const totalGapWidth = (cols - 1) * gap;
-            const cardWidth = (containerWidth - totalGapWidth) / cols;
-
+            const cards = Array.from(container.querySelectorAll<HTMLElement>('.writing-card'));
             if (cards.length === 0) return;
 
-            // Determine if incremental update possible
-            const previousCount = lastPositionedCountRef.current || 0;
-            const widthChanged = Math.abs(containerWidth - lastContainerWidthRef.current!) > 1;
-            const isIncremental = previousCount > 0 &&
-                                  previousCount < cards.length &&
-                                  !widthChanged &&
-                                  columnHeightsRef.current!.length === cols;
+            const containerWidth = container.clientWidth;
+            if (containerWidth < 100) return;
 
-            // Batch DOM operations
-            requestAnimationFrame(() => {
-                const cardsToProcess = isIncremental ?
-                    Array.from(cards).slice(previousCount) as HTMLElement[] :
-                    Array.from(cards) as HTMLElement[];
-
-                // Set widths
-                cardsToProcess.forEach((card) => {
-                    card.style.width = `${cardWidth}px`;
-                });
-
-                // Force reflow
-                void container.offsetHeight;
-
-                // Read heights
-                const cardHeights = cardsToProcess.map((card) => card.offsetHeight);
-
-                // Calculate positions
-                const heights: number[] = isIncremental ?
-                    [...columnHeightsRef.current!] :
-                    new Array(cols).fill(0) as number[];
-                const positions: { left: number; top: number }[] = [];
-
-                cardHeights.forEach((cardHeight) => {
-                    const shortestCol = heights.indexOf(Math.min(...heights));
-                    positions.push({
-                        left: shortestCol * (cardWidth + gap),
-                        top: heights[shortestCol]
-                    });
-                    heights[shortestCol] += cardHeight + gap;
-                });
-
-                // Apply positions
-                requestAnimationFrame(() => {
-                    cardsToProcess.forEach((card: HTMLElement, i: number) => {
-                        const pos = positions[i];
-                        card.style.position = 'absolute';
-                        card.style.transition = 'none';
-                        card.style.left = `${pos.left}px`;
-                        card.style.top = `${pos.top}px`;
-                    });
-
-                    // Set container height
-                    const newContainerHeight = Math.max(...heights);
-                    container.style.height = `${newContainerHeight}px`;
-                    setColumnHeights(heights);
-
-                    // Store state
-                    columnHeightsRef.current = heights;
-                    lastPositionedCountRef.current = cards.length;
-                    lastContainerWidthRef.current = containerWidth;
-                });
+            // Calculate and apply layout using shared masonry logic
+            const result = calculateMasonryLayout({
+                cards,
+                containerWidth,
+                cardMinWidth: getMinCardWidth(),
+                minColumns: getMinMasonryColumns(),
+                gap: getCardSpacing()
             });
+
+            applyMasonryLayout(container, cards, result);
+
+            // Update column count for infinite scroll batching
+            columnCountRef.current = result.columns;
         };
 
-        // Store update function
+        // Store update function for external calls (shuffle, image load)
         updateLayoutRef.current = updateLayout;
 
-        // Debounced layout
-        let layoutTimeout: ReturnType<typeof setTimeout> | null = null;
-        const debouncedLayout = () => {
-            if (layoutTimeout) clearTimeout(layoutTimeout);
-            layoutTimeout = setTimeout(updateLayout, 16);
-        };
+        // Initial layout
+        updateLayout();
 
-        debouncedLayout();
-
-        // Observers
-        const intersectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    debouncedLayout();
-                }
-            });
+        // Watch for new cards being added (infinite scroll)
+        const mutationObserver = new MutationObserver(() => {
+            updateLayout();
         });
+
         if (containerRef.current) {
-            intersectionObserver.observe(containerRef.current);
+            mutationObserver.observe(containerRef.current, {
+                childList: true
+            });
         }
 
-        const resizeObserver = new ResizeObserver(debouncedLayout);
-        if (containerRef.current) {
-            resizeObserver.observe(containerRef.current);
-        }
-
+        // Window resize handler
+        let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
         const handleResize = () => {
-            setTimeout(updateLayout, 100);
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateLayout, 100);
         };
         window.addEventListener('resize', handleResize);
 
         return () => {
-            intersectionObserver.disconnect();
-            resizeObserver.disconnect();
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            mutationObserver.disconnect();
             window.removeEventListener('resize', handleResize);
-            if (layoutTimeout) clearTimeout(layoutTimeout);
         };
-    }, [sorted, viewMode, dc]);
+    }, [viewMode, dc]);
 
     // Apply dynamic grid layout (all width modes)
     dc.useEffect(() => {
@@ -746,14 +663,13 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
 
     // Sync refs for callback access in infinite scroll
     dc.useEffect(() => {
-        console.log('[InfiniteScroll:RefSync] columnCountRef updated:', columnCountRef.current, '→', columnCount);
-        columnCountRef.current = columnCount;
-    }, [columnCount, dc]);
-
-    dc.useEffect(() => {
         console.log('[InfiniteScroll:RefSync] displayedCountRef updated:', displayedCountRef.current, '→', displayedCount);
         displayedCountRef.current = displayedCount;
     }, [displayedCount, dc]);
+
+    dc.useEffect(() => {
+        sortedLengthRef.current = sorted.length;
+    }, [sorted.length, dc]);
 
     // Track scroll position for toolbar shadow and fade effect
     dc.useEffect(() => {
@@ -778,11 +694,11 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
     // Infinite scroll: ResizeObserver + scroll + window resize
     dc.useEffect(() => {
         if (!containerRef.current) {
-            // console.log('[InfiniteScroll] containerRef not available, skipping setup');
+            console.log('[InfiniteScroll] containerRef not available, skipping setup');
             return;
         }
 
-        // console.log('[InfiniteScroll] Setting up infinite scroll system');
+        console.log('[InfiniteScroll] Setting up infinite scroll system');
 
         // Configuration: preload distance multipliers
         const DESKTOP_VIEWPORT_MULTIPLIER = 2; // Load when within 2x viewport height from bottom
@@ -793,7 +709,11 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         let scrollableElement: HTMLElement | Window | null = null;
 
         while (element && !scrollableElement) {
-            if (element.scrollHeight > element.clientHeight) {
+            const style = window.getComputedStyle(element);
+            const overflowY = style.overflowY;
+            const hasOverflow = overflowY === 'auto' || overflowY === 'scroll';
+
+            if (hasOverflow && element.scrollHeight > element.clientHeight) {
                 scrollableElement = element;
             }
             element = element.parentElement;
@@ -801,34 +721,36 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
 
         if (!scrollableElement) {
             scrollableElement = window;
-            // console.log('[InfiniteScroll] Using window as scroll container');
+            console.log('[InfiniteScroll] Using window as scroll container');
         } else {
-            // console.log('[InfiniteScroll] Using element as scroll container:', scrollableElement.className);
+            console.log('[InfiniteScroll] Using element as scroll container:', scrollableElement.className);
         }
 
         // Core batch loading function
         const loadMoreItems = (trigger = 'unknown') => {
-            // console.log(`[InfiniteScroll] loadMoreItems() called by: ${trigger}`);
+            console.log(`[InfiniteScroll] loadMoreItems() called by: ${trigger}`);
 
             // Guard: already loading or no container
             if (isLoadingRef.current) {
-                // console.log('[InfiniteScroll] Already loading, skipping');
+                console.log('[InfiniteScroll] Already loading, skipping');
                 return false;
             }
             if (!containerRef.current) {
-                // console.log('[InfiniteScroll] No container, skipping');
+                console.log('[InfiniteScroll] No container, skipping');
                 return false;
             }
 
             // Get current count from ref (captures latest value)
             const currentCount = displayedCountRef.current!;
-            if (currentCount >= sorted.length) {
-                // console.log(`[InfiniteScroll] All items loaded (${currentCount}/${sorted.length})`);
+            const totalLength = sortedLengthRef.current;
+            console.log(`[InfiniteScroll] Current: ${currentCount}, Total: ${totalLength}`);
+            if (totalLength !== null && currentCount >= totalLength) {
+                console.log(`[InfiniteScroll] All items loaded (${currentCount}/${totalLength})`);
                 return false; // All items loaded
             }
 
             // Calculate distance from bottom using the scrollable element we already found
-            let scrollTop, editorHeight, scrollHeight;
+            let scrollTop: number, editorHeight: number, scrollHeight: number;
 
             if (scrollableElement === window) {
                 scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -849,24 +771,24 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
             // Calculate threshold
             const threshold = editorHeight * (app.isMobile ? MOBILE_VIEWPORT_MULTIPLIER : DESKTOP_VIEWPORT_MULTIPLIER);
 
-            // console.log(`[InfiniteScroll] Metrics: scrollTop=${scrollTop.toFixed(0)}px, editorHeight=${editorHeight}px, scrollHeight=${scrollHeight}px, distance=${distanceFromBottom.toFixed(0)}px, threshold=${threshold.toFixed(0)}px`);
+            console.log(`[InfiniteScroll] Metrics: scrollTop=${scrollTop.toFixed(0)}px, editorHeight=${editorHeight}px, scrollHeight=${scrollHeight}px, distance=${distanceFromBottom.toFixed(0)}px, threshold=${threshold.toFixed(0)}px`);
 
             // Check if we should load
             if (distanceFromBottom > threshold) {
-                // console.log(`[InfiniteScroll] Distance (${distanceFromBottom.toFixed(0)}px) > threshold (${threshold.toFixed(0)}px), not loading`);
+                console.log(`[InfiniteScroll] Distance (${distanceFromBottom.toFixed(0)}px) > threshold (${threshold.toFixed(0)}px), not loading`);
                 return false;
             }
 
             // Load batch
-            // console.log('[InfiniteScroll] Distance within threshold, loading batch...');
+            console.log('[InfiniteScroll] Distance within threshold, loading batch...');
             isLoadingRef.current = true;
 
             const currentCols = columnCountRef.current || 2;
             const rowsPerColumn = 10;
             const batchSize = Math.min(currentCols * rowsPerColumn, 7 * rowsPerColumn);
-            const newCount = Math.min(currentCount + batchSize, sorted.length);
+            const newCount = Math.min(currentCount + batchSize, totalLength!);
 
-            // console.log(`[InfiniteScroll] Loading batch: ${currentCount} → ${newCount} (${batchSize} items, ${currentCols} cols × ${rowsPerColumn} rows)`);
+            console.log(`[InfiniteScroll] Loading batch: ${currentCount} → ${newCount} (${batchSize} items, ${currentCols} cols × ${rowsPerColumn} rows)`);
 
             displayedCountRef.current = newCount;
             setDisplayedCount(newCount);
@@ -875,28 +797,30 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         };
 
         // Setup ResizeObserver (watches masonry container)
-        // console.log('[InfiniteScroll] Setting up ResizeObserver on masonry container');
+        console.log('[InfiniteScroll] Setting up ResizeObserver on masonry container');
         const resizeObserver = new ResizeObserver(() => {
-            // console.log('[InfiniteScroll] ResizeObserver: Masonry container height changed (layout completed)');
-
-            // Masonry just completed layout, clear loading flag
+            console.log('[InfiniteScroll] ResizeObserver: Masonry container height changed (layout completed)');
+            // Only clear loading flag - don't trigger auto-loading to prevent cascade
             isLoadingRef.current = false;
-
-            // Check if need more items
-            loadMoreItems('ResizeObserver');
         });
         resizeObserver.observe(containerRef.current);
 
+        // One-time initial check after layout settles (if viewport isn't filled)
+        const initialCheckTimeout = setTimeout(() => {
+            console.log('[InfiniteScroll] Running one-time initial check');
+            loadMoreItems('initial-check');
+        }, 300);
+
         // Setup window resize listener (handles viewport height changes)
-        // console.log('[InfiniteScroll] Setting up window resize listener');
+        console.log('[InfiniteScroll] Setting up window resize listener');
         const handleWindowResize = () => {
-            // console.log('[InfiniteScroll] Window resized, checking if need more items');
+            console.log('[InfiniteScroll] Window resized, checking if need more items');
             loadMoreItems('window.resize');
         };
         window.addEventListener('resize', handleWindowResize);
 
         // Setup scroll listener with leading-edge throttle
-        // console.log('[InfiniteScroll] Setting up scroll listener with leading-edge throttle');
+        console.log('[InfiniteScroll] Setting up scroll listener with leading-edge throttle');
         let scrollTimer: ReturnType<typeof setTimeout> | null = null;
         const handleScroll = () => {
             if (scrollTimer) {
@@ -904,28 +828,29 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
                 return;
             }
 
-            // console.log('[InfiniteScroll] Scroll event (cooldown started)');
+            console.log('[InfiniteScroll] Scroll event (cooldown started)');
 
             // Check immediately (leading edge)
             loadMoreItems('scroll');
 
             // Start cooldown
             scrollTimer = setTimeout(() => {
-                // console.log('[InfiniteScroll] Scroll cooldown ended');
+                console.log('[InfiniteScroll] Scroll cooldown ended');
                 scrollTimer = null;
             }, 100);
         };
         scrollableElement.addEventListener('scroll', handleScroll, { passive: true });
 
-        // console.log('[InfiniteScroll] All listeners attached, system ready');
+        console.log('[InfiniteScroll] All listeners attached, system ready');
 
         // Cleanup
         return () => {
-            // console.log('[InfiniteScroll] Cleaning up all listeners');
+            console.log('[InfiniteScroll] Cleaning up all listeners');
             resizeObserver.disconnect();
             window.removeEventListener('resize', handleWindowResize);
             scrollableElement.removeEventListener('scroll', handleScroll);
             if (scrollTimer) clearTimeout(scrollTimer);
+            clearTimeout(initialCheckTimeout);
         };
     }, []); // Empty deps - only set up once on mount
 
@@ -1030,7 +955,33 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
     }, []);
 
     const handleShuffle = dc.useCallback(() => {
-        // Shuffle the results
+        const container = containerRef.current;
+        if (!container) return;
+
+        // For masonry: directly reorder DOM and reposition
+        if (viewMode === 'masonry') {
+            const cards = Array.from(container.querySelectorAll<HTMLElement>('.writing-card'));
+
+            // Shuffle array of DOM elements
+            const shuffled = [...cards];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // Reorder in DOM
+            shuffled.forEach(card => container.appendChild(card));
+
+            // Trigger immediate layout update
+            if (updateLayoutRef.current) {
+                updateLayoutRef.current();
+            }
+
+            setShowSortDropdown(false);
+            return;
+        }
+
+        // For other views: use React state to trigger re-render
         const paths = sorted.map(p => p.$path);
         const shuffled = [...paths];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -1040,7 +991,7 @@ export function View({ plugin, app, dc, USER_QUERY = '' }: ViewProps): JSX.Eleme
         setShuffledOrder(shuffled);
         setIsShuffled(true);
         setShowSortDropdown(false);
-    }, [sorted]);
+    }, [sorted, viewMode]);
 
     const handleOpenRandom = dc.useCallback((event: MouseEvent) => {
         if (sorted.length === 0) return;

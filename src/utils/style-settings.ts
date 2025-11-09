@@ -64,9 +64,11 @@ export function getThumbnailPosition(): 'left' | 'right' {
 
 /**
  * Check if timestamp icon should be shown
+ * Returns true for all icon positions (left, right, inner, outer)
+ * Returns false only when explicitly hidden
  */
 export function showTimestampIcon(): boolean {
-	return hasBodyClass('dynamic-views-show-timestamp-icon');
+	return !hasBodyClass('dynamic-views-timestamp-icon-hide');
 }
 
 /**
@@ -76,4 +78,25 @@ export function getTagStyle(): 'plain' | 'theme' | 'minimal' {
 	if (hasBodyClass('dynamic-views-tag-style-minimal')) return 'minimal';
 	if (hasBodyClass('dynamic-views-tag-style-theme')) return 'theme';
 	return 'plain';
+}
+
+/**
+ * Get card spacing from CSS variable
+ */
+export function getCardSpacing(): number {
+	return getCSSVariableAsNumber('--dynamic-views-card-spacing', 8);
+}
+
+/**
+ * Check if recent timestamps should show time only
+ */
+export function shouldShowRecentTimeOnly(): boolean {
+	return hasBodyClass('dynamic-views-timestamp-recent-time-only');
+}
+
+/**
+ * Check if older timestamps should show date only
+ */
+export function shouldShowOlderDateOnly(): boolean {
+	return hasBodyClass('dynamic-views-timestamp-older-date-only');
 }

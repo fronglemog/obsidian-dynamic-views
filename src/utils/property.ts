@@ -197,12 +197,12 @@ export function getAllDatacoreImagePropertyValues(page: DatacoreFile, propertySt
 /**
  * Get all property names used in the vault
  * Returns an array of all property names (from frontmatter)
- * Includes built-in special properties for metadata display
+ * Includes built-in special properties for property display
  */
 export function getAllVaultProperties(app: App): string[] {
     const properties = new Set<string>();
 
-    // Add special built-in properties for metadata display
+    // Add special built-in properties for property display
     // Include both Bases format (file.tags) and human-readable format (file tags)
     properties.add('file.path');
     properties.add('file.tags');

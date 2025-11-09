@@ -2,22 +2,20 @@ export interface Settings {
     titleProperty: string;
     descriptionProperty: string;
     imageProperty: string;
-    createdProperty: string;
-    modifiedProperty: string;
     omitFirstLine: boolean;
+    showTitle: boolean;
     showTextPreview: boolean;
     showThumbnails: boolean;
     fallbackToContent: boolean;
     fallbackToEmbeds: boolean;
-    fallbackToCtime: boolean;
-    fallbackToMtime: boolean;
-    metadataDisplay1: string;
-    metadataDisplay2: string;
-    metadataDisplay3: string;
-    metadataDisplay4: string;
-    metadataLayout12SideBySide: boolean;
-    metadataLayout34SideBySide: boolean;
-    timestampDisplay: 'ctime' | 'mtime' | 'sort-based';
+    propertyDisplay1: string;
+    propertyDisplay2: string;
+    propertyDisplay3: string;
+    propertyDisplay4: string;
+    propertyLayout12SideBySide: boolean;
+    propertyLayout34SideBySide: boolean;
+    imageFormat: 'thumbnail' | 'cover';
+    timestampFormat: string;
     listMarker: string;
     randomizeAction: string;
     thumbnailCacheSize: 'minimal' | 'small' | 'balanced' | 'large' | 'unlimited';
@@ -26,6 +24,11 @@ export interface Settings {
     openRandomInNewPane: boolean;
     showShuffleInRibbon: boolean;
     showRandomInRibbon: boolean;
+    expandImagesOnClick: boolean;
+    smartTimestamp: boolean;
+    createdTimeProperty: string;
+    modifiedTimeProperty: string;
+    fallbackToFileMetadata: boolean;
 }
 
 export interface UIState {
@@ -40,16 +43,18 @@ export interface DefaultViewSettings {
     titleProperty: string;
     descriptionProperty: string;
     imageProperty: string;
-    metadataDisplay1: string;
-    metadataDisplay2: string;
-    metadataDisplay3: string;
-    metadataDisplay4: string;
-    metadataLayout12SideBySide: boolean;
-    metadataLayout34SideBySide: boolean;
+    propertyDisplay1: string;
+    propertyDisplay2: string;
+    propertyDisplay3: string;
+    propertyDisplay4: string;
+    propertyLayout12SideBySide: boolean;
+    propertyLayout34SideBySide: boolean;
+    showTitle: boolean;
     showTextPreview: boolean;
     fallbackToContent: boolean;
     showThumbnails: boolean;
     fallbackToEmbeds: boolean;
+    imageFormat: 'thumbnail' | 'cover';
     queryHeight: number;
     listMarker: string;
 }

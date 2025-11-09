@@ -36,6 +36,13 @@ export default class DynamicViewsPlugin extends Plugin {
 		this.persistenceManager = new PersistenceManager(this);
 		await this.persistenceManager.load();
 
+		// Set initial body classes for settings
+		const settings = this.persistenceManager.getGlobalSettings();
+		document.body.classList.add(`dynamic-views-open-on-${settings.openFileAction}`);
+		if (settings.expandImagesOnClick) {
+			document.body.classList.add('dynamic-views-thumbnail-expand-click');
+		}
+
 		// Set plugin instance for Bases view options to access template settings
 		setPluginInstance(this);
 
@@ -48,7 +55,10 @@ export default class DynamicViewsPlugin extends Plugin {
 			name: 'Grid',
 			icon: 'lucide-grid-2x-2',
 			factory: (controller: QueryController, containerEl: HTMLElement) => {
-				return new DynamicViewsCardView(controller, containerEl, this);
+				const view = new DynamicViewsCardView(controller, containerEl, this);
+				// Expose view.setSettings through controller - wrapper delegates to controller
+				(controller as unknown as { setSettings: () => void }).setSettings = view.setSettings;
+				return view;
 			},
 			options: cardViewOptions,
 		});
@@ -57,10 +67,16 @@ export default class DynamicViewsPlugin extends Plugin {
 			name: 'Masonry',
 			icon: 'panels-right-bottom',
 			factory: (controller: QueryController, containerEl: HTMLElement) => {
-				return new DynamicViewsMasonryView(controller, containerEl, this);
+				const view = new DynamicViewsMasonryView(controller, containerEl, this);
+				// Expose view.setSettings through controller - wrapper delegates to controller
+				(controller as unknown as { setSettings: () => void }).setSettings = view.setSettings;
+				return view;
 			},
 			options: masonryViewOptions,
 		});
+
+		// Notify Style Settings to parse our CSS
+		this.app.workspace.trigger("parse-style-settings");
 
 		this.addCommand({
 			id: 'create-dynamic-view',
@@ -91,8 +107,6 @@ export default class DynamicViewsPlugin extends Plugin {
 		});
 
 		// Add ribbon icons for Random and Shuffle (if enabled in settings)
-		const settings = this.persistenceManager.getGlobalSettings();
-
 		if (settings.showRandomInRibbon) {
 			const _randomRibbon = this.addRibbonIcon('dices', 'Open random file from Bases view', async (evt: MouseEvent) => {
 				const defaultOpenInNewPane = this.persistenceManager.getGlobalSettings().openRandomInNewPane;
@@ -125,6 +139,7 @@ export default class DynamicViewsPlugin extends Plugin {
 				toggleShuffleActiveView(this.app);
 			}
 		});
+
 	}
 
 	getQueryTemplate(): string {
@@ -166,6 +181,7 @@ return dv.createView(dc, USER_QUERY);
 			console.error('File creation failed:', error);
 		}
 	}
+
 
 	onunload() {
 	}

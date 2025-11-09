@@ -11,54 +11,64 @@ import type { Settings } from '../types';
  */
 interface DateValue {
     date: Date;
+    time?: boolean;  // true for datetime, false for date-only
+    icon?: string;   // 'lucide-clock' for datetime, 'lucide-calendar' for date
 }
 
 /**
- * Format timestamp with automatic date/datetime detection
- * Shows time only if within last 24 hours, otherwise just date
+ * Format timestamp using moment.js format from settings
+ * Falls back to automatic date/datetime detection with Style Settings toggles
  */
-export function formatTimestamp(timestamp: number): string {
+export function formatTimestamp(timestamp: number, settings: Settings, isDateOnly: boolean = false): string {
     const date = new Date(timestamp);
+
+    // Use custom format from settings (overrides all auto-detection)
+    if (settings.timestampFormat && settings.timestampFormat.trim()) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+        const moment = require('moment');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+        return moment(timestamp).format(settings.timestampFormat);
+    }
+
+    // Format components
+    const yyyy = date.getFullYear();
+    const MM = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const HH = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+
+    // For date-only properties, show date only
+    if (isDateOnly) {
+        return `${yyyy}-${MM}-${dd}`;
+    }
+
+    // For datetime properties, apply Style Settings toggles
+    // Import at runtime to avoid circular dependencies
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+    const { shouldShowRecentTimeOnly, shouldShowOlderDateOnly } = require('../utils/style-settings');
+
     const now = Date.now();
     const isRecent = now - timestamp < 86400000;
 
     if (isRecent) {
-        const HH = String(date.getHours()).padStart(2, '0');
-        const mm = String(date.getMinutes()).padStart(2, '0');
-        return `${HH}:${mm}`;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        if (shouldShowRecentTimeOnly()) {
+            return `${HH}:${mm}`;
+        }
+        return `${yyyy}-${MM}-${dd} ${HH}:${mm}`;
     }
 
-    const yyyy = date.getFullYear();
-    const MM = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${MM}-${dd}`;
-}
-
-/**
- * Determine effective metadata display values
- * TODO Phase 4: Update to return all 4 fields with proper layout flags
- */
-export function getEffectiveMetadata(settings: Settings): {
-    left: string;
-    right: string;
-} {
-    // Temporary stub: map new fields to old two-field system
-    const left = settings.metadataDisplay1;
-    const right = settings.metadataDisplay3;
-
-    // Detect duplicates (field 1 takes priority)
-    const isDuplicate = left !== '' && left === right;
-
-    return {
-        left,
-        right: isDuplicate ? '' : right
-    };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (shouldShowOlderDateOnly()) {
+        return `${yyyy}-${MM}-${dd}`;
+    }
+    return `${yyyy}-${MM}-${dd} ${HH}:${mm}`;
 }
 
 /**
  * Check if timestamp icon should be shown
  */
-export function shouldShowTimestampIcon(settings: Settings): boolean {
+export function shouldShowTimestampIcon(): boolean {
     // Import at runtime to avoid circular dependencies
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
     const { showTimestampIcon } = require('../utils/style-settings');
@@ -67,42 +77,67 @@ export function shouldShowTimestampIcon(settings: Settings): boolean {
 }
 
 /**
- * Get timestamp icon name based on sort method
+ * Get timestamp icon name based on property being displayed
  */
-export function getTimestampIcon(sortMethod: string): 'calendar' | 'clock' {
-    return sortMethod.startsWith('ctime') ? 'calendar' : 'clock';
+export function getTimestampIcon(propertyName: string, settings: Settings): 'calendar' | 'clock' {
+    // Check if property is created time (calendar icon)
+    if (propertyName === 'file.ctime' || propertyName === 'created time' ||
+        (settings.createdTimeProperty && propertyName === settings.createdTimeProperty)) {
+        return 'calendar';
+    }
+
+    // Otherwise it's modified time (clock icon)
+    return 'clock';
 }
 
 /**
  * Check if a value is a valid Datacore date value
+ * Must have 'time' property to distinguish from text properties that might contain date-like strings
  */
 export function isDatacoreDateValue(value: unknown): value is DateValue {
-    return value !== null && typeof value === 'object' && 'date' in value && value.date instanceof Date;
+    return value !== null &&
+           typeof value === 'object' &&
+           'date' in value &&
+           value.date instanceof Date &&
+           'time' in value &&
+           typeof (value as DateValue).time === 'boolean';
 }
 
 /**
  * Extract timestamp from Datacore date value
  */
-export function extractDatacoreTimestamp(value: unknown): number | null {
+export function extractDatacoreTimestamp(value: unknown): { timestamp: number; isDateOnly: boolean } | null {
     if (isDatacoreDateValue(value)) {
-        return value.date.getTime();
+        return {
+            timestamp: value.date.getTime(),
+            isDateOnly: value.time === false
+        };
     }
     return null;
 }
 
 /**
  * Check if a value is a valid Bases date value
+ * Must have 'time' property to distinguish from text properties that might contain date-like strings
  */
 export function isBasesDateValue(value: unknown): value is DateValue {
-    return value !== null && typeof value === 'object' && 'date' in value && value.date instanceof Date;
+    return value !== null &&
+           typeof value === 'object' &&
+           'date' in value &&
+           value.date instanceof Date &&
+           'time' in value &&
+           typeof (value as DateValue).time === 'boolean';
 }
 
 /**
  * Extract timestamp from Bases date value
  */
-export function extractBasesTimestamp(value: unknown): number | null {
+export function extractBasesTimestamp(value: unknown): { timestamp: number; isDateOnly: boolean } | null {
     if (isBasesDateValue(value)) {
-        return value.date.getTime();
+        return {
+            timestamp: value.date.getTime(),
+            isDateOnly: value.time === false
+        };
     }
     return null;
 }

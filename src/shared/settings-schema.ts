@@ -34,44 +34,10 @@ export function setPluginInstance(plugin: PluginInstance): void {
 export function getBasesViewOptions(): any[] {
     return [
         {
-            type: 'property',
-            displayName: 'Metadata item one',
-            key: 'metadataDisplay1',
-            placeholder: 'Select property',
-            default: ''
-        },
-        {
-            type: 'property',
-            displayName: 'Metadata item two',
-            key: 'metadataDisplay2',
-            placeholder: 'Select property',
-            default: ''
-        },
-        {
             type: 'toggle',
-            displayName: 'Show items one and two side-by-side',
-            key: 'metadataLayout12SideBySide',
-            default: DEFAULT_VIEW_SETTINGS.metadataLayout12SideBySide
-        },
-        {
-            type: 'property',
-            displayName: 'Metadata item three',
-            key: 'metadataDisplay3',
-            placeholder: 'Select property',
-            default: ''
-        },
-        {
-            type: 'property',
-            displayName: 'Metadata item four',
-            key: 'metadataDisplay4',
-            placeholder: 'Select property',
-            default: ''
-        },
-        {
-            type: 'toggle',
-            displayName: 'Show items three and four side-by-side',
-            key: 'metadataLayout34SideBySide',
-            default: DEFAULT_VIEW_SETTINGS.metadataLayout34SideBySide
+            displayName: 'Show title',
+            key: 'showTitle',
+            default: DEFAULT_VIEW_SETTINGS.showTitle
         },
         {
             type: 'text',
@@ -101,9 +67,19 @@ export function getBasesViewOptions(): any[] {
         },
         {
             type: 'toggle',
-            displayName: 'Show thumbnails',
+            displayName: 'Show image',
             key: 'showThumbnails',
             default: DEFAULT_VIEW_SETTINGS.showThumbnails
+        },
+        {
+            type: 'dropdown',
+            displayName: 'Image format',
+            key: 'imageFormat',
+            options: {
+                'thumbnail': 'Thumbnail',
+                'cover': 'Cover'
+            },
+            default: 'thumbnail'
         },
         {
             type: 'text',
@@ -117,6 +93,46 @@ export function getBasesViewOptions(): any[] {
             displayName: 'Use in-note images if image property unavailable',
             key: 'fallbackToEmbeds',
             default: DEFAULT_VIEW_SETTINGS.fallbackToEmbeds
+        },
+        {
+            type: 'property',
+            displayName: 'First property',
+            key: 'propertyDisplay1',
+            placeholder: 'Select property',
+            default: ''
+        },
+        {
+            type: 'property',
+            displayName: 'Second property',
+            key: 'propertyDisplay2',
+            placeholder: 'Select property',
+            default: ''
+        },
+        {
+            type: 'toggle',
+            displayName: 'Show first and second properties side-by-side',
+            key: 'propertyLayout12SideBySide',
+            default: DEFAULT_VIEW_SETTINGS.propertyLayout12SideBySide
+        },
+        {
+            type: 'property',
+            displayName: 'Third property',
+            key: 'propertyDisplay3',
+            placeholder: 'Select property',
+            default: ''
+        },
+        {
+            type: 'property',
+            displayName: 'Fourth property',
+            key: 'propertyDisplay4',
+            placeholder: 'Select property',
+            default: ''
+        },
+        {
+            type: 'toggle',
+            displayName: 'Show third and fourth properties side-by-side',
+            key: 'propertyLayout34SideBySide',
+            default: DEFAULT_VIEW_SETTINGS.propertyLayout34SideBySide
         },
     ];
 }
@@ -142,48 +158,49 @@ export function readBasesSettings(config: BasesConfig, globalSettings: Settings,
         titleProperty: typeof titlePropertyValue === 'string' ? titlePropertyValue : defaultViewSettings.titleProperty,
         descriptionProperty: typeof descriptionPropertyValue === 'string' ? descriptionPropertyValue : defaultViewSettings.descriptionProperty,
         imageProperty: typeof imagePropertyValue === 'string' ? imagePropertyValue : defaultViewSettings.imageProperty,
-        createdProperty: globalSettings.createdProperty, // From global settings
-        modifiedProperty: globalSettings.modifiedProperty, // From global settings
         omitFirstLine: globalSettings.omitFirstLine, // From global settings
+        showTitle: Boolean(config.get('showTitle') ?? defaultViewSettings.showTitle),
         showTextPreview: Boolean(config.get('showTextPreview') ?? defaultViewSettings.showTextPreview),
         showThumbnails: Boolean(config.get('showThumbnails') ?? defaultViewSettings.showThumbnails),
         fallbackToContent: Boolean(config.get('fallbackToContent') ?? defaultViewSettings.fallbackToContent),
         fallbackToEmbeds: Boolean(config.get('fallbackToEmbeds') ?? defaultViewSettings.fallbackToEmbeds),
-        fallbackToCtime: Boolean(config.get('fallbackToCtime') ?? DEFAULT_SETTINGS.fallbackToCtime),
-        fallbackToMtime: Boolean(config.get('fallbackToMtime') ?? DEFAULT_SETTINGS.fallbackToMtime),
-        metadataDisplay1: (() => {
-            const value = config.get('metadataDisplay1');
+        propertyDisplay1: (() => {
+            const value = config.get('propertyDisplay1');
             // If value is explicitly set (including empty string), use it
             if (value !== undefined && value !== null) {
                 return typeof value === 'string' ? value : '';
             }
-            // For Bases views, default to empty (no metadata shown)
+            // For Bases views, default to empty (no properties shown)
             return '';
         })(),
-        metadataDisplay2: (() => {
-            const value = config.get('metadataDisplay2');
+        propertyDisplay2: (() => {
+            const value = config.get('propertyDisplay2');
             if (value !== undefined && value !== null) {
                 return typeof value === 'string' ? value : '';
             }
             return '';
         })(),
-        metadataDisplay3: (() => {
-            const value = config.get('metadataDisplay3');
+        propertyDisplay3: (() => {
+            const value = config.get('propertyDisplay3');
             if (value !== undefined && value !== null) {
                 return typeof value === 'string' ? value : '';
             }
             return '';
         })(),
-        metadataDisplay4: (() => {
-            const value = config.get('metadataDisplay4');
+        propertyDisplay4: (() => {
+            const value = config.get('propertyDisplay4');
             if (value !== undefined && value !== null) {
                 return typeof value === 'string' ? value : '';
             }
             return '';
         })(),
-        metadataLayout12SideBySide: Boolean(config.get('metadataLayout12SideBySide') ?? defaultViewSettings.metadataLayout12SideBySide),
-        metadataLayout34SideBySide: Boolean(config.get('metadataLayout34SideBySide') ?? defaultViewSettings.metadataLayout34SideBySide),
-        timestampDisplay: globalSettings.timestampDisplay, // From global settings
+        propertyLayout12SideBySide: Boolean(config.get('propertyLayout12SideBySide') ?? defaultViewSettings.propertyLayout12SideBySide),
+        propertyLayout34SideBySide: Boolean(config.get('propertyLayout34SideBySide') ?? defaultViewSettings.propertyLayout34SideBySide),
+        imageFormat: (() => {
+            const value = config.get('imageFormat');
+            return (value === 'thumbnail' || value === 'cover') ? value : defaultViewSettings.imageFormat;
+        })(),
+        timestampFormat: globalSettings.timestampFormat, // From global settings
         listMarker: (() => {
             const value = config.get('listMarker');
             return (typeof value === 'string' ? value : DEFAULT_SETTINGS.listMarker) as 'bullet' | 'number';
@@ -197,6 +214,11 @@ export function readBasesSettings(config: BasesConfig, globalSettings: Settings,
         openFileAction: globalSettings.openFileAction, // From global settings
         openRandomInNewPane: globalSettings.openRandomInNewPane, // From global settings
         showShuffleInRibbon: globalSettings.showShuffleInRibbon, // From global settings
-        showRandomInRibbon: globalSettings.showRandomInRibbon // From global settings
+        showRandomInRibbon: globalSettings.showRandomInRibbon, // From global settings
+        smartTimestamp: globalSettings.smartTimestamp, // From global settings
+        createdTimeProperty: globalSettings.createdTimeProperty, // From global settings
+        modifiedTimeProperty: globalSettings.modifiedTimeProperty, // From global settings
+        fallbackToFileMetadata: globalSettings.fallbackToFileMetadata, // From global settings
+        expandImagesOnClick: globalSettings.expandImagesOnClick // From global settings
     };
 }

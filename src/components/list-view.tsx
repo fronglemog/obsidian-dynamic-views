@@ -77,20 +77,20 @@ export function ListView({
                         >
                             {titleValue}
                         </a>
-                        {/* Metadata - inline display (list view doesn't use 2-row layout) */}
+                        {/* Properties - inline display (list view doesn't use 2-row layout) */}
                         {(() => {
-                            // Transform to get resolved metadata
+                            // Transform to get resolved properties
                             const card: CardData = datacoreResultToCardData(p, dc, settings, 'mtime-desc', false);
 
-                            // Check if any metadata has content
-                            const hasMetadata = card.metadata1 || card.metadata2 || card.metadata3 || card.metadata4;
+                            // Check if any properties have content
+                            const hasProperties = card.property1 || card.property2 || card.property3 || card.property4;
 
-                            if (!hasMetadata) return null;
+                            if (!hasProperties) return null;
 
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- JSX.Element resolves to any due to Datacore's JSX runtime
                             return (
                                 <span className="list-meta">
-                                    {card.metadata1 === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {card.property1 === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -109,10 +109,10 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : card.metadata1 ? (
-                                        <span className="list-text">{card.metadata1}</span>
+                                    ) : card.property1 ? (
+                                        <span className="list-text">{card.property1}</span>
                                     ) : null}
-                                    {card.metadata2 === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {card.property2 === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -131,10 +131,10 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : card.metadata2 ? (
-                                        <span className="list-text">{card.metadata2}</span>
+                                    ) : card.property2 ? (
+                                        <span className="list-text">{card.property2}</span>
                                     ) : null}
-                                    {card.metadata3 === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {card.property3 === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -153,10 +153,10 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : card.metadata3 ? (
-                                        <span className="list-text">{card.metadata3}</span>
+                                    ) : card.property3 ? (
+                                        <span className="list-text">{card.property3}</span>
                                     ) : null}
-                                    {card.metadata4 === 'tags' && p.$tags && p.$tags.length > 0 ? (
+                                    {card.property4 === 'tags' && p.$tags && p.$tags.length > 0 ? (
                                         <>
                                             {p.$tags.map((tag: string): JSX.Element => (
                                                 <a
@@ -175,8 +175,8 @@ export function ListView({
                                                 </a>
                                             ))}
                                         </>
-                                    ) : card.metadata4 ? (
-                                        <span className="list-text">{card.metadata4}</span>
+                                    ) : card.property4 ? (
+                                        <span className="list-text">{card.property4}</span>
                                     ) : null}
                                 </span>
                             );

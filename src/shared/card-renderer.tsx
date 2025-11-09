@@ -7,6 +7,7 @@ import type { App } from 'obsidian';
 import type { Settings } from '../types';
 import type { RefObject } from '../types/datacore';
 import { getTagStyle, showTimestampIcon } from '../utils/style-settings';
+import { extractAverageColor } from '../utils/image-color';
 
 // Extend App type to include isMobile property
 declare module 'obsidian' {
@@ -31,17 +32,16 @@ export interface CardData {
     snippet?: string;
     imageUrl?: string | string[];
     hasImageAvailable: boolean;
-    displayTimestamp?: number;  // Resolved timestamp after custom property extraction (milliseconds)
-    // Metadata property names (for rendering special properties)
-    metadataProperty1?: string;
-    metadataProperty2?: string;
-    metadataProperty3?: string;
-    metadataProperty4?: string;
-    // Resolved metadata property values (null if missing/empty)
-    metadata1?: string | null;
-    metadata2?: string | null;
-    metadata3?: string | null;
-    metadata4?: string | null;
+    // Property names (for rendering special properties)
+    propertyName1?: string;
+    propertyName2?: string;
+    propertyName3?: string;
+    propertyName4?: string;
+    // Resolved property values (null if missing/empty)
+    property1?: string | null;
+    property2?: string | null;
+    property3?: string | null;
+    property4?: string | null;
 }
 
 export interface CardRendererProps {
@@ -59,10 +59,9 @@ export interface CardRendererProps {
 }
 
 /**
- * Helper function to render metadata content based on display type
- * TODO Phase 3: Implement full property resolution
+ * Helper function to render property content based on display type
  */
-function renderMetadataContent(
+function renderPropertyContent(
     propertyName: string,
     card: CardData,
     resolvedValue: string,
@@ -79,84 +78,94 @@ function renderMetadataContent(
     if (propertyName === 'file.mtime' || propertyName === 'file.ctime' ||
         propertyName === 'timestamp' || propertyName === 'modified time' || propertyName === 'created time') {
         return (
-            <>
-                {showTimestampIcon() && (
-                    <svg className="timestamp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        {timeIcon === "calendar" ? (
-                            <>
-                                <path d="M8 2v4"/>
-                                <path d="M16 2v4"/>
-                                <rect width="18" height="18" x="3" y="4" rx="2"/>
-                                <path d="M3 10h18"/>
-                            </>
-                        ) : (
-                            <>
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </>
-                        )}
-                    </svg>
-                )}
-                <span>{resolvedValue}</span>
-            </>
+            <div className="property-content">
+                <span>
+                    {showTimestampIcon() && (
+                        <svg className="timestamp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            {timeIcon === "calendar" ? (
+                                <>
+                                    <path d="M8 2v4"/>
+                                    <path d="M16 2v4"/>
+                                    <rect width="18" height="18" x="3" y="4" rx="2"/>
+                                    <path d="M3 10h18"/>
+                                </>
+                            ) : (
+                                <>
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </>
+                            )}
+                        </svg>
+                    )}
+                    <span>{resolvedValue}</span>
+                </span>
+            </div>
         );
     } else if ((propertyName === 'file.tags' || propertyName === 'tags' || propertyName === 'file tags') && card.tags.length > 0) {
         const tagStyle = getTagStyle();
         const showHashPrefix = tagStyle === 'minimal';
 
         return (
-            <div className="tags-wrapper">
-                {card.tags.map((tag): JSX.Element => (
-                    <a
-                        key={tag}
-                        href="#"
-                        className="tag"
-                        onClick={(e: MouseEvent) => {
-                            e.preventDefault();
-                            const searchPlugin = app.internalPlugins.plugins["global-search"];
-                            if (searchPlugin?.instance?.openGlobalSearch) {
-                                searchPlugin.instance.openGlobalSearch("tag:" + tag);
-                            }
-                        }}
-                    >
-                        {showHashPrefix ? '#' + tag : tag}
-                    </a>
-                ))}
+            <div className="property-content">
+                <div className="tags-wrapper">
+                    {card.tags.map((tag): JSX.Element => (
+                        <a
+                            key={tag}
+                            href="#"
+                            className="tag"
+                            onClick={(e: MouseEvent) => {
+                                e.preventDefault();
+                                const searchPlugin = app.internalPlugins.plugins["global-search"];
+                                if (searchPlugin?.instance?.openGlobalSearch) {
+                                    searchPlugin.instance.openGlobalSearch("tag:" + tag);
+                                }
+                            }}
+                        >
+                            {showHashPrefix ? '#' + tag : tag}
+                        </a>
+                    ))}
+                </div>
             </div>
         );
     } else if ((propertyName === 'file.path' || propertyName === 'path' || propertyName === 'file path') && resolvedValue) {
         return (
-            <div className="path-wrapper">
-                {resolvedValue.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
-                    const allParts = resolvedValue.split('/').filter(f => f);
-                    const cumulativePath = allParts.slice(0, idx + 1).join('/');
-                    return (
-                        <span key={idx} style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <span
-                                className="path-segment file-path-segment"
-                                onClick={(e: MouseEvent) => {
-                                    e.stopPropagation();
-                                    const fileExplorer = app.internalPlugins?.plugins?.["file-explorer"];
-                                    if (fileExplorer?.instance?.revealInFolder) {
-                                        const folder = app.vault.getAbstractFileByPath(cumulativePath);
-                                        if (folder) {
-                                            fileExplorer.instance.revealInFolder(folder);
+            <div className="property-content">
+                <div className="path-wrapper">
+                    {resolvedValue.split('/').filter(f => f).map((folder, idx, array): JSX.Element => {
+                        const allParts = resolvedValue.split('/').filter(f => f);
+                        const cumulativePath = allParts.slice(0, idx + 1).join('/');
+                        return (
+                            <span key={idx} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <span
+                                    className="path-segment file-path-segment"
+                                    onClick={(e: MouseEvent) => {
+                                        e.stopPropagation();
+                                        const fileExplorer = app.internalPlugins?.plugins?.["file-explorer"];
+                                        if (fileExplorer?.instance?.revealInFolder) {
+                                            const folder = app.vault.getAbstractFileByPath(cumulativePath);
+                                            if (folder) {
+                                                fileExplorer.instance.revealInFolder(folder);
+                                            }
                                         }
-                                    }
-                                }}
-                            >
-                                {folder}
+                                    }}
+                                >
+                                    {folder}
+                                </span>
+                                {idx < array.length - 1 && <span className="path-separator">/</span>}
                             </span>
-                            {idx < array.length - 1 && <span className="path-separator">/</span>}
-                        </span>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
         );
     }
 
     // Generic property: just render the resolved value as text
-    return <span>{resolvedValue}</span>;
+    return (
+        <div className="property-content">
+            <span>{resolvedValue}</span>
+        </div>
+    );
 }
 
 export function CardRenderer({
@@ -180,6 +189,7 @@ export function CardRenderer({
         >
             {cards.map((card, index): JSX.Element =>
                 <Card
+                    key={card.path}
                     card={card}
                     index={index}
                     settings={settings}
@@ -199,6 +209,7 @@ export function CardRenderer({
 }
 
 interface CardProps {
+    key?: string;  // React/Preact key for element reconciliation
     card: CardData;
     index: number;
     settings: Settings;
@@ -246,17 +257,28 @@ function Card({
 
     return (
         <div
-            key={card.path}
-            className="writing-card"
+            className={`writing-card ${settings.imageFormat === 'cover' ? 'image-format-cover' : ''}`}
             data-path={card.path}
             tabIndex={index === focusableCardIndex ? 0 : -1}
             onClick={(e: MouseEvent) => {
-                if (settings.openFileAction === 'card' && (e.target as HTMLElement).tagName !== 'A' && !(e.target as HTMLElement).closest('a') && (e.target as HTMLElement).tagName !== 'IMG') {
-                    const newLeaf = e.metaKey || e.ctrlKey;
-                    if (onCardClick) {
-                        onCardClick(card.path, newLeaf);
-                    } else {
-                        void app.workspace.openLinkText(card.path, "", newLeaf);
+                if (settings.openFileAction === 'card') {
+                    const target = e.target as HTMLElement;
+                    // Allow clicks on title link and its children when openFileAction is 'card'
+                    const isInsideTitleLink = target.closest('.card-title-link');
+                    // Don't open if clicking on other links or images
+                    const isOtherLink = target.tagName === 'A' && !target.classList.contains('card-title-link');
+                    const isInsideOtherLink = target.closest('a') && !isInsideTitleLink;
+                    const isImage = target.tagName === 'IMG';
+                    const expandOnClick = document.body.classList.contains('dynamic-views-thumbnail-expand-click');
+                    const shouldBlockImageClick = isImage && expandOnClick;
+
+                    if (!isOtherLink && !isInsideOtherLink && !shouldBlockImageClick) {
+                        const newLeaf = e.metaKey || e.ctrlKey;
+                        if (onCardClick) {
+                            onCardClick(card.path, newLeaf);
+                        } else {
+                            void app.workspace.openLinkText(card.path, "", newLeaf);
+                        }
                     }
                 }
             }}
@@ -303,15 +325,25 @@ function Card({
             style={{ cursor: 'pointer' }}
         >
             {/* Title */}
-            <div className="writing-title">
-                <a
-                    href={card.path}
-                    className="internal-link card-title-link"
-                    data-href={card.path}
-                >
-                    <span className="title-text">{card.title}</span>
-                </a>
-            </div>
+            {settings.showTitle && (
+                <div className="writing-title">
+                    <a
+                        href={card.path}
+                        className="internal-link card-title-link"
+                        data-href={card.path}
+                        onClick={(e: MouseEvent) => {
+                            e.preventDefault();
+                            if (settings.openFileAction === 'title') {
+                                const newLeaf = e.metaKey || e.ctrlKey;
+                                void app.workspace.openLinkText(card.path, "", newLeaf);
+                            }
+                            // Otherwise prevent default and let card handler deal with it
+                        }}
+                    >
+                        <span className="title-text">{card.title}</span>
+                    </a>
+                </div>
+            )}
 
             {/* Snippet and Thumbnail */}
             {((settings.showTextPreview && card.snippet) || (settings.showThumbnails && (imageArray.length > 0 || card.hasImageAvailable))) && (
@@ -345,15 +377,45 @@ function Card({
                                     }
                                 }) : undefined}
                             >
-                                <img
-                                    src={imageArray[0] || ''}
-                                    alt=""
-                                    onLoad={() => {
-                                        if (updateLayoutRef.current) {
-                                            updateLayoutRef.current();
-                                        }
-                                    }}
-                                />
+                                <div
+                                    className="image-embed"
+                                    style={{ '--cover-image-url': `url("${imageArray[0] || ''}")` }}
+                                >
+                                    <img
+                                        src={imageArray[0] || ''}
+                                        alt=""
+                                        onLoad={(e: Event) => {
+                                            // Extract ambient color for letterbox background
+                                            const imgEl = e.currentTarget as HTMLImageElement;
+                                            const ambientColor = extractAverageColor(imgEl);
+                                            const imageEmbedEl = imgEl.parentElement;
+                                            if (imageEmbedEl) {
+                                                imageEmbedEl.style.setProperty('--ambient-color', ambientColor);
+
+                                                // Set aspect ratio for flexible cover height (masonry only)
+                                                const thumbEl = imageEmbedEl.parentElement;
+                                                if (thumbEl && imgEl.naturalWidth > 0 && imgEl.naturalHeight > 0) {
+                                                    const imgAspect = imgEl.naturalHeight / imgEl.naturalWidth;
+                                                    const containerMaxAspect = parseFloat(
+                                                        getComputedStyle(document.body).getPropertyValue('--dynamic-views-image-aspect-ratio') || '0.55'
+                                                    );
+
+                                                    // If image is wider (lower aspect ratio), use its ratio
+                                                    if (imgAspect < containerMaxAspect) {
+                                                        const cardEl = thumbEl.closest('.writing-card') as HTMLElement;
+                                                        if (cardEl) {
+                                                            cardEl.style.setProperty('--actual-aspect-ratio', imgAspect.toString());
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            if (updateLayoutRef.current) {
+                                                updateLayoutRef.current();
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
                         ) : card.hasImageAvailable ? (
                             <div className="card-thumbnail-placeholder"></div>
@@ -362,40 +424,40 @@ function Card({
                 </div>
             )}
 
-            {/* Metadata - 4-field rendering with 2-row layout */}
+            {/* Properties - 4-field rendering with 2-row layout */}
             {(() => {
                 // Check if any row has content
-                const row1HasContent = card.metadata1 !== null || card.metadata2 !== null;
-                const row2HasContent = card.metadata3 !== null || card.metadata4 !== null;
+                const row1HasContent = card.property1 !== null || card.property2 !== null;
+                const row2HasContent = card.property3 !== null || card.property4 !== null;
 
                 if (!row1HasContent && !row2HasContent) return null;
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- JSX.Element resolves to any due to Datacore's JSX runtime
                 return (
-                    <div className="writing-meta meta-4field">
+                    <div className="card-properties properties-4field">
                         {/* Row 1 */}
                         {row1HasContent && (
-                            <div className={`meta-row meta-row-1${settings.metadataLayout12SideBySide ? ' meta-row-sidebyside' : ''}${
-                                (card.metadata1 === null && card.metadata2 !== null) || (card.metadata1 !== null && card.metadata2 === null) ? ' meta-row-single' : ''
+                            <div className={`property-row property-row-1${settings.propertyLayout12SideBySide ? ' property-row-sidebyside' : ''}${
+                                (card.property1 === null && card.property2 !== null) || (card.property1 !== null && card.property2 === null) ? ' property-row-single' : ''
                             }`}>
-                                <div className="meta-field meta-field-1">
-                                    {card.metadata1 && renderMetadataContent(card.metadataProperty1 || '', card, card.metadata1, timeIcon, settings, app)}
+                                <div className="property-field property-field-1">
+                                    {card.property1 && renderPropertyContent(card.propertyName1 || '', card, card.property1, timeIcon, settings, app)}
                                 </div>
-                                <div className="meta-field meta-field-2">
-                                    {card.metadata2 && renderMetadataContent(card.metadataProperty2 || '', card, card.metadata2, timeIcon, settings, app)}
+                                <div className="property-field property-field-2">
+                                    {card.property2 && renderPropertyContent(card.propertyName2 || '', card, card.property2, timeIcon, settings, app)}
                                 </div>
                             </div>
                         )}
                         {/* Row 2 */}
                         {row2HasContent && (
-                            <div className={`meta-row meta-row-2${settings.metadataLayout34SideBySide ? ' meta-row-sidebyside' : ''}${
-                                (card.metadata3 === null && card.metadata4 !== null) || (card.metadata3 !== null && card.metadata4 === null) ? ' meta-row-single' : ''
+                            <div className={`property-row property-row-2${settings.propertyLayout34SideBySide ? ' property-row-sidebyside' : ''}${
+                                (card.property3 === null && card.property4 !== null) || (card.property3 !== null && card.property4 === null) ? ' property-row-single' : ''
                             }`}>
-                                <div className="meta-field meta-field-3">
-                                    {card.metadata3 && renderMetadataContent(card.metadataProperty3 || '', card, card.metadata3, timeIcon, settings, app)}
+                                <div className="property-field property-field-3">
+                                    {card.property3 && renderPropertyContent(card.propertyName3 || '', card, card.property3, timeIcon, settings, app)}
                                 </div>
-                                <div className="meta-field meta-field-4">
-                                    {card.metadata4 && renderMetadataContent(card.metadataProperty4 || '', card, card.metadata4, timeIcon, settings, app)}
+                                <div className="property-field property-field-4">
+                                    {card.property4 && renderPropertyContent(card.propertyName4 || '', card, card.property4, timeIcon, settings, app)}
                                 </div>
                             </div>
                         )}

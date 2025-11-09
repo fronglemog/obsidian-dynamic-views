@@ -5,9 +5,10 @@ id: dynamic-views
 settings:
     -
         id: layout-heading
-        title: Layout
+        title: Card layout
         type: heading
         level: 2
+        collapsed: true
     -
         id: dynamic-views-min-card-width
         title: Minimum card width
@@ -45,6 +46,64 @@ settings:
                 label: Two
                 value: '2'
     -
+        id: dynamic-views-card-spacing
+        title: Card spacing
+        description: Spacing between cards
+        type: variable-number-slider
+        default: 8
+        min: 0
+        max: 32
+        step: 1
+        format: px
+    -
+        id: cards-heading
+        title: Cards
+        type: heading
+        level: 2
+        collapsed: true
+    -
+        id: dynamic-views-element-spacing
+        title: Card element spacing
+        description: Spacing between elements within cards
+        type: variable-number-slider
+        default: 8
+        min: 0
+        max: 16
+        step: 1
+        format: px
+    -
+        id: dynamic-views-card-border-radius
+        title: Card border radius
+        description: Corner roundness of cards
+        type: variable-number-slider
+        default: 6
+        min: 0
+        max: 32
+        step: 1
+        format: px
+    -
+        id: dynamic-views-card-border
+        title: Add card border
+        description: Show border around cards
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-card-border-color
+        title: Card border color
+        description: Color of card borders
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-card-border-color-hover
+        title: Card border color on hover
+        description: Color of card borders when hovering
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: dynamic-views-card-background
         title: Card background
         description: Card background appearance
@@ -67,13 +126,68 @@ settings:
         description: Custom color for card backgrounds (only used when Card background is set to Custom color)
         type: variable-themed-color
         format: hex
-        default-light: '#FFFFFF'
-        default-dark: '#000000'
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: datacore-heading
+        title: Datacore
+        type: heading
+        level: 2
+        collapsed: true
+    -
+        id: dynamic-views-show-search
+        title: Show search filter
+        description: Show search input field in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-result-count
+        title: Show result count
+        description: Show result count and limit dropdown in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-create-note
+        title: Show 'Create new note' button
+        description: Show button to create new note in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-shuffle
+        title: Show 'Shuffle' button
+        description: Show shuffle button in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-random
+        title: Show 'Open random file' button
+        description: Show random file button in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-edit-query
+        title: Show 'Edit query' button
+        description: Show edit query button in toolbar
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-pin-toolbar
+        title: Show 'Pin toolbar' button
+        description: Show pin toolbar button
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-show-expand-width
+        title: Show 'Expand width' button
+        description: Show expand width button in toolbar
+        type: class-toggle
+        default: true
     -
         id: thumbnails-heading
         title: Thumbnails
         type: heading
         level: 2
+        collapsed: true
     -
         id: dynamic-views-thumbnail-size
         title: Thumbnail size
@@ -115,27 +229,253 @@ settings:
                 label: Right
                 value: dynamic-views-thumbnail-right
     -
-        id: metadata-heading
-        title: Metadata
+        id: dynamic-views-thumbnail-aspect-ratio
+        title: Thumbnail aspect ratio
+        description: Aspect ratio for thumbnail images (1.00 = square)
+        type: variable-number-slider
+        default: 1.00
+        min: 0.50
+        max: 2.00
+        step: 0.05
+        format: ''
+    -
+        id: dynamic-views-thumbnail-crop
+        title: Thumbnail crop alignment
+        description: How to crop thumbnail images when aspect ratios don't match
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-thumbnail-crop-center
+        options:
+            -
+                label: Top
+                value: dynamic-views-thumbnail-crop-top
+            -
+                label: Center
+                value: dynamic-views-thumbnail-crop-center
+            -
+                label: Bottom
+                value: dynamic-views-thumbnail-crop-bottom
+    -
+        id: covers-heading
+        title: Covers
         type: heading
         level: 2
+        collapsed: true
     -
-        id: dynamic-views-show-timestamp-icon
-        title: Show timestamp icon
-        description: Show icon to differentiate between modified and created timestamps
+        id: dynamic-views-cover-position
+        title: Cover position
+        description: Position of cover image on card
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-cover-top
+        options:
+            -
+                label: Top
+                value: dynamic-views-cover-top
+            -
+                label: Bottom
+                value: dynamic-views-cover-bottom
+            -
+                label: Left
+                value: dynamic-views-cover-left
+            -
+                label: Right
+                value: dynamic-views-cover-right
+            -
+                label: Alternate
+                value: dynamic-views-cover-alternate
+    -
+        id: dynamic-views-image-aspect-ratio
+        title: Top/Bottom cover aspect ratio
+        description: Aspect ratio for top and bottom cover images (1.00 = square)
+        type: variable-number-slider
+        default: 0.55
+        min: 0.25
+        max: 2.5
+        step: 0.05
+        format: ''
+    -
+        id: dynamic-views-side-cover-ratio
+        title: Left/Right cover ratio
+        description: Ratio of cover width to content width (1.00 = equal width)
+        type: variable-number-slider
+        default: 0.50
+        min: 0.25
+        max: 1.00
+        step: 0.05
+        format: ''
+    -
+        id: dynamic-views-cover-crop
+        title: Cover crop alignment
+        description: How to crop cover images when aspect ratios don't match
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-cover-crop-center
+        options:
+            -
+                label: Top
+                value: dynamic-views-cover-crop-top
+            -
+                label: Center
+                value: dynamic-views-cover-crop-center
+            -
+                label: Bottom
+                value: dynamic-views-cover-crop-bottom
+    -
+        id: dynamic-views-cover-fit-mode-tb
+        title: Cover fit mode (top/bottom)
+        description: How to display cover images when position is Top or Bottom
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-cover-crop-tb
+        options:
+            -
+                label: Crop
+                value: dynamic-views-cover-crop-tb
+            -
+                label: Contain
+                value: dynamic-views-cover-contain-tb
+    -
+        id: dynamic-views-cover-fit-mode-lr
+        title: Cover fit mode (left/right)
+        description: How to display cover images when position is Left, Right or Alternate
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-cover-crop-lr
+        options:
+            -
+                label: Crop
+                value: dynamic-views-cover-crop-lr
+            -
+                label: Contain
+                value: dynamic-views-cover-contain-lr
+    -
+        id: dynamic-views-cover-background
+        title: Cover background
+        description: Background style for Contain mode
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-cover-bg-ambient
+        options:
+            -
+                label: Blur
+                value: dynamic-views-cover-bg-blur
+            -
+                label: Ambient
+                value: dynamic-views-cover-bg-ambient
+            -
+                label: Transparent
+                value: dynamic-views-cover-bg-transparent
+            -
+                label: Match card
+                value: dynamic-views-cover-bg-match-card
+            -
+                label: Custom color
+                value: dynamic-views-cover-bg-custom
+    -
+        id: bases-cards-cover-background
+        title: Custom cover background
+        description: Background color for "Custom color" mode
+        type: variable-themed-color
+        format: rgb
+        opacity: false
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-masonry-flexible-cover-height
+        title: Flexible cover height
+        description: Remove horizontal letterbox bars in Masonry view.
         type: class-toggle
         default: true
     -
+        id: title-heading
+        title: Title
+        type: heading
+        level: 2
+        collapsed: true
+    -
+        id: dynamic-views-title-font
+        title: Title font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-title-font-size
+        title: Title font size
+        description: Font size for card titles (e.g., 1em, 16px, 1.2rem)
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-title-color
+        title: Title text color
+        description: Color of card titles
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-title-lines
+        title: Number of title lines
+        description: Maximum number of lines for card titles
+        type: variable-number-slider
+        default: 2
+        min: 1
+        max: 5
+        step: 1
+        format: ''
+    -
+        id: text-preview-heading
+        title: Text preview
+        type: heading
+        level: 2
+        collapsed: true
+    -
+        id: dynamic-views-text-preview-font
+        title: Text preview font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-text-preview-font-size
+        title: Text preview font size
+        description: Font size for text previews (e.g., 0.9em, 14px, 0.875rem)
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-text-preview-color
+        title: Text preview color
+        description: Color of text previews
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-text-preview-lines
+        title: Number of text preview lines
+        description: Maximum number of lines for text previews
+        type: variable-number-slider
+        default: 5
+        min: 1
+        max: 10
+        step: 1
+        format: ''
+    -
+        id: properties-heading
+        title: Properties
+        type: heading
+        level: 2
+        collapsed: true
+    -
         id: dynamic-views-tag-style
         title: Tag style
-        description: Visual appearance of tags in card metadata
+        description: Visual appearance of tags in card properties
         type: class-select
         allowEmpty: false
-        default: dynamic-views-tag-style-plain
+        default: dynamic-views-tag-style-outline
         options:
             -
-                label: Plain
-                value: dynamic-views-tag-style-plain
+                label: Outline
+                value: dynamic-views-tag-style-outline
             -
                 label: Match theme
                 value: dynamic-views-tag-style-theme
@@ -148,8 +488,142 @@ settings:
         description: Show gradient fade on tags and paths that overflow their container
         type: class-toggle
         default: true
+    -
+        id: dynamic-views-timestamp-recent-time-only
+        title: Only show time for recent timestamps
+        description: Omit the date for timestamps in the last 24 h. Will show timestamp as-is if it has no time.
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-timestamp-older-date-only
+        title: Only show date for older timestamps
+        description: Omit the time for timestamps older than a day.
+        type: class-toggle
+        default: true
+    -
+        id: dynamic-views-timestamp-icon
+        title: Show timestamp icon
+        description: Show icon next to timestamp to distinguish between modified and created timestamps
+        type: class-select
+        allowEmpty: false
+        default: dynamic-views-timestamp-icon-outer
+        options:
+            -
+                label: Show left
+                value: dynamic-views-timestamp-icon-left
+            -
+                label: Show right
+                value: dynamic-views-timestamp-icon-right
+            -
+                label: Show inner
+                value: dynamic-views-timestamp-icon-inner
+            -
+                label: Show outer
+                value: dynamic-views-timestamp-icon-outer
+            -
+                label: Don't show
+                value: dynamic-views-timestamp-icon-hide
+    -
+        id: dynamic-views-property-master-font
+        title: Property font
+        description: Font name as it appears on your system. Can be overridden by individual item options below.
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-master-font-size
+        title: Property font size
+        description: Font size for all properties (e.g., 0.8em, 13px, 0.8125rem)
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-master-color
+        title: Property text color
+        description: Text color of all properties. Can be overridden by individual property options below.
+        type: variable-themed-color
+        format: hsl-split
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-property-1-font
+        title: First property font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-1-color
+        title: First property text color
+        description: Color of first property text
+        type: variable-themed-color
+        format: hsl-split
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-property-2-font
+        title: Second property font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-2-color
+        title: Second property text color
+        description: Color of second property text
+        type: variable-themed-color
+        format: hsl-split
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-property-3-font
+        title: Third property font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-3-color
+        title: Third property text color
+        description: Color of third property text
+        type: variable-themed-color
+        format: hsl-split
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: dynamic-views-property-4-font
+        title: Fourth property font
+        description: Font name as it appears on your system
+        type: variable-text
+        default: ''
+    -
+        id: dynamic-views-property-4-color
+        title: Fourth property text color
+        description: Color of fourth property text
+        type: variable-themed-color
+        format: hsl-split
+        default-light: '#'
+        default-dark: '#'
 
 */
+
+/* ============================================
+   COLOR VARIABLES
+   ============================================ */
+
+/* Compose property colors from HSL components */
+/* When HSL components undefined, entire color becomes invalid and falls back to text-faint/text-muted */
+body {
+    --dynamic-views-property-master-color: hsl(var(--dynamic-views-property-master-color-h), var(--dynamic-views-property-master-color-s), var(--dynamic-views-property-master-color-l));
+    --dynamic-views-property-master-color-hover: hsl(calc(var(--dynamic-views-property-master-color-h) - 3), calc(var(--dynamic-views-property-master-color-s) * 1.02), calc(var(--dynamic-views-property-master-color-l) * 1.15));
+
+    --dynamic-views-property-1-color: hsl(var(--dynamic-views-property-1-color-h), var(--dynamic-views-property-1-color-s), var(--dynamic-views-property-1-color-l));
+    --dynamic-views-property-1-color-hover: hsl(calc(var(--dynamic-views-property-1-color-h) - 3), calc(var(--dynamic-views-property-1-color-s) * 1.02), calc(var(--dynamic-views-property-1-color-l) * 1.15));
+
+    --dynamic-views-property-2-color: hsl(var(--dynamic-views-property-2-color-h), var(--dynamic-views-property-2-color-s), var(--dynamic-views-property-2-color-l));
+    --dynamic-views-property-2-color-hover: hsl(calc(var(--dynamic-views-property-2-color-h) - 3), calc(var(--dynamic-views-property-2-color-s) * 1.02), calc(var(--dynamic-views-property-2-color-l) * 1.15));
+
+    --dynamic-views-property-3-color: hsl(var(--dynamic-views-property-3-color-h), var(--dynamic-views-property-3-color-s), var(--dynamic-views-property-3-color-l));
+    --dynamic-views-property-3-color-hover: hsl(calc(var(--dynamic-views-property-3-color-h) - 3), calc(var(--dynamic-views-property-3-color-s) * 1.02), calc(var(--dynamic-views-property-3-color-l) * 1.15));
+
+    --dynamic-views-property-4-color: hsl(var(--dynamic-views-property-4-color-h), var(--dynamic-views-property-4-color-s), var(--dynamic-views-property-4-color-l));
+    --dynamic-views-property-4-color-hover: hsl(calc(var(--dynamic-views-property-4-color-h) - 3), calc(var(--dynamic-views-property-4-color-s) * 1.02), calc(var(--dynamic-views-property-4-color-l) * 1.15));
+}
 
 /* ============================================
    PLUGIN SETTINGS STYLES
@@ -888,6 +1362,53 @@ body {
     background-color: var(--background-modifier-hover);
 }
 
+/* ============================================
+   TOOLBAR VISIBILITY CONTROLS
+   ============================================ */
+
+/* Hide search filter when toggle is off */
+body:not(.dynamic-views-show-search) .dynamic-views .search-controls,
+body:not(.dynamic-views-show-search) .search-controls-compact {
+    display: none !important;
+}
+
+/* Hide result count when toggle is off */
+body:not(.dynamic-views-show-result-count) .dynamic-views .results-count-wrapper,
+body:not(.dynamic-views-show-result-count) .results-count-wrapper-compact {
+    display: none !important;
+}
+
+/* Hide create note button when toggle is off */
+body:not(.dynamic-views-show-create-note) .dynamic-views .create-note-button,
+body:not(.dynamic-views-show-create-note) .create-note-button-compact {
+    display: none !important;
+}
+
+/* Hide shuffle button when toggle is off */
+body:not(.dynamic-views-show-shuffle) .dynamic-views .shuffle-btn {
+    display: none !important;
+}
+
+/* Hide random button when toggle is off */
+body:not(.dynamic-views-show-random) .dynamic-views .open-random-btn {
+    display: none !important;
+}
+
+/* Hide edit query button when toggle is off */
+body:not(.dynamic-views-show-edit-query) .dynamic-views .query-toggle-btn {
+    display: none !important;
+}
+
+/* Hide pin toolbar button when toggle is off */
+body:not(.dynamic-views-show-pin-toolbar) .dynamic-views .pin-btn {
+    display: none !important;
+}
+
+/* Hide expand width button when toggle is off */
+body:not(.dynamic-views-show-expand-width) .dynamic-views .width-toggle-btn {
+    display: none !important;
+}
+
 
 /* ============================================
    QUERY EDITOR
@@ -1298,21 +1819,29 @@ label.toggle-switch input[type="checkbox"]:checked + span.toggle-slider {
     overflow: hidden;
 }
 
-/* Grid mode: push metadata to bottom of card */
-.bases-view[data-view-type="dynamic-views-card"] .cards-feed .writing-card .writing-meta,
-.dynamic-views .cards-feed .writing-card .writing-meta {
+/* Grid mode: push properties to bottom of card */
+.bases-view[data-view-type="dynamic-views-card"] .cards-feed .writing-card .snippet-container ~ .card-properties,
+.dynamic-views .cards-feed .writing-card .snippet-container ~ .card-properties,
+.bases-view[data-view-type="dynamic-views-card"] .cards-feed .writing-card .writing-title ~ .card-properties,
+.dynamic-views .cards-feed .writing-card .writing-title ~ .card-properties {
     margin-top: auto;
+    padding-top: var(--dynamic-views-element-spacing, 8px);
 }
 
 .dynamic-views .writing-card {
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-m);
-    padding: 12px 16px;
-    margin: 8px 0;
+    border: 1px solid var(--dynamic-views-card-border-color, var(--background-modifier-border));
+    border-radius: var(--dynamic-views-card-border-radius, 6px);
+    padding: 12px;
+    margin: var(--dynamic-views-card-spacing, 8px) 0;
     background-color: var(--background-primary-alt);
     break-inside: avoid;
     page-break-inside: avoid;
     transition: border-color 0.2s;
+}
+
+/* Global spacing between card elements */
+.dynamic-views .writing-card > * + * {
+    margin-top: var(--dynamic-views-element-spacing, 8px);
 }
 
 /* Card background options */
@@ -1324,7 +1853,7 @@ body.dynamic-views-card-background-custom .dynamic-views .writing-card {
     background-color: var(--dynamic-views-card-background-custom-color, #1e1e1e);
 }
 
-/* Snippet container flexbox in grid mode to push metadata to bottom */
+/* Snippet container flexbox in grid mode to push properties to bottom */
 .dc-wide .dynamic-views .cards-feed .snippet-container,
 .dc-max .dynamic-views .cards-feed .snippet-container {
     flex-grow: 1;
@@ -1332,20 +1861,33 @@ body.dynamic-views-card-background-custom .dynamic-views .writing-card {
 
 @media (hover: hover) {
     .writing-card:hover {
-        border-color: var(--text-faint);
+        border-color: var(--dynamic-views-card-border-color-hover, var(--text-faint));
+    }
+}
+
+/* No border when toggle is off */
+body:not(.dynamic-views-card-border) .dynamic-views .writing-card {
+    border-color: transparent;
+}
+
+@media (hover: hover) {
+    body:not(.dynamic-views-card-border) .writing-card:hover {
+        border-color: transparent;
     }
 }
 
 .dynamic-views .writing-title {
     font-weight: calc(var(--font-weight) + var(--bold-modifier));
-    color: var(--bold-color);
+    color: var(--dynamic-views-title-color, var(--bold-color));
+    font-family: var(--dynamic-views-title-font, inherit);
+    font-size: var(--dynamic-views-title-font-size, var(--font-ui-medium));
     max-width: 100%;
     word-break: break-word;
 }
 
 .dynamic-views .card-title-link {
     text-decoration: none !important;
-    color: var(--bold-color) !important;
+    color: var(--dynamic-views-title-color, var(--bold-color)) !important;
     font-weight: calc(var(--font-weight) + var(--bold-modifier));
     display: block;
     width: 100%;
@@ -1353,7 +1895,7 @@ body.dynamic-views-card-background-custom .dynamic-views .writing-card {
 
 .dynamic-views .card-title-link .title-text {
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: var(--dynamic-views-title-lines, 2);
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;
@@ -1363,7 +1905,7 @@ body.dynamic-views-card-background-custom .dynamic-views .writing-card {
     .dynamic-views .card-title-link:hover {
         color: var(--text-normal) !important;
     }
-    .dynamic-views .card-title-link:hover .title-text {
+    body.dynamic-views-open-on-title .dynamic-views .card-title-link:hover .title-text {
         text-decoration: underline !important;
     }
 }
@@ -1371,9 +1913,7 @@ body.dynamic-views-card-background-custom .dynamic-views .writing-card {
 .dynamic-views .snippet-container {
     display: flex;
     flex-direction: row;
-    gap: 12px;
-    margin-top: 4px;
-    margin-bottom: 8px;
+    gap: var(--dynamic-views-element-spacing, 8px);
 }
 
 /* Thumbnail positioning (controlled by body class from Style Settings) */
@@ -1386,12 +1926,13 @@ body.dynamic-views-thumbnail-right .dynamic-views .snippet-container {
 }
 
 .dynamic-views .writing-snippet {
-    color: var(--text-muted);
-    font-size: 0.9em;
+    color: var(--dynamic-views-text-preview-color, var(--text-muted));
+    font-family: var(--dynamic-views-text-preview-font, inherit);
+    font-size: var(--dynamic-views-text-preview-font-size, var(--bases-table-font-size));
     flex: 1;
     min-width: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    -webkit-line-clamp: var(--dynamic-views-text-preview-lines, 5);
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
@@ -1402,7 +1943,7 @@ body.dynamic-views-thumbnail-right .dynamic-views .snippet-container {
 .dynamic-views .card-thumbnail {
     flex-shrink: 0;
     width: var(--dynamic-views-thumbnail-size, 80px);
-    height: var(--dynamic-views-thumbnail-size, 80px);
+    height: calc(var(--dynamic-views-thumbnail-size, 80px) / var(--dynamic-views-thumbnail-aspect-ratio, 1.00));
     overflow: hidden;
     border-radius: var(--dynamic-views-thumbnail-border-radius, 4px);
     pointer-events: none;
@@ -1411,7 +1952,7 @@ body.dynamic-views-thumbnail-right .dynamic-views .snippet-container {
 .dynamic-views .card-thumbnail-placeholder {
     flex-shrink: 0;
     width: var(--dynamic-views-thumbnail-size, 80px);
-    height: var(--dynamic-views-thumbnail-size, 80px);
+    height: calc(var(--dynamic-views-thumbnail-size, 80px) / var(--dynamic-views-thumbnail-aspect-ratio, 1.00));
     border-radius: var(--dynamic-views-thumbnail-border-radius, 4px);
     background-color: var(--background-modifier-border);
 }
@@ -1434,6 +1975,11 @@ body.dynamic-views-thumbnail-right .dynamic-views .snippet-container {
     pointer-events: none;
 }
 
+.dynamic-views .card-thumbnail .image-embed {
+    width: 100%;
+    height: 100%;
+}
+
 .dynamic-views .card-thumbnail img {
     width: 100%;
     height: 100%;
@@ -1441,32 +1987,743 @@ body.dynamic-views-thumbnail-right .dynamic-views .snippet-container {
     pointer-events: auto;
 }
 
-/* Base metadata container styles */
-.dynamic-views .writing-meta {
-    font-size: 0.8em;
-    margin-top: 4px;
+/* Thumbnail expand on click */
+body.dynamic-views-thumbnail-expand-click .dynamic-views .card-thumbnail img {
+    cursor: zoom-in;
+}
+
+body.dynamic-views-thumbnail-expand-click .dynamic-views .image-embed:active {
+    background: var(--background-primary);
+    cursor: zoom-out;
+    display: block;
+    z-index: 200;
+    position: fixed;
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0;
+    left: 0;
+    right: 0;
+    top: 0%;
+    bottom: 0;
+}
+
+body.dynamic-views-thumbnail-expand-click .dynamic-views .image-embed:active img {
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
+    max-height: min(100%, 100vh);
+    max-width: min(100%, 100vw);
+    object-fit: contain;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    opacity: 1;
+}
+
+/* Cover-specific zoom override (higher specificity needed) */
+body.dynamic-views-thumbnail-expand-click .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed:active {
+    background: var(--background-primary);
+    cursor: zoom-out;
+    display: block;
+    z-index: 200;
+    position: fixed;
+    max-height: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0;
+    left: 0;
+    right: 0;
+    top: 0%;
+    bottom: 0;
+}
+
+body.dynamic-views-thumbnail-expand-click .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed:active img {
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
+    max-height: min(100%, 100vh);
+    max-width: min(100%, 100vw);
+    object-fit: contain;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    opacity: 1;
+}
+
+/* Thumbnail crop alignment (controlled by body class from Style Settings) */
+body.dynamic-views-thumbnail-crop-top .dynamic-views .card-thumbnail img {
+    object-position: center top;
+}
+
+body.dynamic-views-thumbnail-crop-center .dynamic-views .card-thumbnail img {
+    object-position: center center;
+}
+
+body.dynamic-views-thumbnail-crop-bottom .dynamic-views .card-thumbnail img {
+    object-position: center bottom;
+}
+
+/* Cover crop alignment (controlled by body class from Style Settings) */
+body.dynamic-views-cover-crop-top .dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    object-position: center top;
+}
+
+body.dynamic-views-cover-crop-center .dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    object-position: center center;
+}
+
+body.dynamic-views-cover-crop-bottom .dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    object-position: center bottom;
+}
+
+/* Cover fit mode (top/bottom): Contain mode - all images use object-fit: contain */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb .dynamic-views .writing-card.image-format-cover .card-thumbnail img,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb .dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    object-fit: contain;
+    object-position: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Cover background: Blur */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--cover-image-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px) brightness(0.7);
+    transform: scale(1.1);
+    z-index: 0;
+}
+
+.theme-dark body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+.theme-dark body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before {
+    filter: blur(20px) brightness(0.5);
+}
+
+/* Cover background: Ambient */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-ambient .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-ambient .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--ambient-color, var(--background-secondary));
+}
+
+/* Cover background: Transparent (no background) */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-transparent .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-transparent .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: transparent;
+}
+
+/* Cover background: Match card */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--background-primary-alt);
+}
+
+body.dynamic-views-card-background-transparent.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-transparent.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: transparent;
+}
+
+body.dynamic-views-card-background-custom.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-custom.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--dynamic-views-card-background-custom-color, #1e1e1e);
+}
+
+/* Cover background: Custom color */
+body.dynamic-views-cover-top.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-custom .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb.dynamic-views-cover-bg-custom .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--bases-cards-cover-background, var(--background-secondary));
+}
+
+/* Cover fit mode (left/right): Contain mode - all images use object-fit: contain */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr .dynamic-views .writing-card.image-format-cover .card-thumbnail img,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr .dynamic-views .writing-card.image-format-cover .card-thumbnail img,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr .dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    object-fit: contain;
+    object-position: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Cover background: Blur (left/right) */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--cover-image-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px) brightness(0.7);
+    transform: scale(1.1);
+    z-index: 0;
+}
+
+.theme-dark body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+.theme-dark body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before,
+.theme-dark body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-blur .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed::before {
+    filter: blur(20px) brightness(0.5);
+}
+
+/* Cover background: Ambient (left/right) */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-ambient .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-ambient .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-ambient .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--ambient-color, var(--background-secondary));
+}
+
+/* Cover background: Transparent (left/right) */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-transparent .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-transparent .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-transparent .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: transparent;
+}
+
+/* Cover background: Match card (left/right) */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--background-primary-alt);
+}
+
+body.dynamic-views-card-background-transparent.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-transparent.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-transparent.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: transparent;
+}
+
+body.dynamic-views-card-background-custom.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-custom.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-card-background-custom.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-match-card .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--dynamic-views-card-background-custom-color, #1e1e1e);
+}
+
+/* Cover background: Custom color (left/right) */
+body.dynamic-views-cover-left.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-custom .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-right.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-custom .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed,
+body.dynamic-views-cover-alternate.dynamic-views-cover-contain-lr.dynamic-views-cover-bg-custom .dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    background: var(--bases-cards-cover-background, var(--background-secondary));
+}
+
+/* Flexible cover height for masonry (remove letterbox for wide images) - top/bottom contain mode only */
+body.dynamic-views-masonry-flexible-cover-height.dynamic-views-cover-top.dynamic-views-cover-contain-tb [data-view-type="dynamic-views-masonry"] .writing-card.image-format-cover .card-thumbnail,
+body.dynamic-views-masonry-flexible-cover-height.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb [data-view-type="dynamic-views-masonry"] .writing-card.image-format-cover .card-thumbnail {
+    padding-top: calc(var(--actual-aspect-ratio, var(--dynamic-views-image-aspect-ratio, 0.55)) * (100% + 2px)) !important;
+}
+
+body.dynamic-views-masonry-flexible-cover-height.dynamic-views-cover-top.dynamic-views-cover-contain-tb [data-view-type="dynamic-views-masonry"] .writing-card.image-format-cover .writing-title,
+body.dynamic-views-masonry-flexible-cover-height.dynamic-views-cover-bottom.dynamic-views-cover-contain-tb [data-view-type="dynamic-views-masonry"] .writing-card.image-format-cover .writing-title {
+    margin-top: calc(var(--actual-aspect-ratio, var(--dynamic-views-image-aspect-ratio, 0.55)) * (100% + 26px) - 1px) !important;
+}
+
+/* Cover image format */
+.dynamic-views .writing-card.image-format-cover {
+    position: relative;
+    overflow: hidden;
+}
+
+.dynamic-views .writing-card.image-format-cover .snippet-container {
+    flex-direction: row;
+    gap: var(--dynamic-views-element-spacing, 8px);
+}
+
+.dynamic-views .writing-card.image-format-cover .writing-title {
+    margin-top: calc(var(--dynamic-views-image-aspect-ratio, 0.55) * (100% + 26px) - 1px);
+}
+
+.dynamic-views .writing-card.image-format-cover .card-thumbnail,
+.dynamic-views .writing-card.image-format-cover .card-thumbnail-placeholder {
+    position: absolute;
+    top: -13px;
+    left: -1px;
+    width: calc(100% + 2px) !important;
+    height: 0;
+    padding-top: calc(var(--dynamic-views-image-aspect-ratio, 0.55) * (100% + 2px)) !important;
+    border-radius: var(--dynamic-views-card-border-radius, 6px) var(--dynamic-views-card-border-radius, 6px) 0 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.dynamic-views .writing-card.image-format-cover .card-thumbnail .image-embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.dynamic-views .writing-card.image-format-cover .card-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Cover position: bottom */
+body.dynamic-views-cover-bottom .dynamic-views .writing-card.image-format-cover .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-bottom .dynamic-views .writing-card.image-format-cover .card-thumbnail,
+body.dynamic-views-cover-bottom .dynamic-views .writing-card.image-format-cover .card-thumbnail-placeholder {
+    top: auto;
+    bottom: -13px;
+    border-radius: 0 0 var(--dynamic-views-card-border-radius, 6px) var(--dynamic-views-card-border-radius, 6px);
+}
+
+body.dynamic-views-cover-bottom .dynamic-views .writing-card.image-format-cover .card-properties {
+    margin-bottom: calc(var(--dynamic-views-image-aspect-ratio, 0.55) * (100% + 26px) - 1px);
+}
+
+/* Cover position: left */
+body.dynamic-views-cover-left .dynamic-views .writing-card.image-format-cover {
+    min-height: 200px;
+    padding-left: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+}
+
+body.dynamic-views-cover-left .dynamic-views .writing-card.image-format-cover .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-left .dynamic-views .writing-card.image-format-cover .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-left .dynamic-views .writing-card.image-format-cover .card-thumbnail,
+body.dynamic-views-cover-left .dynamic-views .writing-card.image-format-cover .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Cover position: right */
+body.dynamic-views-cover-right .dynamic-views .writing-card.image-format-cover {
+    min-height: 200px;
+    padding-right: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+}
+
+body.dynamic-views-cover-right .dynamic-views .writing-card.image-format-cover .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-right .dynamic-views .writing-card.image-format-cover .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-right .dynamic-views .writing-card.image-format-cover .card-thumbnail,
+body.dynamic-views-cover-right .dynamic-views .writing-card.image-format-cover .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Cover position: alternate (alternates by row) */
+body.dynamic-views-cover-alternate .dynamic-views .writing-card.image-format-cover {
+    min-height: 200px;
+}
+
+/* === MASONRY VIEW: Use data-masonry-row attribute === */
+
+/* Masonry odd rows: left */
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="odd"] {
+    padding-left: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-right: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="odd"] .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="odd"] .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="odd"] .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="odd"] .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Masonry even rows: right */
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="even"] {
+    padding-right: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-left: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="even"] .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="even"] .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="even"] .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-masonry .writing-card.image-format-cover[data-masonry-row="even"] .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* === GRID VIEW: Use nth-child formulas based on column count === */
+
+/* Grid 1 column: simple odd/even */
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) {
+    padding-left: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-right: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(odd) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) {
+    padding-right: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-left: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 1"] .writing-card.image-format-cover:nth-child(even) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Grid 2 columns: checkerboard pattern */
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1),
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) {
+    padding-left: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-right: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .writing-title,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-properties,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+1) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2),
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) {
+    padding-right: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-left: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .writing-title,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-properties,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+2) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed[style*="--grid-columns: 2"] .writing-card.image-format-cover:nth-child(4n+3) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Grid 3+ columns: checkerboard pattern (simple odd/even) */
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) {
+    padding-left: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-right: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(odd) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even),
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) {
+    padding-right: calc((var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) + var(--dynamic-views-element-spacing, 8px));
+    padding-left: var(--dynamic-views-element-spacing, 8px);
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .writing-title,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .writing-title {
+    margin-top: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-properties,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-properties {
+    margin-bottom: 0;
+}
+
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-thumbnail,
+body.dynamic-views-cover-alternate .dynamic-views .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-thumbnail-placeholder,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-thumbnail,
+body.dynamic-views-cover-alternate .bases-view[data-view-type="dynamic-views-card"] .cards-feed:not([style*="--grid-columns: 1"]):not([style*="--grid-columns: 2"]) .writing-card.image-format-cover:nth-child(even) .card-thumbnail-placeholder {
+    position: absolute;
+    top: 0 !important;
+    left: auto !important;
+    right: 0 !important;
+    width: calc(var(--dynamic-views-side-cover-ratio, 0.50) / (var(--dynamic-views-side-cover-ratio, 0.50) + 1) * 100%) !important;
+    height: 100% !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0;
+    border-radius: 0 !important;
+}
+
+/* Base properties container styles */
+.dynamic-views .card-properties {
+    font-size: var(--dynamic-views-property-master-font-size, var(--font-smaller));
     color: var(--text-faint);
     min-height: 24px;
     line-height: 1.4;
     white-space: nowrap;
 }
 
+/* Individual property field styles */
+.dynamic-views .property-field-1 {
+    color: var(--dynamic-views-property-1-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    font-family: var(--dynamic-views-property-1-font, var(--dynamic-views-property-master-font, inherit));
+}
+
+.dynamic-views .property-field-2 {
+    color: var(--dynamic-views-property-2-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    font-family: var(--dynamic-views-property-2-font, var(--dynamic-views-property-master-font, inherit));
+}
+
+.dynamic-views .property-field-3 {
+    color: var(--dynamic-views-property-3-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    font-family: var(--dynamic-views-property-3-font, var(--dynamic-views-property-master-font, inherit));
+}
+
+.dynamic-views .property-field-4 {
+    color: var(--dynamic-views-property-4-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    font-family: var(--dynamic-views-property-4-font, var(--dynamic-views-property-master-font, inherit));
+}
+
+/* Timestamp wrapper - flex container for icon positioning */
+.dynamic-views .property-content > span:has(.timestamp-icon) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+}
+
 .dynamic-views .timestamp-icon {
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     opacity: 0.7;
-    width: 1em;
-    height: 1em;
+    width: 1.4em;
+    height: 1.4em;
     vertical-align: middle;
 }
 
-/* Hide timestamp icon when class toggle is off */
-body:not(.dynamic-views-show-timestamp-icon) .dynamic-views .timestamp-icon {
-    display: none;
+/* Show icon when left, right, inner, or outer position is selected */
+body.dynamic-views-timestamp-icon-left .dynamic-views .timestamp-icon,
+body.dynamic-views-timestamp-icon-right .dynamic-views .timestamp-icon,
+body.dynamic-views-timestamp-icon-inner .dynamic-views .timestamp-icon,
+body.dynamic-views-timestamp-icon-outer .dynamic-views .timestamp-icon {
+    display: inline-flex;
+}
+
+/* Show left - icon timestamp (all fields) */
+/* Default behavior - no override needed */
+
+/* Show right - timestamp icon (all fields) */
+body.dynamic-views-timestamp-icon-right .dynamic-views .timestamp-icon {
+    order: 2;
+}
+
+/* Show inner - left fields show icon on right, right fields show icon on left */
+body.dynamic-views-timestamp-icon-inner .dynamic-views .property-field-1 .timestamp-icon,
+body.dynamic-views-timestamp-icon-inner .dynamic-views .property-field-3 .timestamp-icon {
+    order: 2; /* Right side of left fields */
+}
+
+body.dynamic-views-timestamp-icon-inner .dynamic-views .property-field-2 .timestamp-icon,
+body.dynamic-views-timestamp-icon-inner .dynamic-views .property-field-4 .timestamp-icon {
+    order: 0; /* Left side of right fields */
+}
+
+/* Show outer - left fields show icon on left, right fields show icon on right */
+body.dynamic-views-timestamp-icon-outer .dynamic-views .property-field-1 .timestamp-icon,
+body.dynamic-views-timestamp-icon-outer .dynamic-views .property-field-3 .timestamp-icon {
+    order: 0; /* Left side of left fields */
+}
+
+body.dynamic-views-timestamp-icon-outer .dynamic-views .property-field-2 .timestamp-icon,
+body.dynamic-views-timestamp-icon-outer .dynamic-views .property-field-4 .timestamp-icon {
+    order: 2; /* Right side of right fields */
 }
 
 .dynamic-views .timestamp-icon svg {
-    width: 100%;
-    height: 100%;
+    width: 1em !important;
+    height: 1em !important;
     display: block;
 }
 
@@ -1488,13 +2745,21 @@ body:not(.dynamic-views-show-timestamp-icon) .dynamic-views .timestamp-icon {
     height: 20px;
 }
 
+.dynamic-views .text-wrapper {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: 20px;
+}
+
 /* Path segments must be inline for ellipsis to work across the whole path */
 .dynamic-views .path-wrapper > span {
     display: inline;
 }
 
 /* Base tag styles */
-.dynamic-views .writing-meta .tag,
+.dynamic-views .card-properties .tag,
 .dynamic-views .list-meta .tag {
     text-decoration: none;
     white-space: nowrap;
@@ -1507,23 +2772,66 @@ body:not(.dynamic-views-show-timestamp-icon) .dynamic-views .timestamp-icon {
     font-size: 0.85em;
 }
 
-/* Tag style: Plain */
-body.dynamic-views-tag-style-plain .dynamic-views .writing-meta .tag,
-body.dynamic-views-tag-style-plain .dynamic-views .list-meta .tag {
+/* Tag style: Outline */
+body.dynamic-views-tag-style-outline .dynamic-views .card-properties .tag,
+body.dynamic-views-tag-style-outline .dynamic-views .list-meta .tag {
     background-color: transparent;
-    color: var(--text-faint);
     border-radius: var(--tag-radius);
     border: 1px solid var(--background-modifier-border);
+    color: var(--text-faint);
+    opacity: 0.7;
 }
 
-body.dynamic-views-tag-style-plain .dynamic-views .writing-meta .tag:hover,
-body.dynamic-views-tag-style-plain .dynamic-views .list-meta .tag:hover {
+body.dynamic-views-tag-style-outline .dynamic-views .card-properties .tag:hover,
+body.dynamic-views-tag-style-outline .dynamic-views .list-meta .tag:hover {
     color: var(--text-muted);
     border-color: var(--background-modifier-border-hover);
+    opacity: 1;
+}
+
+/* Cascading colors: field-specific → master → default */
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-1 .tag {
+    color: var(--dynamic-views-property-1-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    border-color: var(--dynamic-views-property-1-color, var(--dynamic-views-property-master-color, var(--background-modifier-border)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-1 .tag:hover {
+    color: var(--dynamic-views-property-1-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    border-color: var(--dynamic-views-property-1-color, var(--dynamic-views-property-master-color, var(--background-modifier-border-hover)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-2 .tag {
+    color: var(--dynamic-views-property-2-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    border-color: var(--dynamic-views-property-2-color, var(--dynamic-views-property-master-color, var(--background-modifier-border)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-2 .tag:hover {
+    color: var(--dynamic-views-property-2-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    border-color: var(--dynamic-views-property-2-color, var(--dynamic-views-property-master-color, var(--background-modifier-border-hover)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-3 .tag {
+    color: var(--dynamic-views-property-3-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    border-color: var(--dynamic-views-property-3-color, var(--dynamic-views-property-master-color, var(--background-modifier-border)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-3 .tag:hover {
+    color: var(--dynamic-views-property-3-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    border-color: var(--dynamic-views-property-3-color, var(--dynamic-views-property-master-color, var(--background-modifier-border-hover)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-4 .tag {
+    color: var(--dynamic-views-property-4-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+    border-color: var(--dynamic-views-property-4-color, var(--dynamic-views-property-master-color, var(--background-modifier-border)));
+}
+
+body.dynamic-views-tag-style-outline .dynamic-views .property-field-4 .tag:hover {
+    color: var(--dynamic-views-property-4-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    border-color: var(--dynamic-views-property-4-color, var(--dynamic-views-property-master-color, var(--background-modifier-border-hover)));
 }
 
 /* Tag style: Match theme */
-body.dynamic-views-tag-style-theme .dynamic-views .writing-meta .tag,
+body.dynamic-views-tag-style-theme .dynamic-views .card-properties .tag,
 body.dynamic-views-tag-style-theme .dynamic-views .list-meta .tag {
     background-color: var(--tag-background);
     color: var(--tag-color);
@@ -1531,7 +2839,7 @@ body.dynamic-views-tag-style-theme .dynamic-views .list-meta .tag {
     border-radius: var(--tag-radius);
 }
 
-body.dynamic-views-tag-style-theme .dynamic-views .writing-meta .tag:hover,
+body.dynamic-views-tag-style-theme .dynamic-views .card-properties .tag:hover,
 body.dynamic-views-tag-style-theme .dynamic-views .list-meta .tag:hover {
     background-color: var(--tag-background-hover);
     color: var(--tag-color);
@@ -1539,7 +2847,7 @@ body.dynamic-views-tag-style-theme .dynamic-views .list-meta .tag:hover {
 }
 
 /* Tag style: Minimal */
-body.dynamic-views-tag-style-minimal .dynamic-views .writing-meta .tag,
+body.dynamic-views-tag-style-minimal .dynamic-views .card-properties .tag,
 body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag {
     background-color: transparent;
     color: var(--text-faint);
@@ -1549,35 +2857,91 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag {
     font-size: inherit;
 }
 
-body.dynamic-views-tag-style-minimal .dynamic-views .writing-meta .tag:hover,
-body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
-    color: var(--text-muted);
+/* Cascading colors for minimal tags */
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-1 .tag {
+    color: var(--dynamic-views-property-1-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-1 .tag:hover {
+    color: var(--dynamic-views-property-1-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
     text-decoration: underline;
 }
 
-.dynamic-views .file-path-segment {
-    color: var(--text-faint);
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-2 .tag {
+    color: var(--dynamic-views-property-2-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-2 .tag:hover {
+    color: var(--dynamic-views-property-2-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-3 .tag {
+    color: var(--dynamic-views-property-3-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-3 .tag:hover {
+    color: var(--dynamic-views-property-3-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-4 .tag {
+    color: var(--dynamic-views-property-4-color, var(--dynamic-views-property-master-color, var(--text-faint)));
+}
+
+body.dynamic-views-tag-style-minimal .dynamic-views .property-field-4 .tag:hover {
+    color: var(--dynamic-views-property-4-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+.dynamic-views .file-path-segment,
+.dynamic-views .folder-segment,
+.dynamic-views .filename-segment {
+    color: inherit;
     white-space: nowrap;
     cursor: pointer;
 }
 
-.file-path-segment:hover {
-    color: var(--text-muted);
+.dynamic-views .property-field-1 .file-path-segment:hover,
+.dynamic-views .property-field-1 .folder-segment:hover,
+.dynamic-views .property-field-1 .filename-segment:hover {
+    color: var(--dynamic-views-property-1-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+.dynamic-views .property-field-2 .file-path-segment:hover,
+.dynamic-views .property-field-2 .folder-segment:hover,
+.dynamic-views .property-field-2 .filename-segment:hover {
+    color: var(--dynamic-views-property-2-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+.dynamic-views .property-field-3 .file-path-segment:hover,
+.dynamic-views .property-field-3 .folder-segment:hover,
+.dynamic-views .property-field-3 .filename-segment:hover {
+    color: var(--dynamic-views-property-3-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
+    text-decoration: underline;
+}
+
+.dynamic-views .property-field-4 .file-path-segment:hover,
+.dynamic-views .property-field-4 .folder-segment:hover,
+.dynamic-views .property-field-4 .filename-segment:hover {
+    color: var(--dynamic-views-property-4-color-hover, var(--dynamic-views-property-master-color-hover, var(--text-muted)));
     text-decoration: underline;
 }
 
 .dynamic-views .path-separator {
-    color: var(--text-faint);
+    color: inherit;
     margin: 0 2px;
     user-select: none;
 }
 
 
 /* ============================================
-   4-FIELD METADATA SYSTEM
+   4-FIELD PROPERTIES SYSTEM
    ============================================ */
 
-.dynamic-views .writing-meta.meta-4field {
+.dynamic-views .card-properties.properties-4field {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -1585,19 +2949,19 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
     min-height: auto;
 }
 
-.dynamic-views .meta-row {
+.dynamic-views .property-row {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.dynamic-views .meta-row.meta-row-sidebyside {
+.dynamic-views .property-row.property-row-sidebyside {
     flex-direction: row;
-    gap: 8px;
+    gap: var(--dynamic-views-element-spacing, 8px);
 }
 
 /* Meta-field: scrollable container */
-.dynamic-views .meta-field {
+.dynamic-views .property-field {
     display: flex;
     align-items: center;
     min-width: 0;
@@ -1608,31 +2972,44 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
 }
 
 /* Default state: fields split space equally with 50% max */
-.dynamic-views .meta-row.meta-row-sidebyside .meta-field {
+.dynamic-views .property-row.property-row-sidebyside .property-field {
     flex: 1 1 0;
     max-width: 50%;
 }
 
+/* Solo field: leave 50px gap where vacant field would be (alignment indicates identity) */
+/* EXPERIMENT: Commented out - using "…" placeholder instead
+.dynamic-views .property-row.property-row-sidebyside .property-field.property-field-solo {
+    flex: 0 0 calc(100% - 50px);
+    max-width: calc(100% - 50px);
+}
+*/
+
+/* Push solo right fields (2, 4) to the right side when left field is empty/hidden */
+/* EXPERIMENT: Commented out - using "…" placeholder instead
+.dynamic-views .property-row.property-row-sidebyside .property-field-2.property-field-solo,
+.dynamic-views .property-row.property-row-sidebyside .property-field-4.property-field-solo {
+    margin-left: auto;
+}
+*/
+
 /* Measured state: use calculated widths from CSS variables, remove 50% cap */
-.dynamic-views .meta-row.meta-row-sidebyside.meta-measured .meta-field-1,
-.dynamic-views .meta-row.meta-row-sidebyside.meta-measured .meta-field-3 {
+.dynamic-views .property-row.property-row-sidebyside.property-measured .property-field-1,
+.dynamic-views .property-row.property-row-sidebyside.property-measured .property-field-3 {
     width: var(--field1-width);
     flex: 0 0 auto;
+    max-width: none;
 }
 
-.dynamic-views .meta-row.meta-row-sidebyside.meta-measured .meta-field-2,
-.dynamic-views .meta-row.meta-row-sidebyside.meta-measured .meta-field-4 {
+.dynamic-views .property-row.property-row-sidebyside.property-measured .property-field-2,
+.dynamic-views .property-row.property-row-sidebyside.property-measured .property-field-4 {
     width: var(--field2-width);
     flex: 0 0 auto;
-}
-
-/* Single field rows */
-.dynamic-views .meta-row.meta-row-single .meta-field {
-    width: 100%;
+    max-width: none;
 }
 
 /* Universal meta-content wrapper */
-.dynamic-views .meta-content {
+.dynamic-views .property-content {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -1643,51 +3020,67 @@ body.dynamic-views-tag-style-minimal .dynamic-views .list-meta .tag:hover {
 }
 
 /* Measurement state: remove min-width to allow natural sizing */
-.dynamic-views .meta-row.meta-row-sidebyside.meta-measuring .meta-content {
+.dynamic-views .property-row.property-row-sidebyside.property-measuring .property-content {
     min-width: 0 !important;
 }
 
 /* Alignment via justify-content on meta-content wrapper */
 /* Left fields (1, 3) */
-.dynamic-views .meta-row-sidebyside .meta-field-1 .meta-content,
-.dynamic-views .meta-row-sidebyside .meta-field-3 .meta-content {
+.dynamic-views .property-row-sidebyside .property-field-1 .property-content,
+.dynamic-views .property-row-sidebyside .property-field-3 .property-content {
     justify-content: flex-start;
 }
 
-/* Right fields (2, 4) */
-.dynamic-views .meta-row-sidebyside .meta-field-2 .meta-content,
-.dynamic-views .meta-row-sidebyside .meta-field-4 .meta-content {
+/* Right fields (2, 4) - align right when not scrollable */
+.dynamic-views .property-row-sidebyside .property-field-2:not(.is-scrollable),
+.dynamic-views .property-row-sidebyside .property-field-4:not(.is-scrollable) {
     justify-content: flex-end;
 }
 
+.dynamic-views .property-row-sidebyside .property-field-2:not(.is-scrollable) .property-content,
+.dynamic-views .property-row-sidebyside .property-field-4:not(.is-scrollable) .property-content {
+    justify-content: flex-end;
+}
+
+/* Left alignment for scrollable fields */
+.dynamic-views .property-row-sidebyside .property-field-2.is-scrollable,
+.dynamic-views .property-row-sidebyside .property-field-4.is-scrollable {
+    justify-content: flex-start;
+}
+
+.dynamic-views .property-row-sidebyside .property-field-2.is-scrollable .property-content,
+.dynamic-views .property-row-sidebyside .property-field-4.is-scrollable .property-content {
+    justify-content: flex-start;
+}
+
 /* Stacked layout */
-.dynamic-views .meta-row:not(.meta-row-sidebyside) .meta-content {
+.dynamic-views .property-row:not(.property-row-sidebyside) .property-content {
     justify-content: flex-start;
 }
 
 /* Hide scrollbar for side-by-side fields */
-.dynamic-views .meta-row-sidebyside .meta-field::-webkit-scrollbar {
+.dynamic-views .property-row-sidebyside .property-field::-webkit-scrollbar {
     display: none;
 }
 
-/* Gradient masks for side-by-side fields when content is scrollable */
-body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-left {
+/* Gradient masks for all fields when content is scrollable */
+body.dynamic-views-fade-trimmed-content .dynamic-views .property-field.scroll-gradient-left {
     mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black 100%);
     -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black 100%);
 }
 
-body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-right {
+body.dynamic-views-fade-trimmed-content .dynamic-views .property-field.scroll-gradient-right {
     mask-image: linear-gradient(to right, black 0, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
     -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
 }
 
-body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .meta-field.scroll-gradient-both {
+body.dynamic-views-fade-trimmed-content .dynamic-views .property-field.scroll-gradient-both {
     mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
     -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0, rgba(0,0,0,0.3) 4px, black 28px, black calc(100% - 28px), rgba(0,0,0,0.3) calc(100% - 4px), rgba(0,0,0,0) 100%);
 }
 
 /* Hide empty fields */
-.dynamic-views .meta-field:empty {
+.dynamic-views .property-field:empty {
     display: none;
 }
 
@@ -1704,6 +3097,7 @@ body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .met
 }
 
 .dynamic-views .cards-masonry .writing-card {
+    position: absolute;
     max-width: 100%;
     margin-top: 0;
 }
@@ -1905,8 +3299,8 @@ body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .met
         flex-direction: column;
     }
 
-    /* Stack metadata on narrow cards */
-    .dynamic-views .writing-meta,
+    /* Stack properties on narrow cards */
+    .dynamic-views .card-properties,
 
     .dynamic-views .tags-wrapper,
     .dynamic-views .path-wrapper,
@@ -1950,4 +3344,21 @@ body.dynamic-views-fade-trimmed-content .dynamic-views .meta-row-sidebyside .met
     .markdown-source-view.mod-cm6 .cm-embed-block:not(.cm-table-widget, .cm-lang-base):has(.dynamic-views):hover .edit-block-button {
         display: none;
     }
+}
+
+/* Settings tab indentation - FLIT style */
+.smart-timestamp-sub-settings {
+    margin-inline-start: 20px;
+    padding-left: 1em;
+    position: relative;
+}
+
+.smart-timestamp-sub-settings::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 10px;
+    width: 2px;
+    background-color: var(--background-modifier-border);
 }

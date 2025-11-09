@@ -10,7 +10,8 @@ export default [
       "*.js.map",
       "*.map",
       "esbuild.config.mjs",
-      "eslint.config.js"
+      "eslint.config.js",
+      "check-*.js"
     ]
   },
 

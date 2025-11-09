@@ -21,17 +21,17 @@ export function Settings({
 
     return (
         <div className="settings-dropdown-menu">
-            {/* Metadata Item 1 */}
+            {/* Property Field 1 */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata item 1</label>
-                    <div className="setting-desc">Property to show in first metadata position</div>
+                    <label>First property</label>
+                    <div className="setting-desc">Property to show in first position</div>
                 </div>
                 <select
-                    value={settings.metadataDisplay1}
+                    value={settings.propertyDisplay1}
                     onChange={(e: unknown) => {
                         const evt = e as Event & { target: HTMLSelectElement };
-                        onSettingsChange({ metadataDisplay1: evt.target.value });
+                        onSettingsChange({ propertyDisplay1: evt.target.value });
                     }}
                     className="dropdown"
                 >
@@ -42,17 +42,17 @@ export function Settings({
                 </select>
             </div>
 
-            {/* Metadata Item 2 */}
+            {/* Property Field 2 */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata item 2</label>
-                    <div className="setting-desc">Property to show in second metadata position</div>
+                    <label>Second property</label>
+                    <div className="setting-desc">Property to show in second position</div>
                 </div>
                 <select
-                    value={settings.metadataDisplay2}
+                    value={settings.propertyDisplay2}
                     onChange={(e: unknown) => {
                         const evt = e as Event & { target: HTMLSelectElement };
-                        onSettingsChange({ metadataDisplay2: evt.target.value });
+                        onSettingsChange({ propertyDisplay2: evt.target.value });
                     }}
                     className="dropdown"
                 >
@@ -66,36 +66,36 @@ export function Settings({
             {/* Layout Toggle (1 & 2) */}
             <div className="setting-item setting-item-toggle">
                 <div className="setting-item-info">
-                    <label>Show metadata items 1 and 2 side-by-side</label>
-                    <div className="setting-desc">Display first two metadata items horizontally</div>
+                    <label>Show first and second properties side-by-side</label>
+                    <div className="setting-desc">Display first two properties horizontally</div>
                 </div>
                 <div
-                    className={`checkbox-container ${settings.metadataLayout12SideBySide ? 'is-enabled' : ''}`}
-                    onClick={() => onSettingsChange({ metadataLayout12SideBySide: !settings.metadataLayout12SideBySide })}
+                    className={`checkbox-container ${settings.propertyLayout12SideBySide ? 'is-enabled' : ''}`}
+                    onClick={() => onSettingsChange({ propertyLayout12SideBySide: !settings.propertyLayout12SideBySide })}
                     onKeyDown={(e: unknown) => {
                         const evt = e as KeyboardEvent;
                         if (evt.key === 'Enter' || evt.key === ' ') {
                             evt.preventDefault();
-                            onSettingsChange({ metadataLayout12SideBySide: !settings.metadataLayout12SideBySide });
+                            onSettingsChange({ propertyLayout12SideBySide: !settings.propertyLayout12SideBySide });
                         }
                     }}
                     tabIndex={0}
                     role="checkbox"
-                    aria-checked={settings.metadataLayout12SideBySide}
+                    aria-checked={settings.propertyLayout12SideBySide}
                 />
             </div>
 
-            {/* Metadata Item 3 */}
+            {/* Property Field 3 */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata item 3</label>
-                    <div className="setting-desc">Property to show in third metadata position</div>
+                    <label>Third property</label>
+                    <div className="setting-desc">Property to show in third position</div>
                 </div>
                 <select
-                    value={settings.metadataDisplay3}
+                    value={settings.propertyDisplay3}
                     onChange={(e: unknown) => {
                         const evt = e as Event & { target: HTMLSelectElement };
-                        onSettingsChange({ metadataDisplay3: evt.target.value });
+                        onSettingsChange({ propertyDisplay3: evt.target.value });
                     }}
                     className="dropdown"
                 >
@@ -106,17 +106,17 @@ export function Settings({
                 </select>
             </div>
 
-            {/* Metadata Item 4 */}
+            {/* Property Field 4 */}
             <div className="setting-item setting-item-text">
                 <div className="setting-item-info">
-                    <label>Metadata item 4</label>
-                    <div className="setting-desc">Property to show in fourth metadata position</div>
+                    <label>Fourth property</label>
+                    <div className="setting-desc">Property to show in fourth position</div>
                 </div>
                 <select
-                    value={settings.metadataDisplay4}
+                    value={settings.propertyDisplay4}
                     onChange={(e: unknown) => {
                         const evt = e as Event & { target: HTMLSelectElement };
-                        onSettingsChange({ metadataDisplay4: evt.target.value });
+                        onSettingsChange({ propertyDisplay4: evt.target.value });
                     }}
                     className="dropdown"
                 >
@@ -130,22 +130,22 @@ export function Settings({
             {/* Layout Toggle (3 & 4) */}
             <div className="setting-item setting-item-toggle">
                 <div className="setting-item-info">
-                    <label>Show metadata items 3 and 4 side-by-side</label>
-                    <div className="setting-desc">Display third and fourth metadata items horizontally</div>
+                    <label>Show third and fourth properties side-by-side</label>
+                    <div className="setting-desc">Display third and fourth properties horizontally</div>
                 </div>
                 <div
-                    className={`checkbox-container ${settings.metadataLayout34SideBySide ? 'is-enabled' : ''}`}
-                    onClick={() => onSettingsChange({ metadataLayout34SideBySide: !settings.metadataLayout34SideBySide })}
+                    className={`checkbox-container ${settings.propertyLayout34SideBySide ? 'is-enabled' : ''}`}
+                    onClick={() => onSettingsChange({ propertyLayout34SideBySide: !settings.propertyLayout34SideBySide })}
                     onKeyDown={(e: unknown) => {
                         const evt = e as KeyboardEvent;
                         if (evt.key === 'Enter' || evt.key === ' ') {
                             evt.preventDefault();
-                            onSettingsChange({ metadataLayout34SideBySide: !settings.metadataLayout34SideBySide });
+                            onSettingsChange({ propertyLayout34SideBySide: !settings.propertyLayout34SideBySide });
                         }
                     }}
                     tabIndex={0}
                     role="checkbox"
-                    aria-checked={settings.metadataLayout34SideBySide}
+                    aria-checked={settings.propertyLayout34SideBySide}
                 />
             </div>
 
